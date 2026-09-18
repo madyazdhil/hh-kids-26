@@ -1118,3 +1118,33 @@ Mengimplementasikan fitur **Floating Team Facecam (Picture-in-Picture Streamer C
      - Penambahan Google STUN server configuration, retry timer jika peer ID bentrok sesaat, dan mekanisme `PROYEKTOR_READY`.
 - Memperbarui `STATE.md`.
 
+### User — 2026-09-18T12:48:33+07:00
+
+```text
+ini udah bisa tapi gak bisa ???
+
+oiya yang di peserta kameranya gausa floating astaga maksud ku di grid di projector dia nampilin di kanan atas muka nya cam nya peserta tapi di slide peserta di pos pos gaus aada face kameranyta dong
+```
+
+### User — 2026-09-18T13:12:34+07:00
+
+```text
+continue
+```
+
+### Assistant — 2026-09-18T13:14:00+07:00
+
+- **Pembersihan Layar Peserta (`pos.html` & `src/pos.html`)**:
+  - Menghapus total elemen floating facecam (`#floating-facecam-container`) dan tombol togglenya dari laptop peserta. Layar peserta 100% bersih tanpa ada kotak mengambang yang menutupi balok Scratch atau soal.
+  - Peserta hanya memiliki satu tombol siaran di HUD kanan atas: `[ 📡 Siarkan ke Proyektor ]`.
+- **Arsitektur Picture-in-Picture di Layar Proyektor (`index.html`, `src/index.html`, `style.css`)**:
+  - Di dalam monitor proyektor (Spectator Monitor), setiap kartu feed Pos 1 s.d. 4 kini menampilkan:
+    - **Layar Utama (Full Card)**: Share screen pengerjaan peserta (`<video id="stream-screen-pos${n}">`).
+    - **Pojok Kanan Atas Kartu (PiP)**: Kotak kamera live peserta (`<div id="cam-pip-pos${n}" class="feed-cam-pip-box">`) dengan label neon `MEJA N CAM`.
+- **Perbaikan Black Screen Autoplay & Koneksi WebRTC (`app.js`, `pos.js`)**:
+  - Menambahkan atribut `muted` dan `playsinline` pada elemen video screen proyektor agar Chrome tidak memblokir autoplay stream WebRTC.
+  - Menambahkan konfigurasi STUN Server Google (`stun:stun.l.google.com:19302`) untuk keandalan tembus NAT jaringan Wi-Fi kantor.
+  - Menambahkan event broadcast `PROYEKTOR_READY` agar saat MC membuka atau merefresh layar proyektor, seluruh laptop pos yang sedang aktif siaran otomatis menyiarkan ulang (re-transmit) layarnya tanpa perlu klik ulang.
+  - Menambahkan graceful cleanup pada `beforeunload` agar Peer ID tidak terkunci di server saat tab direfresh.
+
+
