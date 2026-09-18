@@ -982,12 +982,8 @@
         playCorrectChime();
         feedbackBanner.className = 'feedback-banner correct';
         feedbackTitleText.innerHTML = '🎉 BENAR SEKALI! MANTAP!';
-        feedbackDetailText.innerHTML = `Hasil Perhitungan: <strong>${correctAns}</strong> (Tepat!)`;
-        const formula = currentActiveNumbers.map((n, idx) => {
-          if (idx === 0) return `${n}`;
-          return n >= 0 ? `+ ${n}` : `- ${Math.abs(n)}`;
-        }).join(' ');
-        feedbackCalcBreakdown.innerHTML = `📐 Rincian: ${formula} = <strong>${correctAns}</strong>`;
+        feedbackDetailText.innerHTML = 'Hitunganmu tepat! Lanjut ke soal berikutnya!';
+        feedbackCalcBreakdown.innerHTML = '';
       } else {
         playWrongBuzz();
         feedbackBanner.className = 'feedback-banner wrong';
