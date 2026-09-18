@@ -664,3 +664,13 @@ Eksekusi penuh pembangunan aplikasi web presentasi interaktif dan pusat kendali 
 5. Verifikasi: Otomasi Playwright di `scripts/verify_deck.py` mengonfirmasi 0 console error, timer berjalan mulus, doorprize acak berhasil, dan 7 tangkapan layar verifikasi dihasilkan di `output/`.
 6. Dokumentasi: `walkthrough.md` dibuat dan commit lokal `d45e3bc` berhasil dicatat di Git.
 
+### User — 2026-09-18T08:11:01+07:00
+
+ini ko aplikasi kan pake html aja biar bisa di buka di web??!?
+
+### Assistant — 2026-09-18T08:12:30+07:00
+
+Menjelaskan bahwa presentasi ini memang 100% murni file HTML biasa (`src/index.html`), bukan aplikasi software yang perlu di-install. Mengonfirmasi bahwa file tersebut bisa langsung di-double-click di browser biasa atau di-deploy ke GitHub Pages menjadi link website online jika ingin dibuka lewat URL di laptop proyektor Da Vinci. Menjalankan perintah `open` untuk langsung membukanya di browser pengguna.
+
+
+
