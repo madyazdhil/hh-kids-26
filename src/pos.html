@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Layar Meja Pos Pemain - Regroup Happy Hour</title>
   
@@ -36,7 +37,16 @@
         <span class="broadcast-icon">📡</span>
         <span class="broadcast-text">Siarkan ke Proyektor</span>
       </button>
-      <div class="sync-pill" id="pos-sync-status">🟢 Terhubung ke Proyektor (Slide 1)</div>
+      <details class="connection-menu" id="pos-pairing">
+        <summary>🔗 Hubungkan MC</summary>
+        <form class="connection-card" id="projector-pair-form">
+          <label for="projector-code-input">Kode dari menu Hubungkan Pos di MC</label>
+          <input id="projector-code-input" autocomplete="off" maxlength="100" placeholder="Kode proyektor" required>
+          <button type="submit" class="btn btn-xs btn-outline">Hubungkan</button>
+          <p id="projector-pair-status" role="status">Menunggu koneksi ke proyektor…</p>
+        </form>
+      </details>
+      <div class="sync-pill" id="pos-sync-status">🟡 Menunggu status proyektor…</div>
       <button id="btn-fullscreen-pos" class="btn btn-xs btn-outline" title="Layar Penuh (F)">⛶ Fullscreen</button>
     </div>
   </header>
@@ -264,7 +274,7 @@
   </style>
 
   <script src="vendor/peerjs.min.js"></script>
-  <script src="sync-engine.js?v=20260918-recovery2"></script>
-  <script src="pos.js?v=20260918-recovery2"></script>
+  <script src="sync-engine.js?v=20260918-connect3"></script>
+  <script src="pos.js?v=20260918-connect3"></script>
 </body>
 </html>

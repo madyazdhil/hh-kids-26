@@ -1061,3 +1061,13 @@ body.pos-screen-body {
   margin-top: 6px;
 }
 
+
+/* Connection controls remain accessible above slide/Pos canvases. */
+.connection-menu { position: relative; font: 14px/1.4 system-ui, sans-serif; color: #e2e8f0; }
+.connection-menu summary { cursor: pointer; padding: 8px 10px; border: 1px solid #38bdf8; border-radius: 8px; background: #0a192f; list-style: none; }
+.connection-card { position: fixed; top: 76px; right: 18px; z-index: 10000; width: min(390px, calc(100vw - 36px)); padding: 18px; border-radius: 12px; border: 1px solid #38bdf8; background: #0a192f; box-shadow: 0 10px 40px #000a; color: #e2e8f0; text-align: left; }
+.connection-card p { margin: 12px 0; font-size: 14px; line-height: 1.5; }
+.connection-card code { color: #ffd700; font-size: 20px; user-select: all; }
+.connection-card input { width: 100%; box-sizing: border-box; padding: 10px; margin: 10px 0; color: white; background: #050811; border: 1px solid #64748b; border-radius: 6px; }
+#projector-pos-links { display: flex; flex-wrap: wrap; gap: 12px; }
+#projector-pos-links a { color: #38bdf8; }

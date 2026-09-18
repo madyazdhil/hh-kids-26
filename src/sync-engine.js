@@ -21,6 +21,8 @@
   const directTransports = [];
   let cloudPolling = false;
   let cloudBackoffUntil = 0;
+  let cloudRetryTimer = null;
+  let cloudConnectTimer = null;
   const seenMessageIds = new Set();
   let broadcastChannel = null;
   let eventSource = null;
@@ -90,13 +92,37 @@
     }
   }
 
+  let cloudErrorLogged = false;
+
+  function backoffCloud(error) {
+    if (Date.now() < cloudBackoffUntil) return;
+    cloudBackoffUntil = Date.now() + 60000;
+    if (eventSource) eventSource.close();
+    clearTimeout(cloudConnectTimer);
+    clearTimeout(cloudRetryTimer);
+    if (!cloudErrorLogged) {
+      cloudErrorLogged = true;
+      console.warn('☁️ [SyncEngine] Relay cloud (ntfy.sh) tidak tersedia:', error.message || error);
+      console.info('☁️ [SyncEngine] Koneksi langsung (PeerJS + BroadcastChannel) tetap berjalan.');
+    }
+    cloudRetryTimer = setTimeout(() => {
+      cloudBackoffUntil = 0;
+      connectCloudSSE();
+      pollCloud();
+    }, 60000);
+  }
+
   // 3. Setup Cloud SSE via ntfy.sh (Cross-device, Phone to Laptop, Laptop to Laptop)
   function connectCloudSSE() {
+    if (Date.now() < cloudBackoffUntil) return;
     try {
       if (eventSource) {
         eventSource.close();
       }
       eventSource = new EventSource(SSE_URL);
+      clearTimeout(cloudConnectTimer);
+      cloudConnectTimer = setTimeout(() => backoffCloud(new Error('SSE timeout')), 8000);
+      eventSource.onopen = () => clearTimeout(cloudConnectTimer);
 
       eventSource.onmessage = (event) => {
         try {
@@ -107,11 +133,10 @@
       };
 
       eventSource.onerror = () => {
-        // Reconnect after 3 seconds on error
-        setTimeout(connectCloudSSE, 3000);
+        backoffCloud(new Error('SSE disconnected'));
       };
     } catch (e) {
-      console.warn('Cloud SSE connection failed:', e);
+      backoffCloud(e);
     }
   }
   connectCloudSSE();
@@ -128,7 +153,6 @@
         cache: 'no-store', signal: AbortSignal.timeout(8000)
       });
       if (!res.ok) {
-        if (res.status === 429) cloudBackoffUntil = Date.now() + 60000;
         throw new Error(`Relay HTTP ${res.status}`);
       }
       const lines = (await res.text()).split('\n');
@@ -141,7 +165,7 @@
         } catch (e) {}
       });
     } catch (e) {
-      // Direct data connections and local polling remain available.
+      backoffCloud(e);
     } finally {
       cloudPolling = false;
     }
@@ -268,7 +292,9 @@
         } catch (e) {}
       }
 
-      // 4. Cloud Pub (ntfy.sh) -> Delivers to all laptops and phones in <50ms
+      // Pause cloud retries after failure; direct/LAN sends above still execute.
+      if (Date.now() < cloudBackoffUntil) return;
+      // 4. Cloud Pub (ntfy.sh)
       try {
         fetch(PUB_URL, {
           method: 'POST',
@@ -281,7 +307,7 @@
         }).then(res => {
           if (!res.ok) throw new Error(`Relay HTTP ${res.status}`);
         }).catch(error => {
-          window.dispatchEvent(new CustomEvent('hh-relay-error', { detail: error.message }));
+          backoffCloud(error);
         });
       } catch (e) {}
     },

@@ -1239,18 +1239,27 @@ document.addEventListener('DOMContentLoaded', () => {
         ? `hhkids26-proyektor-${Math.random().toString(36).substring(2, 7)}`
         : 'hhkids26-proyektor-main';
 
-      proyektorPeer = new Peer(peerId, {
-        debug: 1,
-        config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' }
-          ]
-        }
-      });
+      proyektorPeer = new Peer(peerId, { debug: 1 } /* Keep bundled PeerJS STUN + TURN defaults. */);
 
       proyektorPeer.on('open', (id) => {
         console.log('⚡ Proyektor WebRTC Receiver Ready:', id);
+        const code = document.getElementById('projector-pair-code');
+        if (code) code.textContent = id.replace('hhkids26-proyektor-', '');
+        const links = document.getElementById('projector-pos-links');
+        if (links) {
+          links.replaceChildren();
+          for (let pos = 1; pos <= 4; pos++) {
+            const link = document.createElement('a');
+            const url = new URL('pos.html', window.location.href);
+            url.searchParams.set('pos', pos);
+            url.searchParams.set('host', id);
+            link.href = url.href;
+            link.target = '_blank';
+            link.rel = 'noopener';
+            link.textContent = `Buka Pos ${pos}`;
+            links.append(link);
+          }
+        }
         if (window.HHSync) {
           window.HHSync.send('PROYEKTOR_READY', { peerId: id });
         }

@@ -21,3 +21,11 @@ Status: implementasi dan tes browser selesai; retest jaringan/perangkat fisik ac
 - Regresi empat konteks browser: scouting, expiry, semua babak, out-of-order, late join dan kamera-only lulus.
 - WebRTC asli dengan signaling terkontrol dan host-only ICE: data serta video terverifikasi meskipun ntfy HTTP 429.
 - Kamera fisik, STUN publik, jaringan venue, serta deployment live tidak dicakup tes terkontrol ini.
+
+## Revisi setelah bukti timeout ntfy (2026-09-18)
+
+- Pulihkan default ICE bawaan PeerJS (termasuk TURN); override STUN-only sebelumnya menghilangkan jalur relay WebRTC.
+- Tampilkan kode receiver aktif dan link Pos pada MC. Pos dapat memasangkan kode secara langsung tanpa penemuan ID melalui ntfy; target manual tidak ditimpa pesan cloud dari proyektor lain.
+- Status awal Pos harus menunggu snapshot MC, bukan hijau palsu. Beri status koneksi dan alasan gagal yang bisa ditindaklanjuti.
+- Terapkan jeda retry relay 60 detik pada SSE/poll/publish setelah timeout; jalur data langsung tetap aktif.
+- Uji collision ID receiver dan pairing manual, konfigurasi TURN masuk ke browser, empat Pos dan video saat ntfy gagal. Tes host-only tidak membuktikan TURN publik dapat diakses dari jaringan venue.

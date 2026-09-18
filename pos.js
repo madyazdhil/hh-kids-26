@@ -475,50 +475,119 @@ document.addEventListener('DOMContentLoaded', () => {
   const mediaCalls = new Map();
   let activeScreenStream = null;
   let activeCamStream = null;
-  let activeProyektorPeerId = 'hhkids26-proyektor-main';
+  const savedHost = urlParams.get('host') || sessionStorage.getItem('hh_projector_host');
+  let pinnedProjector = Boolean(savedHost);
+  let pairedSenderId = null;
+  let activeProyektorPeerId = savedHost || 'hhkids26-proyektor-main';
+  const pairForm = document.getElementById('projector-pair-form');
+  const pairInput = document.getElementById('projector-code-input');
+  const pairStatus = document.getElementById('projector-pair-status');
+  if (pairInput) pairInput.value = activeProyektorPeerId.replace('hhkids26-proyektor-', '');
+  pairForm?.addEventListener('submit', event => {
+    event.preventDefault();
+    const code = pairInput.value.trim();
+    if (!/^[a-zA-Z0-9_-]{1,100}$/.test(code)) {
+      pairStatus.textContent = 'Salin kode yang tampil di menu Hubungkan Pos pada MC.';
+      return;
+    }
+    activeProyektorPeerId = code.startsWith('hhkids26-proyektor-') ? code : `hhkids26-proyektor-${code}`;
+    sessionStorage.setItem('hh_projector_host', activeProyektorPeerId);
+    pinnedProjector = true;
+    pairedSenderId = null;
+    lastStateRevision = -1;
+    lastStateAt = 0;
+    isBattleUnlocked = false;
+    evaluateScreenState();
+    if (dataConnection) dataConnection.close();
+    dataConnection = null;
+    mediaCalls.forEach(call => call.close());
+    mediaCalls.clear();
+    pairStatus.textContent = 'Menghubungkan ke proyektor…';
+    connectProjectorData();
+  });
 
   function initPosPeer() {
     if (posPeer && !posPeer.destroyed) return;
+    console.log(`🔌 [Pos${assignedPos}] Inisialisasi PeerJS…`);
     try {
-      posPeer = new Peer({
-        debug: 1,
-        config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' }
-          ]
-        }
-      });
+      posPeer = new Peer({ debug: 1 } /* Keep bundled PeerJS STUN + TURN defaults. */);
       posPeer.on('open', (id) => {
-        console.log(`⚡ Pos ${assignedPos} WebRTC Broadcaster Ready:`, id);
+        console.log(`🔌 [Pos${assignedPos}] ✅ PeerJS READY — ID: ${id}`);
+        console.log(`🔌 [Pos${assignedPos}] Target proyektor: ${activeProyektorPeerId}`);
+        if (pairStatus) pairStatus.textContent = `PeerJS aktif (${id}). Menghubungkan ke MC…`;
         connectProjectorData();
         if (window.HHSync) {
           window.HHSync.send('REQUEST_PROYEKTOR_ID', { pos: assignedPos });
         }
       });
       posPeer.on('error', (err) => {
-        console.warn('Pos Peer error:', err);
+        console.warn(`🔌 [Pos${assignedPos}] Peer error:`, err.type, err.message || err);
+        if (err.type === 'peer-unavailable') {
+          if (pairStatus) pairStatus.textContent = `Proyektor "${activeProyektorPeerId}" belum online. Pastikan MC sudah buka index.html.`;
+          // Auto-retry connect setelah 2s
+          setTimeout(() => connectProjectorData(), 2000);
+        } else {
+          if (pairStatus) pairStatus.textContent = `PeerJS error: ${err.type}. Akan retry…`;
+        }
+      });
+      posPeer.on('disconnected', () => {
+        console.warn(`🔌 [Pos${assignedPos}] PeerJS disconnected, reconnecting…`);
+        if (posPeer && !posPeer.destroyed) posPeer.reconnect();
       });
     } catch (e) {
-      console.warn('Pos Peer init error:', e);
+      console.warn(`🔌 [Pos${assignedPos}] Init error:`, e);
     }
   }
 
   function connectProjectorData() {
-    if (!posPeer?.open) return;
+    if (!posPeer?.open) {
+      console.log(`🔌 [Pos${assignedPos}] connectProjectorData: posPeer belum open, skip`);
+      return;
+    }
     if (dataConnection && dataConnection.peer === activeProyektorPeerId
-      && (dataConnection.open || Date.now() - dataConnectStartedAt < 25000)) return;
-    if (dataConnection) dataConnection.close();
+      && (dataConnection.open || Date.now() - dataConnectStartedAt < 8000)) {
+      // Connection still alive or recently attempted
+      return;
+    }
+    if (dataConnection) {
+      console.log(`🔌 [Pos${assignedPos}] Menutup koneksi lama ke ${dataConnection.peer}`);
+      dataConnection.close();
+    }
+    console.log(`🔌 [Pos${assignedPos}] ▶ Connecting data channel ke: ${activeProyektorPeerId}`);
+    if (pairStatus) pairStatus.textContent = `Menghubungkan ke ${activeProyektorPeerId}…`;
     const connection = posPeer.connect(activeProyektorPeerId, { reliable: true });
     dataConnection = connection;
     dataConnectStartedAt = Date.now();
     connection.on('open', () => {
+      if (dataConnection !== connection) return;
+      console.log(`🔌 [Pos${assignedPos}] ✅ Data channel TERBUKA ke ${activeProyektorPeerId}`);
+      if (pairStatus) pairStatus.textContent = 'Koneksi terbuka; menunggu status slide MC…';
+      posSyncStatus.textContent = `🟡 Data channel terbuka, menunggu status slide…`;
       window.HHSync?.send('REQUEST_STATUS');
       if (activeScreenStream || activeCamStream) transmitStreamsToProyektor();
     });
-    connection.on('data', message => window.HHSync?.receive(message));
-    connection.on('error', error => { dataConnectStartedAt = 0; console.warn('Koneksi proyektor:', error); });
-    connection.on('close', () => { if (dataConnection === connection) dataConnectStartedAt = 0; });
+    connection.on('data', message => {
+      if (dataConnection !== connection) return;
+      if (message?.payload?.state) pairedSenderId = message.senderId;
+      window.HHSync?.receive(message);
+    });
+    connection.on('error', error => {
+      dataConnectStartedAt = 0;
+      console.warn(`🔌 [Pos${assignedPos}] ❌ Data channel error:`, error.type, error.message || error);
+      if (pairStatus) pairStatus.textContent = error.type === 'peer-unavailable'
+        ? `Proyektor "${activeProyektorPeerId}" belum online. Pastikan MC sudah buka index.html.`
+        : `Error: ${error.type || error.message}. Mencoba ulang…`;
+      // Retry agresif setelah peer-unavailable (proyektor belum buka)
+      if (error.type === 'peer-unavailable') {
+        setTimeout(() => connectProjectorData(), 2000);
+      }
+    });
+    connection.on('close', () => {
+      if (dataConnection === connection) {
+        dataConnectStartedAt = 0;
+        console.log(`🔌 [Pos${assignedPos}] Data channel ditutup`);
+      }
+    });
   }
   window.HHSync?.addTransport(message => {
     if (dataConnection?.open) dataConnection.send(message);
@@ -528,14 +597,17 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (posPeer.disconnected) posPeer.reconnect();
     if (!dataConnection?.open) connectProjectorData();
     if (activeCamStream || activeScreenStream) transmitStreamsToProyektor();
-    if (Date.now() - lastStateAt > 15000) {
-      posSyncStatus.textContent = '🟡 Belum menerima status MC — memulihkan koneksi…';
-      if (Date.now() - lastStatusRequestAt > 15000) {
+    if (Date.now() - lastStateAt > 10000) {
+      posSyncStatus.textContent = dataConnection?.open
+        ? '🟡 Data channel terbuka tapi belum ada data slide'
+        : `🔴 Belum tersambung ke ${activeProyektorPeerId}`;
+      if (pairStatus && dataConnection?.open) pairStatus.textContent = 'Koneksi terbuka tetapi status MC belum diterima.';
+      if (Date.now() - lastStatusRequestAt > 8000) {
         lastStatusRequestAt = Date.now();
         window.HHSync?.send('REQUEST_STATUS');
       }
     }
-  }, 5000);
+  }, 3000);
   initPosPeer();
 
   function transmitStreamsToProyektor() {
@@ -664,6 +736,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     window.HHSync.on('PROYEKTOR_READY', (data) => {
       if (data && data.payload && data.payload.peerId) {
+        if (pinnedProjector && data.payload.peerId !== activeProyektorPeerId) return;
         activeProyektorPeerId = data.payload.peerId;
         connectProjectorData();
         console.log('⚡ Active Proyektor Peer ID updated:', activeProyektorPeerId);
@@ -831,6 +904,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const snapshot = data.payload?.state;
     if (snapshot && Number.isInteger(snapshot.index)) {
+      if (pinnedProjector && (!pairedSenderId || data.senderId !== pairedSenderId)) return;
       if (stateSender !== data.senderId) {
         stateSender = data.senderId;
         lastStateRevision = -1;
@@ -838,6 +912,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (snapshot.revision < lastStateRevision) return;
       lastStateRevision = snapshot.revision;
       lastStateAt = Date.now();
+      if (pairStatus) pairStatus.textContent = `Tersambung • Slide ${snapshot.index + 1}`;
       currentSlideIndex = snapshot.index;
       isTimerRunning = snapshot.timer.isRunning;
       timerCurrentSec = snapshot.timer.currentSec;

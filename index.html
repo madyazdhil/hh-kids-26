@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Regroup Happy Hour - Academic Kids Ruangguru</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,6 +31,14 @@
       <span class="brand-badge">HQ MSIG • DA VINCI</span>
     </div>
     <div class="nav-controls">
+      <details class="connection-menu" id="projector-pairing">
+        <summary>🔗 Hubungkan Pos</summary>
+        <div class="connection-card">
+          <strong>Kode proyektor: <code id="projector-pair-code">Menyiapkan…</code></strong>
+          <p>Di laptop Pos, klik <b>Hubungkan MC</b> lalu masukkan kode ini. Atau gunakan tautan berikut pada laptop masing-masing.</p>
+          <div id="projector-pos-links"></div>
+        </div>
+      </details>
       <span id="sync-status" class="sync-badge" title="Status Remote Sync">⚡ Standby</span>
       <span id="slide-counter" class="counter-badge">Slide 1 / 22</span>
       <a href="admin.html" target="_blank" class="admin-link-btn" title="Buka Panel Admin (Remote & Scoring)">⚙ Admin</a>
@@ -928,8 +937,8 @@
   </div>
 
   <script src="vendor/peerjs.min.js"></script>
-  <script src="sync-engine.js?v=20260918-recovery2"></script>
-  <script src="app.js?v=20260918-recovery2"></script>
+  <script src="sync-engine.js?v=20260918-connect3"></script>
+  <script src="app.js?v=20260918-connect3"></script>
 
 </body>
 </html>

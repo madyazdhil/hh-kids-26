@@ -15,8 +15,13 @@ def run():
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=True, args=['--disable-features=WebRtcHideLocalIpsWithMdns'])
         sockets, errors = {}, []
+        relay_requests = []
         def signaling(ws):
             peer_id = parse_qs(urlparse(ws.url).query)['id'][0]
+            # Exercise the real collision fallback, not just the default receiver ID.
+            if peer_id == 'hhkids26-proyektor-main':
+                ws.send(json.dumps({'type': 'ID-TAKEN'}))
+                return
             sockets[peer_id] = ws
             def message(raw):
                 packet = json.loads(raw)
@@ -40,6 +45,7 @@ def run():
             elif 'peerjs.com' in (url.hostname or '') and url.path.endswith('/id'):
                 req.fulfill(body='test-'+uuid.uuid4().hex, content_type='text/plain')
             elif url.hostname == 'ntfy.sh':
+                relay_requests.append(req.request.url)
                 req.fulfill(status=429, body='relay unavailable for test')
             else: req.abort()
         def page(path):
@@ -49,25 +55,48 @@ def run():
             ctx.add_init_script('''
               window.EventSource = class { close() {} };
               // Controlled same-machine signaling needs host candidates only.
+              window.testIceConfigs = []; window.testConnections = [];
               const NativeRTC = window.RTCPeerConnection;
               window.RTCPeerConnection = class extends NativeRTC {
-                constructor(config) { super({...config, iceServers: []}); }
+                constructor(config) { window.testIceConfigs.push(config); super({...config, iceServers: []}); window.testConnections.push(this); }
               };
             ''')
             pg = ctx.new_page()
+            pg.on('console', lambda m: print(m.text, flush=True) if m.type == 'warning' else None)
             pg.on('pageerror', lambda err: errors.append(str(err)))
             pg.goto(ORIGIN+path, wait_until='domcontentloaded')
             pg.add_style_tag(content='* { animation:none !important; backdrop-filter:none !important; box-shadow:none !important; filter:none !important; }')
             return pg
         mc = page('/index.html')
-        pos = [page(f'/pos.html?pos={n}') for n in range(1,5)]
+        mc.wait_for_function("document.getElementById('projector-pair-code').textContent !== 'Menyiapkan…'")
+        code = mc.locator('#projector-pair-code').inner_text()
+        assert code != 'main', 'Expected collision fallback receiver'
+        first = page('/pos.html?pos=1')
+        first.locator('#pos-pairing summary').click()
+        first.locator('#projector-code-input').fill(code)
+        first.locator('#projector-pair-form button').click()
+        pos = [first]
+        for n in range(2,5):
+            href = mc.locator('#projector-pos-links a').nth(n-1).get_attribute('href')
+            assert 'host=hhkids26-proyektor-' + code in href
+            pos.append(page(href.replace(ORIGIN, '')))
+        print('PASS: MC ID collision, manual code and generated per-Pos links without ntfy', flush=True)
         mc.evaluate('goToSlide(7); toggleTimer(1)')
         for pg in pos:
             try: pg.wait_for_selector('#state-scouting.active', timeout=20000)
             except Exception:
-                print('DIAGNOSTIC', pg.locator('#pos-sync-status').inner_text(), errors, flush=True)
+                print('DIAGNOSTIC', code, pg.url, pg.locator('#pos-sync-status').inner_text(), pg.locator('#projector-pair-status').inner_text(), pg.evaluate('testConnections.map(c => ({connection:c.connectionState, ice:c.iceConnectionState}))'), errors, flush=True)
                 raise
-        print('PASS: real PeerJS data channels deliver scouting with cloud relay returning HTTP 429', flush=True)
+        for pg in [mc] + pos:
+            assert pg.evaluate('''testIceConfigs.length > 0 && testIceConfigs.every(config =>
+              config.iceServers.some(server => [server.urls].flat().some(url => url.startsWith('turn:'))))''')
+        # A manually selected receiver must not be overwritten by another MC's discovery.
+        first.evaluate("HHSync.receive({type:'PROYEKTOR_READY',payload:{peerId:'hhkids26-proyektor-wrong'}})")
+        before = len(relay_requests)
+        first.evaluate("HHSync.send('REQUEST_STATUS')")
+        first.wait_for_timeout(250)
+        assert len(relay_requests) == before, 'Relay must back off while direct requests still work'
+        print('PASS: actual TURN configuration retained, pinned receiver and relay backoff; scouting via real data', flush=True)
         mc.evaluate('resetTimer(1); goToSlide(13)')
         for pg in pos: pg.wait_for_selector('#battle-locked-overlay:not(.hidden)')
         mc.locator('.btn-trigger-countdown[data-round="1"]').click(force=True)

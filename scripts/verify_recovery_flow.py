@@ -29,7 +29,7 @@ window.__FakePeer = class extends Events {
   destroy() { this.destroyed = true; }
 };
 window.EventSource = class {
-  constructor() { window.__sse = this; }
+  constructor() { window.__sse = this; setTimeout(() => this.onopen?.(), 0); }
   close() {}
 };
 """

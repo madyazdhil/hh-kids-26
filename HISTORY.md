@@ -1607,3 +1607,39 @@ Aku cek perubahan terakhir lalu push ke GitHub sekarang.
 ### Assistant final
 
 Sudah dipush ke GitHub **madyazdhil/hh-kids-26**, branch **main**, termasuk perubahan terbaru.
+
+### User — 2026-09-18
+
+# Context from my IDE setup:
+
+## Open tabs:
+- admin.html: projects/regroup-happy-hour/src/admin.html
+- pos.html: projects/regroup-happy-hour/pos.html
+- index.html: q-n-a/assets/scratch-challenge-slide/index.html
+
+## My request:
+/favicon.ico:1  Failed to load resource: the server responded with a status of 404 ()
+VM80:58 ⚡ Pos 1 WebRTC Broadcaster Ready: 6d451ca8-df06-4fbf-8aeb-433064c58118
+ntfy.sh/hh\_kids\_26\_regroup\_sync\_hub\_v1/sse:1  Failed to load resource: net::ERR\_CONNECTION\_TIMED\_OUT
+ntfy.sh/hh\_kids\_26\_regroup\_sync\_hub\_v1:1  Failed to load resource: net::ERR\_CONNECTION\_TIMED\_OUT
+ntfy.sh/hh\_kids\_26\_regroup\_sync\_hub\_v1/json?poll=1&since=30s:1  Failed to load resource: net::ERR\_CONNECTION\_TIMED\_OUT
+
+[Image attachment present; image content unavailable to assistant.]
+
+### Assistant commentary
+
+Log ini menunjukkan jalur `ntfy.sh` timeout. Pesan “WebRTC Broadcaster Ready” baru berarti Pos terdaftar di layanan PeerJS, belum membuktikan sudah tersambung ke proyektor. Error favicon 404 terpisah dari masalah sinkronisasi. Aku cek jalur koneksi langsung dan perbaiki pemulihannya supaya Pos tidak terus menunggu relay yang gagal.
+
+### Findings and implementation
+
+- Confirmed local vendor/peerjs.min.js bundles STUN + TURN defaults; app.js and pos.js supplied custom STUN-only config, removing TURN fallback. Removed the custom config without introducing external credentials.
+- Added MC actual receiver code and per-Pos host links, direct manual pairing on Pos, pinned sender protection, honest initial status, and relative SVG favicon.
+- ntfy timeout backoff now pauses SSE/poll/publish together for 60 seconds while direct/LAN sending continues.
+
+### Assistant commentary
+
+Ketemu satu kesalahan konfigurasi lagi: kode aplikasi menimpa konfigurasi PeerJS dan membuang server perantara TURN bawaannya. Tes sebelumnya memakai koneksi lokal, jadi celah ini belum teruji. Aku pulihkan konfigurasi tersebut dan tambahkan kode proyektor yang bisa dimasukkan langsung di Pos, supaya pencarian proyektor tidak bergantung pada `ntfy.sh`.
+
+### Failed Attempt
+
+- Extended real WebRTC regression reached fallback-ID generation and pairing UI, but timed out awaiting scouting on a Pos. Added connection/ICE state and pair-status diagnostics to isolate the failure before publication.
