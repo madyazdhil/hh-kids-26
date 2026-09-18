@@ -1090,3 +1090,31 @@ Mengimplementasikan fitur **Floating Team Facecam (Picture-in-Picture Streamer C
 - Memperbarui `STATE.md`.
 - Melakukan Git checkpoint commit (`574b87f`) dan otomatis push ke GitHub personal: `git@github.com-personal:madyazdhil/hh-kids-26.git`.
 
+### User — 2026-09-18T12:54:18+07:00
+
+```text
+1/ ini aku mau supaya dia bisa seusia template nya dengan /Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/pos.html
+
+3/ dimasukkan kedalam file itu , dan jadi dia akan muncul ketika countdown di proyektor udah mulai gitu di semua pos nya yah 
+```
+
+### Assistant — 2026-09-18T13:12:00+07:00
+
+- Menyelaraskan seluruh game tantangan Office Olympics (khususnya Babak 4: Spreadsheet Emergency Room & Babak 2: Mathchamps Sempoa) dengan desain template `pos.html` dan mengintegrasikannya ke sistem countdown proyektor MC:
+  1. **Integrasi Spreadsheet Emergency Room (`sheets-slide.html` & `src/sheets-slide.html`)**:
+     - Desain visual Google Sheets otentik berbalut Dark Navy Glassmorphism senada dengan `pos.html`.
+     - 5 kasus troubleshooting nyata: Kasus 1 #REF! (Hapus Kolom Bencana) dengan tombol aksi cepat *Koreksi Range ke B2* / *Undo*, Kasus 2 Typos tanda baca koma vs titik koma, Kasus 3 #NAME? tanda kutip hilang, Kasus 4 Circular reference loop kiamat, Kasus 5 Missing absolute reference ($) dengan tombol *F4*.
+     - PostMessage `CHALLENGE_COMPLETED` dikirim ke parent window begitu ke-5 kasus selesai dipecahkan.
+  2. **Integrasi Sempoa Speed Calculation (`sempoa-slide.html` & `src/sempoa-slide.html`)**:
+     - Input murni keyboard numerik (tanpa numpad virtual di layar), tempo 2.0s per angka, 10 soal kalkulasi cepat.
+  3. **Otomasi Countdown Layar Pos (`pos.js` & `src/pos.js`)**:
+     - Babak 1 (Slide 13-14): Scratch Motion Debugging (`scratch-slide.html`).
+     - Babak 2 (Slide 15-16): Mathchamps Sempoa Speed Math (`sempoa-slide.html`).
+     - Babak 3 (Slide 17-18): Memory Academy Visual Memory (`memory-slide.html`).
+     - Babak 4 (Slide 19-20): Spreadsheet Emergency Room (`sheets-slide.html`).
+     - Layar meja pos terkunci (`STANDBY`) selama slide briefing ganjil (Slide 13, 15, 17, 19), dan otomatis membuka arena tantangan serentak di Pos 1 s/d 4 begitu hitungan mundur 3-2-1 di slide genap (Slide 14, 16, 18, 20) selesai mencapai `MULAI!`.
+     - Tombol bel sprint raksasa *"🔔 KITA UDAH KELAR! LARI KEJAR KAK BALQIS!"* otomatis pulsing glow dan berdering saat game selesai.
+  4. **Resiliensi WebRTC Broadcaster & Proyektor (`pos.js`, `src/pos.js`, `app.js`, `src/app.js`)**:
+     - Penambahan Google STUN server configuration, retry timer jika peer ID bentrok sesaat, dan mekanisme `PROYEKTOR_READY`.
+- Memperbarui `STATE.md`.
+

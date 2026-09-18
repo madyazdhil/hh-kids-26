@@ -436,11 +436,19 @@ document.addEventListener('DOMContentLoaded', () => {
   let activeCamStream = null;
 
   function initPosPeer() {
-    if (posPeer || typeof Peer === 'undefined') return;
+    if (posPeer && !posPeer.destroyed) return;
     try {
-      posPeer = new Peer();
+      posPeer = new Peer({
+        debug: 1,
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' }
+          ]
+        }
+      });
       posPeer.on('open', (id) => {
-        console.log(`Pos ${assignedPos} WebRTC Broadcaster Ready:`, id);
+        console.log(`⚡ Pos ${assignedPos} WebRTC Broadcaster Ready:`, id);
       });
       posPeer.on('error', (err) => {
         console.warn('Pos Peer error:', err);
@@ -452,8 +460,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initPosPeer();
 
+  function transmitStreamsToProyektor() {
+    if (!posPeer || posPeer.destroyed) initPosPeer();
+    if (!posPeer) return;
+
+    const doCall = () => {
+      if (activeScreenStream) {
+        console.log(`📡 Sending Screen Stream from Pos ${assignedPos} to Proyektor...`);
+        posPeer.call('hhkids26-proyektor-main', activeScreenStream, {
+          metadata: { pos: assignedPos, type: 'screen' }
+        });
+      }
+      if (activeCamStream) {
+        console.log(`📷 Sending Team Cam Stream from Pos ${assignedPos} to Proyektor...`);
+        posPeer.call('hhkids26-proyektor-main', activeCamStream, {
+          metadata: { pos: assignedPos, type: 'cam' }
+        });
+      }
+    };
+
+    if (posPeer.open) {
+      doCall();
+    } else {
+      posPeer.once('open', doCall);
+    }
+  }
+
   async function startStreamingToProyektor() {
     initPosPeer();
+
+    if (btnBroadcastStream) {
+      btnBroadcastStream.innerHTML = `<span class="broadcast-icon">🟡</span><span class="broadcast-text">Menyiapkan Siaran...</span>`;
+    }
 
     // 1. Ambil Webcam secara diam-diam (tanpa popup floating di layar peserta)
     try {
@@ -477,29 +515,22 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (err) {
       console.warn('Screen share dibatalkan oleh pengguna:', err);
+      if (btnBroadcastStream) {
+        btnBroadcastStream.classList.remove('streaming');
+        btnBroadcastStream.innerHTML = `<span class="broadcast-icon">📡</span><span class="broadcast-text">Siarkan ke Proyektor</span>`;
+      }
       return;
     }
 
     // 3. Kirim kedua stream ke MC Proyektor via PeerJS
-    if (posPeer) {
-      if (activeScreenStream) {
-        posPeer.call('hhkids26-proyektor-main', activeScreenStream, {
-          metadata: { pos: assignedPos, type: 'screen' }
-        });
-      }
-      if (activeCamStream) {
-        posPeer.call('hhkids26-proyektor-main', activeCamStream, {
-          metadata: { pos: assignedPos, type: 'cam' }
-        });
-      }
-    }
+    transmitStreamsToProyektor();
 
     if (btnBroadcastStream) {
       btnBroadcastStream.classList.add('streaming');
       btnBroadcastStream.innerHTML = `<span class="broadcast-icon">🟢</span><span class="broadcast-text">Siaran Aktif (Pos ${assignedPos})</span>`;
     }
 
-    // Listener otomatis saat pengguna mengklik "Stop sharing" di Chrome
+    // Listener otomatis saat pengguna mengklik "Stop sharing" di Chrome bar
     if (activeScreenStream) {
       const track = activeScreenStream.getVideoTracks()[0];
       if (track) {
@@ -534,6 +565,23 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Re-send stream if Proyektor requests status or sends PROYEKTOR_READY
+  if (window.HHSync) {
+    window.HHSync.on('PROYEKTOR_READY', () => {
+      if (activeScreenStream || activeCamStream) {
+        console.log('⚡ Signal PROYEKTOR_READY diterima, mengirim ulang stream...');
+        transmitStreamsToProyektor();
+      }
+    });
+  }
+
+  window.addEventListener('beforeunload', () => {
+    stopStreaming();
+    if (posPeer) {
+      try { posPeer.destroy(); } catch (e) {}
+    }
+  });
 
   window.addEventListener('keydown', (e) => {
     if (e.key === 'f' || e.key === 'F') {

@@ -34,10 +34,25 @@
   - Fase kuis 20 pertanyaan bergambar yang didesain **Keyboard-First** (`A`/`1`/`←` dan `B`/`2`/`→`) dengan tactile glow badge dan Web Audio synth sound effects.
   - Begitu kuis selesai, sistem menampilkan skor akurasi dan menyalakan pulsing glow pada tombol bel raksasa: *"🔔 KITA UDAH KELAR! LARI KEJAR KAK BALQIS!"*.
   - Terverifikasi via Playwright dengan 0 console error (`verify_memory_pos_integration.py`).
+- **Tantangan Babak 4: Spreadsheet Emergency Room (Google Sheets #REF! Fixer) Integrasi Penuh ke `pos.html`:**
+  - Tampilan spreadsheet otentik khas Google Workspace (Formula bar `fx`, cell address box, toolbar Undo `Ctrl+Z`, F4 Kunci Sel `$`, dan sheet tab bawah) dengan aksen Dark Navy Glassmorphism senada dengan `pos.html`.
+  - 5 Kasus Troubleshoot Kantor Nyata:
+    1. *Kasus 1: Hapus Kolom Bencana (#REF!)* – rumus rusak akibat anak magang menghapus kolom, diselesaikan via tombol Koreksi Range ke B2 atau shortcut Undo.
+    2. *Kasus 2: Tanda Baca Regional Typo (, vs ;)* – rumus `=VLOOKUP` mogok akibat perbedaan koma dan titik koma.
+    3. *Kasus 3: Tanda Petik / Teks Hilang (#NAME?)* – rumus `=IF(B2>75, LULUS, GAGAL)` tanpa tanda kutip string.
+    4. *Kasus 4: Siklus Kiamat (Circular Reference)* – rumus `=SUM(A1:A10)` di dalam cell `A10` yang menyebabkan loop kalkulasi.
+    5. *Kasus 5: Missing Absolute Reference ($)* – rumus bergeser saat ditarik ke bawah karena ketiadaan kunci sel `$`.
+  - Integrasi Countdown Otomatis: Layar Pos 1 s/d 4 terkunci (`STANDBY`) saat MC briefing di Slide 19, dan serentak membuka tantangan begitu countdown 3-2-1 di Slide 20 selesai (`MULAI!`).
+  - Menyelesaikan ke-5 kasus memicu sinyal `CHALLENGE_COMPLETED` ke parent window, mengaktifkan pulsing glow emas pada tombol sprint bel raksasa: *"🔔 KITA UDAH KELAR! LARI KEJAR KAK BALQIS!"*.
+- **Tantangan Babak 2: Mathchamps Sempoa Speed Math (Keyboard-First):**
+  - Mengeliminasi numpad virtual di layar, beralih ke 100% input keyboard numerik dengan navigasi instan `Enter`.
+  - Terintegrasi otomatis ke Slide 15 (Briefing) dan Slide 16 (Battle Arena).
+- **WebRTC Broadcaster & Proyektor Resilience:**
+  - Konfigurasi Google STUN servers publik, automatic retry timer jika ID terpakai sesaat, dan handshake ulang `PROYEKTOR_READY`.
 - **Personal GitHub:**
   - Repo: `git@github.com-personal:madyazdhil/hh-kids-26.git`.
 
 ## Blockers and Open Questions
 
-- Tidak ada blocker. Seluruh alur 26 slide, sinkronisasi pos standby, dan tantangan interaktif telah teruji dan siap live.
+- Tidak ada blocker. Seluruh 4 babak tantangan (Scratch, Sempoa, Memory Academy, Google Sheets Emergency Room) telah terintegrasi 100% ke `pos.html`, siap dimainkan live dengan sinkronisasi proyektor MC.
 

@@ -993,16 +993,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let isSpectatorOpen = false;
   let proyektorPeer = null;
+  let proyektorRetryTimer = null;
 
   function initProyektorPeer() {
-    if (proyektorPeer || typeof Peer === 'undefined') return;
+    if (proyektorPeer && !proyektorPeer.destroyed) return;
     try {
       proyektorPeer = new Peer('hhkids26-proyektor-main', {
-        debug: 1
+        debug: 1,
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' }
+          ]
+        }
       });
 
       proyektorPeer.on('open', (id) => {
         console.log('⚡ Proyektor WebRTC Receiver Ready:', id);
+        if (window.HHSync) {
+          window.HHSync.send('PROYEKTOR_READY', { peerId: id });
+        }
       });
 
       proyektorPeer.on('call', (call) => {
@@ -1015,41 +1025,88 @@ document.addEventListener('DOMContentLoaded', () => {
             const camVideo = document.getElementById(`stream-cam-pos${posNum}`);
             const camBox = document.getElementById(`cam-pip-pos${posNum}`);
             if (camVideo) {
+              camVideo.muted = true;
+              camVideo.playsInline = true;
               camVideo.srcObject = remoteStream;
               camVideo.play().catch(() => {});
             }
             if (camBox) {
               camBox.classList.remove('hidden');
             }
+            remoteStream.getVideoTracks().forEach(track => {
+              track.onended = () => {
+                if (camBox) camBox.classList.add('hidden');
+              };
+            });
           } else {
             // Screen stream
             const screenVideo = document.getElementById(`stream-screen-pos${posNum}`);
             const waitingOverlay = document.getElementById(`waiting-pos${posNum}`);
             if (screenVideo) {
+              screenVideo.muted = true;
+              screenVideo.playsInline = true;
               screenVideo.srcObject = remoteStream;
               screenVideo.classList.remove('hidden');
-              screenVideo.play().catch(() => {});
+              screenVideo.play().catch(e => {
+                console.warn('Screen video autoplay retry:', e);
+                screenVideo.muted = true;
+                screenVideo.play().catch(() => {});
+              });
             }
             if (waitingOverlay) {
               waitingOverlay.classList.add('hidden');
             }
+            remoteStream.getVideoTracks().forEach(track => {
+              track.onended = () => {
+                if (screenVideo) screenVideo.classList.add('hidden');
+                if (waitingOverlay) waitingOverlay.classList.remove('hidden');
+              };
+            });
           }
         });
       });
 
+      proyektorPeer.on('disconnected', () => {
+        console.log('Proyektor Peer disconnected, reconnecting...');
+        if (proyektorPeer && !proyektorPeer.destroyed) {
+          proyektorPeer.reconnect();
+        }
+      });
+
       proyektorPeer.on('error', (err) => {
         console.warn('Proyektor Peer notice:', err);
+        if (err.type === 'unavailable-id') {
+          console.log('ID taken, retrying in 2 seconds...');
+          clearTimeout(proyektorRetryTimer);
+          proyektorRetryTimer = setTimeout(() => {
+            if (proyektorPeer) {
+              try { proyektorPeer.destroy(); } catch(e) {}
+              proyektorPeer = null;
+            }
+            initProyektorPeer();
+          }, 2000);
+        }
       });
     } catch (e) {
       console.warn('Failed to init Proyektor Peer:', e);
     }
   }
 
+  // Graceful cleanup on tab close/reload so the ID is freed instantly on server
+  window.addEventListener('beforeunload', () => {
+    if (proyektorPeer) {
+      try { proyektorPeer.destroy(); } catch(e) {}
+    }
+  });
+
   // Initialize WebRTC Receiver
   initProyektorPeer();
 
   function loadSpectatorIframes() {
     initProyektorPeer();
+    if (window.HHSync) {
+      window.HHSync.send('PROYEKTOR_READY', { peerId: 'hhkids26-proyektor-main' });
+    }
     ['pos1', 'pos2', 'pos3', 'pos4'].forEach(id => {
       const iframe = document.getElementById(`iframe-${id}`);
       if (iframe && iframe.dataset.src && (iframe.src === 'about:blank' || !iframe.src)) {
