@@ -1295,3 +1295,36 @@ Silakan retest Pos 1 dengan URL IP laptop operator, bukan `localhost`, lalu hard
 > ini none of it worked lohh masi
 
 Status: bug report and clarified expected flow; under investigation.
+
+### Assistant action — 2026-09-18
+
+- Clarified expected flow from user: Slide 8 shows only each Pos' own instructions simultaneously; inspection timer expiry returns all Pos laptops to locked standby; Slide 14 countdown unlocks Scratch for all Pos; Slide 16 unlocks Mathchamps; Slide 18 unlocks Memory; Slide 20 unlocks Spreadsheet.
+- Found an additional late-join/state-rehydration bug: the local sync poll marked all historical signals as seen and replayed only the slide status, so a Pos laptop could miss the current timer/countdown/unlock phase.
+- Updated `sync-engine.js` and `src/sync-engine.js` to replay the latest phase signals after the current slide status.
+- Updated `pos.js` and `src/pos.js` so Slide 8 shows instructions when active (not only after the timer starts), hides them at timer expiry, and ignores unrelated timer 2 signals.
+- Verification: `node --check pos.js` and `node --check sync-engine.js` passed.
+- Commit created: `59d611f fix(regroup-happy-hour): sync scouting and battle phases for late pos clients`.
+- Status: implemented; awaiting fresh-server cross-laptop retest.
+
+### Assistant — 2026-09-18
+
+Ya, sekarang paham. Flow yang kamu mau adalah:
+
+1. **Slide 8:** Pos 1–4 langsung menampilkan instruksi game masing-masing saja, bukan game yang bisa dimainkan.
+2. Timer inspeksi selesai: semua Pos kembali terkunci/standby.
+3. **Slide 14 + 3-2-1 MULAI:** semua Pos membuka Scratch.
+4. **Slide 16 + MULAI:** semua Pos membuka Mathchamps.
+5. **Slide 18 + MULAI:** semua Pos membuka Memory.
+6. **Slide 20 + MULAI:** semua Pos membuka Spreadsheet.
+
+Masalah tambahannya ketemu: laptop Pos yang telat menerima sinkronisasi hanya menerima status slide, tetapi melewatkan status timer/countdown/unlock terbaru. Itu sudah diperbaiki di `sync-engine.js` dan `pos.js` versi root + `src/`.
+
+Commit terbaru: `59d611f`.
+
+Untuk retest: restart server, hard refresh semua laptop, lalu buka URL Pos dari IP laptop operator seperti `http://IP-OPERATOR:8765/pos.html?pos=1` — jangan `file://` atau `localhost` di laptop peserta.
+
+### User — 2026-09-18
+
+> push dong perbaikan ke githubnya mana keliatan kalo gitu
+
+Status: approved; explicit request to push the implemented fixes to GitHub.
