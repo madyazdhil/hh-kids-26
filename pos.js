@@ -425,11 +425,133 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // ==========================================================================
+  // 5B. FLOATING TEAM FACECAM PIP (Draggable Streamer Cam)
+  // ==========================================================================
+  const btnToggleFacecam = document.getElementById('btn-toggle-facecam');
+  const floatingFacecam = document.getElementById('floating-facecam-container');
+  const floatingFacecamVideo = document.getElementById('floating-facecam-video');
+  const btnCloseFacecam = document.getElementById('btn-close-facecam');
+  const facecamBadge = document.getElementById('facecam-badge');
+  let facecamStream = null;
+
+  async function startFacecam() {
+    try {
+      if (facecamStream) return;
+      facecamStream = await navigator.mediaDevices.getUserMedia({
+        video: { width: { ideal: 320 }, height: { ideal: 240 }, facingMode: 'user' },
+        audio: false
+      });
+      if (floatingFacecamVideo) {
+        floatingFacecamVideo.srcObject = facecamStream;
+      }
+      if (floatingFacecam) {
+        floatingFacecam.classList.remove('hidden');
+      }
+      if (btnToggleFacecam) {
+        btnToggleFacecam.classList.add('active');
+        btnToggleFacecam.innerHTML = `<span class="facecam-btn-icon">🟢</span><span class="facecam-btn-text">Facecam ON</span>`;
+      }
+      if (facecamBadge) {
+        facecamBadge.textContent = `MEJA ${assignedPos} CAM`;
+      }
+    } catch (err) {
+      console.warn('Gagal menyalakan facecam:', err);
+    }
+  }
+
+  function stopFacecam() {
+    if (facecamStream) {
+      facecamStream.getTracks().forEach(track => track.stop());
+      facecamStream = null;
+    }
+    if (floatingFacecamVideo) {
+      floatingFacecamVideo.srcObject = null;
+    }
+    if (floatingFacecam) {
+      floatingFacecam.classList.add('hidden');
+    }
+    if (btnToggleFacecam) {
+      btnToggleFacecam.classList.remove('active');
+      btnToggleFacecam.innerHTML = `<span class="facecam-btn-icon">📹</span><span class="facecam-btn-text">Facecam</span>`;
+    }
+  }
+
+  if (btnToggleFacecam) {
+    btnToggleFacecam.addEventListener('click', () => {
+      if (facecamStream) {
+        stopFacecam();
+      } else {
+        startFacecam();
+      }
+    });
+  }
+
+  if (btnCloseFacecam) {
+    btnCloseFacecam.addEventListener('click', (e) => {
+      e.stopPropagation();
+      stopFacecam();
+    });
+  }
+
+  // Make Floating Facecam Draggable across the screen
+  if (floatingFacecam) {
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let initialLeft = 0;
+    let initialTop = 0;
+
+    const onPointerDown = (e) => {
+      if (e.target === btnCloseFacecam) return;
+      isDragging = true;
+      const rect = floatingFacecam.getBoundingClientRect();
+      initialLeft = rect.left;
+      initialTop = rect.top;
+      startX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+      startY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+
+      floatingFacecam.style.bottom = 'auto';
+      floatingFacecam.style.right = 'auto';
+      floatingFacecam.style.left = `${initialLeft}px`;
+      floatingFacecam.style.top = `${initialTop}px`;
+    };
+
+    const onPointerMove = (e) => {
+      if (!isDragging) return;
+      const currentX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+      const currentY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+      const dx = currentX - startX;
+      const dy = currentY - startY;
+
+      const newLeft = Math.max(10, Math.min(window.innerWidth - 240, initialLeft + dx));
+      const newTop = Math.max(10, Math.min(window.innerHeight - 160, initialTop + dy));
+
+      floatingFacecam.style.left = `${newLeft}px`;
+      floatingFacecam.style.top = `${newTop}px`;
+    };
+
+    const onPointerUp = () => {
+      isDragging = false;
+    };
+
+    floatingFacecam.addEventListener('mousedown', onPointerDown);
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerUp);
+
+    floatingFacecam.addEventListener('touchstart', onPointerDown, { passive: true });
+    window.addEventListener('touchmove', onPointerMove, { passive: true });
+    window.addEventListener('touchend', onPointerUp);
+  }
+
   // VDO.ninja Screen Share Broadcaster
   const btnBroadcastStream = document.getElementById('btn-broadcast-stream');
   if (btnBroadcastStream) {
     btnBroadcastStream.addEventListener('click', () => {
-      // Hilangkan &webcam=0 agar track video tidak ter-mute secara otomatis oleh VDO.ninja
+      // Auto-start facecam jika belum aktif agar wajah dan layar menyatu
+      if (!facecamStream) {
+        startFacecam();
+      }
       const pushUrl = `https://vdo.ninja/?push=hhkids26_pos${assignedPos}&screenshare&quality=1&label=Pos%20${assignedPos}&transparent=1`;
       window.open(pushUrl, '_blank');
       btnBroadcastStream.classList.add('streaming');

@@ -32,6 +32,10 @@
     </div>
 
     <div class="hud-right">
+      <button id="btn-toggle-facecam" class="btn btn-xs btn-facecam" title="Nyalakan/Matikan Webcam Tim di Pojok Layar">
+        <span class="facecam-btn-icon">📹</span>
+        <span class="facecam-btn-text">Facecam</span>
+      </button>
       <button id="btn-broadcast-stream" class="btn btn-xs btn-broadcast" title="Mulai Share Screen ke Proyektor">
         <span class="broadcast-icon">📡</span>
         <span class="broadcast-text">Broadcast ke Proyektor</span>
@@ -156,6 +160,15 @@
     </div>
 
   </main>
+
+  <!-- FLOATING TEAM FACECAM PIP (Draggable Streamer Cam) -->
+  <div id="floating-facecam-container" class="floating-facecam hidden">
+    <video id="floating-facecam-video" autoplay playsinline muted></video>
+    <div class="facecam-header">
+      <span class="facecam-badge" id="facecam-badge">MEJA 1 CAM</span>
+      <button id="btn-close-facecam" title="Tutup Facecam">×</button>
+    </div>
+  </div>
 
   <script src="sync-engine.js"></script>
   <script src="pos.js"></script>
