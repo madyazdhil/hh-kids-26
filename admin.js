@@ -4,15 +4,19 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  const SYNC_CHANNEL_NAME = 'regroup_happy_hour_sync';
-  const channel = new BroadcastChannel(SYNC_CHANNEL_NAME);
-
   function broadcast(type, payload = {}) {
-    const message = { type, payload, timestamp: Date.now() };
-    channel.postMessage(message);
-    try {
-      localStorage.setItem('hh_last_broadcast', JSON.stringify(message));
-    } catch (e) {}
+    if (window.HHSync) {
+      window.HHSync.send(type, payload);
+    } else {
+      const message = { type, payload, timestamp: Date.now() };
+      try {
+        const channel = new BroadcastChannel('regroup_happy_hour_sync');
+        channel.postMessage(message);
+      } catch (e) {}
+      try {
+        localStorage.setItem('hh_last_broadcast', JSON.stringify(message));
+      } catch (e) {}
+    }
   }
 
   // ==========================================================================
@@ -131,10 +135,10 @@ document.addEventListener('DOMContentLoaded', () => {
     broadcast('REMOTE_CONFETTI');
   });
 
-  // Listen for slide updates from index.html
-  channel.onmessage = (event) => {
-    const data = event.data;
-    if (data.type === 'CURRENT_SLIDE_STATUS') {
+  function handleIncomingStatus(data) {
+    if (!data || !data.type) return;
+
+    if (data.type === 'CURRENT_SLIDE_STATUS' || data.type === 'SLIDE_CHANGED') {
       const idx = data.payload.index;
       const title = data.payload.title || `Slide ${idx + 1}`;
       activeSlideLabel.textContent = `Slide ${idx + 1}: ${title}`;
@@ -144,7 +148,16 @@ document.addEventListener('DOMContentLoaded', () => {
         remoteConnStatus.textContent = `🟢 Slide ${idx + 1}/22 Online`;
       }
     }
-  };
+  }
+
+  if (window.HHSync) {
+    window.HHSync.onMessage(handleIncomingStatus);
+  } else {
+    try {
+      const channel = new BroadcastChannel('regroup_happy_hour_sync');
+      channel.onmessage = (e) => handleIncomingStatus(e.data);
+    } catch (e) {}
+  }
 
   // Request initial slide status on open
   broadcast('REQUEST_STATUS');

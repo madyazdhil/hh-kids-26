@@ -297,11 +297,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function goToSlide(index) {
+  function goToSlide(index, shouldBroadcast = true) {
     if (index >= 0 && index < totalSlides) {
+      // Auto-pause timer if moving away from timer slide
+      if (currentSlideIndex === 7 && timers[1].isRunning) {
+        clearInterval(timers[1].intervalId);
+        timers[1].isRunning = false;
+        broadcastSync('TIMER_UPDATE', { timerId: 1, isRunning: false, currentSec: timers[1].currentSec, totalSec: timers[1].totalSec });
+      }
+      if (currentSlideIndex === 10 && timers[2].isRunning) {
+        clearInterval(timers[2].intervalId);
+        timers[2].isRunning = false;
+        broadcastSync('TIMER_UPDATE', { timerId: 2, isRunning: false, currentSec: timers[2].currentSec, totalSec: timers[2].totalSec });
+      }
+
       currentSlideIndex = index;
       updateSlideUI();
       SoundFx.playClick();
+      if (shouldBroadcast) {
+        broadcastSync('SLIDE_CHANGED', {
+          index: currentSlideIndex,
+          title: slides[currentSlideIndex] ? slides[currentSlideIndex].dataset.title : ''
+        });
+      }
     }
   }
 
@@ -724,33 +742,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   // 10. REAL-TIME BROADCAST CHANNEL & REMOTE CONTROL SYNC
   // ==========================================================================
-  const SYNC_CHANNEL_NAME = 'regroup_happy_hour_sync';
-  const syncChannel = new BroadcastChannel(SYNC_CHANNEL_NAME);
-
   function broadcastSync(type, payload = {}) {
-    const message = { type, payload, timestamp: Date.now() };
-    syncChannel.postMessage(message);
-    try {
-      localStorage.setItem('hh_last_broadcast', JSON.stringify(message));
-    } catch (e) {}
-    try {
-      fetch('/api/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(message)
-      }).catch(() => {});
-    } catch (e) {}
+    if (window.HHSync) {
+      window.HHSync.send(type, payload);
+    } else {
+      const message = { type, payload, timestamp: Date.now() };
+      try {
+        const ch = new BroadcastChannel('regroup_happy_hour_sync');
+        ch.postMessage(message);
+      } catch (e) {}
+      try {
+        localStorage.setItem('hh_last_broadcast', JSON.stringify(message));
+      } catch (e) {}
+    }
   }
 
-  let lastProcessedTimestamp = 0;
   function handleRemoteCommand(data) {
     if (!data || !data.type) return;
-
-    // Deduplicate between BroadcastChannel and storage events
-    if (data.timestamp && data.timestamp <= lastProcessedTimestamp) {
-      return;
-    }
-    lastProcessedTimestamp = data.timestamp || Date.now();
 
     if (syncStatus) {
       syncStatus.textContent = '⚡ Remote: Aktif';
@@ -758,6 +766,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     switch (data.type) {
+      case 'SLIDE_CHANGED':
+        if (typeof data.payload.index === 'number' && data.payload.index !== currentSlideIndex) {
+          goToSlide(data.payload.index, false); // Do not echo broadcast back
+        }
+        break;
+
       case 'REMOTE_NEXT':
         advanceOrNext();
         break;
@@ -768,7 +782,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       case 'REMOTE_GOTO_SLIDE':
         if (typeof data.payload.index === 'number') {
-          goToSlide(data.payload.index);
+          goToSlide(data.payload.index, true);
         }
         break;
 
@@ -789,7 +803,7 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
 
       case 'REMOTE_SPIN_DOORPRIZE':
-        goToSlide(19); // Jump to Slide 20 (index 19)
+        goToSlide(19, true); // Jump to Slide 20 (index 19)
         setTimeout(() => triggerDoorprizeSpin(), 400);
         break;
 
@@ -802,7 +816,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = data.payload.name;
         const photo = data.payload.photoDataUrl;
 
-        goToSlide(18); // Jump to Slide 19 (Awarding)
+        goToSlide(18, true); // Jump to Slide 19 (Awarding)
         setTimeout(() => {
           if (cat === 'olympic') {
             revealWinnerOnCard('award-olympic', name);
@@ -828,19 +842,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  syncChannel.onmessage = (event) => {
-    handleRemoteCommand(event.data);
-  };
-
-  // localStorage storage event dual-sync fallback
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'hh_last_broadcast' && e.newValue) {
-      try {
-        const data = JSON.parse(e.newValue);
-        handleRemoteCommand(data);
-      } catch (err) {}
-    }
-  });
+  // Register with Universal Sync Hub
+  if (window.HHSync) {
+    window.HHSync.onMessage(handleRemoteCommand);
+  } else {
+    try {
+      const syncChannel = new BroadcastChannel('regroup_happy_hour_sync');
+      syncChannel.onmessage = (e) => handleRemoteCommand(e.data);
+    } catch (e) {}
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'hh_last_broadcast' && e.newValue) {
+        try {
+          handleRemoteCommand(JSON.parse(e.newValue));
+        } catch (err) {}
+      }
+    });
+  }
 
   // ==========================================================================
   // 11. SHORTCUTS MODAL & FULLSCREEN TOGGLE

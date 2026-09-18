@@ -2,358 +2,145 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#030712">
-  <title>Pos Laptop Meja Tengah - Regroup Happy Hour 2026</title>
-
-  <!-- Google Fonts -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Layar Meja Pos Pemain - Regroup Happy Hour</title>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Outfit:wght@400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="pos.css">
 </head>
-<body class="theme-navy-black pos-body">
+<body class="theme-navy-black pos-screen-body">
   <canvas id="bg-canvas"></canvas>
 
-  <!-- Top Header Bar -->
-  <header class="pos-header">
-    <div class="header-left">
-      <div class="live-dot-pulse"></div>
-      <div class="pos-brand">
-        <span class="brand-title">MEJA TENGAH</span>
-        <span id="pos-status-text" class="status-subtitle">● Menunggu Slide MC</span>
+  <!-- Top Floating HUD -->
+  <header class="pos-top-hud">
+    <div class="hud-left">
+      <span class="pulse-dot"></span>
+      <div class="pos-identity-badge" id="current-pos-badge">
+        POS 1: KALANANTI (SCRATCH)
+      </div>
+      <div class="pos-switcher-dropdown">
+        <select id="pos-select-switcher" aria-label="Ganti Nomor Pos">
+          <option value="1">Pos 1: Kalananti (Scratch)</option>
+          <option value="2">Pos 2: Mathchamps (Sempoa)</option>
+          <option value="3">Pos 3: Memory Academy (Visual)</option>
+          <option value="4">Pos 4: Spreadsheet Special (#REF!)</option>
+        </select>
       </div>
     </div>
 
-    <!-- Pos Switcher Pills -->
-    <div class="pos-switcher" id="pos-switcher">
-      <span class="switcher-label">PILIH POS LAPTOP INI:</span>
-      <div class="pos-pills">
-        <button class="pos-pill active" data-pos="1">
-          <span class="pill-badge">POS 1</span>
-          <span class="pill-name">🐱 Scratch</span>
-        </button>
-        <button class="pos-pill" data-pos="2">
-          <span class="pill-badge">POS 2</span>
-          <span class="pill-name">🧮 Mathchamps</span>
-        </button>
-        <button class="pos-pill" data-pos="3">
-          <span class="pill-badge">POS 3</span>
-          <span class="pill-name">🧠 Memory</span>
-        </button>
-        <button class="pos-pill" data-pos="4">
-          <span class="pill-badge">POS 4</span>
-          <span class="pill-name">📊 Spreadsheet</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="header-right">
-      <span id="mc-slide-indicator" class="mc-slide-indicator">Slide 1/22</span>
-      <button id="btn-fullscreen" class="btn-pos-action" title="Layar Penuh (F)">⛶</button>
+    <div class="hud-right">
+      <div class="sync-pill" id="pos-sync-status">🟢 Terhubung ke Proyektor (Slide 1)</div>
+      <button id="btn-fullscreen-pos" class="btn btn-xs btn-outline" title="Layar Penuh (F)">⛶ Fullscreen</button>
     </div>
   </header>
 
-  <!-- Main Multi-State Container -->
-  <main class="pos-main-container">
+  <!-- MAIN DYNAMIC VIEWPORT (100% Controlled by Slide MC) -->
+  <main class="pos-viewport" id="pos-viewport">
 
-    <!-- ================================================================== -->
-    <!-- VIEWPORT 1: GRAND TITLE VIEW (Slide 1–5: Pre-Show s.d. Cooling Down) -->
-    <!-- Zero spoiler: Tidak ada bocoran Office Olympics / Game              -->
-    <!-- ================================================================== -->
-    <section id="view-title" class="pos-view active">
-      <div class="view-content-center">
-        <div class="badge-pill pulse-glow mb-4">ACADEMIC KIDS RUANGGURU</div>
-        <h1 class="grand-hero-title">REGROUP<br><span class="neon-cyan-text">HAPPY HOUR</span></h1>
-        <p class="hero-subtitle">Kids Product MSIG • Ruang Da Vinci</p>
-
-        <div class="pos-assigned-card mt-6">
-          <div class="assigned-label">IDENTITAS LAPTOP INI</div>
-          <div class="assigned-name" id="assigned-pos-label-title">POS 1: KALANANTI (SCRATCH)</div>
-          <div class="assigned-desc">Laptop telah terhubung ke proyektor MC. Layar akan berganti otomatis saat Office Olympics dimulai.</div>
+    <!-- ====================================================================
+         STATE 1: PRE-SHOW / WELCOME CLEAN TEMPLATE (Slide 1–5)
+         ==================================================================== -->
+    <div id="state-template" class="pos-state-panel active">
+      <div class="template-box glass-card">
+        <div class="template-header-tag">REGROUP HAPPY HOUR 2026</div>
+        <h1 class="template-title">RUANG DA VINCI</h1>
+        <p class="template-subtitle">Selamat datang rekan-rekan Kids Learning & Academics!</p>
+        <div class="template-pos-callout">
+          <div class="pos-num-display" id="template-pos-num">POS 1</div>
+          <div class="pos-name-display" id="template-pos-name">Tantangan Kalananti Scratch</div>
         </div>
-
-        <div class="standby-box mt-4">
-          <span class="standby-spinner"></span>
-          <span>Menunggu arahan MC Yazid di depan panggung...</span>
+        <div class="template-status-banner">
+          <span class="pulse-dot-cyan"></span>
+          <span>Laptop siap di meja tengah. Standby menyambut peserta...</span>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- ================================================================== -->
-    <!-- VIEWPORT 2: OFFICE OLYMPICS LOGO VIEW                              -->
-    <!-- (Slide 6 & 7: Splash & Briefing)                                   -->
-    <!-- (Slide 8: Sebelum Timer Start & Setelah Timer Expired)             -->
-    <!-- (Slide 9, 10, 11, 12: Bumper, Rules Bel, Rapat Tim, Ready)         -->
-    <!-- (Slide 17+: Sesi Santuy, Awarding, Closing)                        -->
-    <!-- ================================================================== -->
-    <section id="view-olympics-logo" class="pos-view">
-      <div class="view-content-center">
-        <!-- Olympic Rings Neon SVG -->
-        <div class="olympic-rings-container">
-          <svg class="olympic-rings-svg" viewBox="0 0 300 130">
-            <circle cx="60" cy="50" r="38" stroke="#00f0ff" stroke-width="8" fill="none" class="ring-glow ring-blue"/>
-            <circle cx="150" cy="50" r="38" stroke="#f8fafc" stroke-width="8" fill="none" class="ring-glow ring-black"/>
-            <circle cx="240" cy="50" r="38" stroke="#ff4757" stroke-width="8" fill="none" class="ring-glow ring-red"/>
-            <circle cx="105" cy="85" r="38" stroke="#ffd700" stroke-width="8" fill="none" class="ring-glow ring-yellow"/>
-            <circle cx="195" cy="85" r="38" stroke="#00ff9d" stroke-width="8" fill="none" class="ring-glow ring-green"/>
-          </svg>
+    <!-- ====================================================================
+         STATE 2: OFFICE OLYMPIC STANDBY LOGO (Slide 6, 7, 8-idle, 9–12, 17+)
+         ==================================================================== -->
+    <div id="state-olympic-idle" class="pos-state-panel">
+      <div class="olympic-idle-card glass-card">
+        <div class="olympic-rings-glow">
+          <div class="ring ring-1"></div>
+          <div class="ring ring-2"></div>
+          <div class="ring ring-3"></div>
         </div>
-
-        <h1 class="olympics-hero-title">OFFICE OLYMPICS</h1>
-        <p class="olympics-hero-subtitle">Kalananti • Mathchamps • Memory Academy • Spreadsheet</p>
-
-        <div class="pos-olympics-status-card mt-6">
-          <div class="status-icon-glow">🔒</div>
-          <div class="status-hero-msg" id="olympics-status-msg">TANTANGAN MASIH TERKUNCI</div>
-          <div class="status-sub-msg" id="olympics-sub-msg">
-            Menunggu aba-aba Mulai Timer dari MC Yazid di depan...
-          </div>
-        </div>
-
-        <div class="pos-assigned-badge-footer mt-4">
-          <span>Laptop Meja Tengah: </span>
-          <strong id="assigned-pos-label-olympics">POS 1: KALANANTI (SCRATCH)</strong>
+        
+        <div class="olympic-badge-label">OFFICE OLYMPICS 2026</div>
+        <h1 class="olympic-hero-title">🏆 OFFICE OLYMPICS</h1>
+        <div class="pos-hero-tag" id="idle-pos-tag">LAPTOP MEJA TENGAH • POS 1</div>
+        
+        <div class="olympic-standby-box">
+          <div class="standby-text">⚡ STANDBY MENUNGGU ABA-ABA MC</div>
+          <p class="standby-sub">Tatap layar proyektor di depan untuk instruksi selanjutnya.</p>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- ================================================================== -->
-    <!-- VIEWPORT 3: SCOUTING VIEW (Slide 8 KETIKA TIMER SEDANG BERJALAN)    -->
-    <!-- Menampilkan tantangan spesifik sesuai identitas Pos laptop          -->
-    <!-- Begitu timer habis / Slide 9: Otomatis menutup & kembali ke logo!   -->
-    <!-- ================================================================== -->
-    <section id="view-scouting" class="pos-view">
-      <div class="scouting-header-bar">
-        <div class="scouting-pos-badge" id="scouting-pos-badge">
-          <span class="badge-icon">🔍</span>
-          <span class="badge-text" id="scouting-badge-text">POS 1: KALANANTI (SCRATCH CODING)</span>
+    <!-- ====================================================================
+         STATE 3: SCOUTING INSPEKSI KETUA (Slide 8 - HANYA SAAT TIMER NYALA)
+         ==================================================================== -->
+    <div id="state-scouting" class="pos-state-panel">
+      <div class="scouting-card glass-card">
+        <div class="scouting-header-row">
+          <div class="scouting-pos-badge" id="scouting-pos-badge">POS 1: KALANANTI (SCRATCH)</div>
+          <div class="scouting-timer-badge">
+            <span class="timer-icon">⏱</span>
+            <span id="scouting-timer-display">01:00</span>
+          </div>
         </div>
-        <div class="scouting-timer-box">
-          <span class="timer-label">SISA WAKTU INSPEKSI:</span>
-          <span class="timer-digits" id="scouting-timer-digits">01:00</span>
+
+        <div class="scouting-alert-banner">
+          👁️ <strong>SESI INSPEKSI KETUA KELOMPOK (1 MENIT)</strong> — BACA CEPAT & JANGAN BOCORKAN KODE!
+        </div>
+
+        <!-- Dynamic Scouting Content Per Pos -->
+        <div class="scouting-content-area" id="scouting-content-area">
+          <!-- Rendered via JS depending on active pos -->
+        </div>
+
+        <div class="scouting-footer-warning">
+          ⚠️ Begitu waktu habis, layar ini otomatis mengunci kembali ke logo Office Olympic!
         </div>
       </div>
+    </div>
 
-      <div class="scouting-body">
-        <div class="scouting-notice-banner">
-          ⚠️ <strong>PERHATIAN KETUA KELOMPOK:</strong> Baca instruksi mandiri di bawah secara rahasia. DILARANG shouting / berteriak ke anggota tim!
+    <!-- ====================================================================
+         STATE 4: BATTLE PERTANDINGAN (Slide 13, 14, 15, 16)
+         ==================================================================== -->
+    <div id="state-battle" class="pos-state-panel">
+      <div class="battle-card glass-card">
+        
+        <div class="battle-header-hud">
+          <div class="battle-round-badge" id="battle-round-badge">BABAK 1 DARI 4</div>
+          <h2 class="battle-game-title" id="battle-game-title">Challenge 1: Kalananti Scratch Debugging</h2>
+          <div class="battle-score-hint">+5 Poin Percobaan Pertama • +4 Poin Percobaan Kedua</div>
         </div>
 
-        <!-- Dynamic Container per Pos -->
-        <div class="scouting-pos-content" id="scouting-pos-content-1">
-          <div class="challenge-preview-card">
-            <div class="preview-header">
-              <span class="preview-category">MISI 1: SCRATCH CODE DEBUGGING</span>
-              <span class="preview-points">Maks 5 Poin</span>
-            </div>
-            <h2 class="preview-title">Sprite Kucing Melompati Rintangan Bug</h2>
-            <p class="preview-desc">
-              Di laptop peserta, project Scratch memiliki bug: sprite kucing melompati pohon tetapi koordinat lompatan salah atau menembus tanpa collision. Perwakilan tim harus menemukan block kode yang rusak dan memperbaikinya.
-            </p>
-
-            <!-- ========================================================== -->
-            <!-- YAZID: ISI KONTEN GAME POS 1 (SCRATCH) DI BAWAH INI       -->
-            <!-- ========================================================== -->
-            <div class="game-blackbox" id="blackbox-scouting-1">
-              <div class="blackbox-header">
-                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-                <span class="blackbox-title">scratch_debug_workspace.sb3</span>
-              </div>
-              <div class="blackbox-inner">
-                <div class="code-snippet-box">
-                  <code><span class="c-purple">when green flag clicked</span></code><br>
-                  <code><span class="c-blue">go to x: (-180) y: (-80)</span></code><br>
-                  <code><span class="c-orange">forever</span></code><br>
-                  <code>&nbsp;&nbsp;<span class="c-orange">if</span> &lt;<span class="c-green">key [space v] pressed?</span>&gt; <span class="c-orange">then</span></code><br>
-                  <code>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-red">change y by (-50)</span> <span class="comment-bug">&lt;-- BUG: Seharusnya lompat ke atas (+Y)!</span></code><br>
-                  <code>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-orange">wait (0.3) secs</span></code><br>
-                  <code>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-blue">change y by (50)</span></code>
-                </div>
-                <div class="blackbox-placeholder-note">
-                  💡 <em>[Area Game Scratch] Link project / iframe Scratch akan terbuka di sini saat babak tanding dimulai.</em>
-                </div>
-              </div>
-            </div>
-          </div>
+        <!-- Live Battle Challenge Workspace (Container Yazid) -->
+        <div class="battle-workspace" id="battle-workspace">
+          <!-- Rendered via JS for Scratch, Math, Memory, Spreadsheet -->
         </div>
 
-        <div class="scouting-pos-content hidden" id="scouting-pos-content-2">
-          <div class="challenge-preview-card">
-            <div class="preview-header">
-              <span class="preview-category">MISI 2: MATHCHAMPS SPEED MATH</span>
-              <span class="preview-points">Maks 5 Poin</span>
-            </div>
-            <h2 class="preview-title">Speed Calculation Sempoa Kilat</h2>
-            <p class="preview-desc">
-              Perwakilan tim akan dihadapkan pada 5 soal hitungan mental matematika cepat. Siapa cepat dan tepat, langsung sprint kejar Kak Balqis!
-            </p>
-
-            <!-- ========================================================== -->
-            <!-- YAZID: ISI KONTEN GAME POS 2 (MATHCHAMPS) DI BAWAH INI    -->
-            <!-- ========================================================== -->
-            <div class="game-blackbox" id="blackbox-scouting-2">
-              <div class="blackbox-header">
-                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-                <span class="blackbox-title">mathchamps_speed_engine.exe</span>
-              </div>
-              <div class="blackbox-inner">
-                <div class="math-sample-grid">
-                  <div class="math-card">Soal 1: 47 + 89 - 26 = ?</div>
-                  <div class="math-card">Soal 2: 125 × 8 ÷ 4 = ?</div>
-                  <div class="math-card">Soal 3: 35% dari 240 = ?</div>
-                </div>
-                <div class="blackbox-placeholder-note">
-                  💡 <em>[Area Game Math] Soal hitungan kilat interaktif akan tampil di sini saat babak tanding dimulai.</em>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="scouting-pos-content hidden" id="scouting-pos-content-3">
-          <div class="challenge-preview-card">
-            <div class="preview-header">
-              <span class="preview-category">MISI 3: MEMORY ACADEMY</span>
-              <span class="preview-points">Maks 5 Poin</span>
-            </div>
-            <h2 class="preview-title">Visual Memory 3-Detik Flash</h2>
-            <p class="preview-desc">
-              Layar akan menampilkan gambar ramai situasi kantor selama 3 detik, lalu tertutup. Peserta harus menjawab detail objek yang ditanyakan!
-            </p>
-
-            <!-- ========================================================== -->
-            <!-- YAZID: ISI KONTEN GAME POS 3 (MEMORY) DI BAWAH INI        -->
-            <!-- ========================================================== -->
-            <div class="game-blackbox" id="blackbox-scouting-3">
-              <div class="blackbox-header">
-                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-                <span class="blackbox-title">visual_memory_flash.png</span>
-              </div>
-              <div class="blackbox-inner">
-                <div class="memory-sample-box">
-                  <div class="memory-sample-text">🖼️ [FLASH IMAGE: Situasi Ruang Kerja MSIG Da Vinci]</div>
-                  <div class="memory-sample-question">Pertanyaan: "Berapa jumlah cangkir kopi dan siapa yang mengenakan kacamata?"</div>
-                </div>
-                <div class="blackbox-placeholder-note">
-                  💡 <em>[Area Game Memory] Gambar memori visual akan tampil di sini saat babak tanding dimulai.</em>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="scouting-pos-content hidden" id="scouting-pos-content-4">
-          <div class="challenge-preview-card">
-            <div class="preview-header">
-              <span class="preview-category">MISI 4: SPREADSHEET SPECIAL</span>
-              <span class="preview-points">Maks 5 Poin</span>
-            </div>
-            <h2 class="preview-title">Formula Error Fixer #REF!</h2>
-            <p class="preview-desc">
-              Tabel data laporan bulanan mengalami error formula `#REF!` dan `#VALUE!`. Peserta harus memperbaikinya hingga angka total valid!
-            </p>
-
-            <!-- ========================================================== -->
-            <!-- YAZID: ISI KONTEN GAME POS 4 (SPREADSHEET) DI BAWAH INI   -->
-            <!-- ========================================================== -->
-            <div class="game-blackbox" id="blackbox-scouting-4">
-              <div class="blackbox-header">
-                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-                <span class="blackbox-title">sheets_formula_fixer.gsheet</span>
-              </div>
-              <div class="blackbox-inner">
-                <div class="sheets-sample-grid">
-                  <table class="mini-sheet-table">
-                    <tr><th>A</th><th>B</th><th>C (Total)</th></tr>
-                    <tr><td>Revenue</td><td>$14,500</td><td>=SUM(B2:#REF!)</td></tr>
-                    <tr><td>COGS</td><td>$6,200</td><td class="text-red">#REF! Error</td></tr>
-                  </table>
-                </div>
-                <div class="blackbox-placeholder-note">
-                  💡 <em>[Area Game Spreadsheet] Tabel formula interaktif akan tampil di sini saat babak tanding dimulai.</em>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================================================================== -->
-    <!-- VIEWPORT 4: MATCH ROUND (Slide 13, 14, 15, 16)                     -->
-    <!-- KEEMPAT LAPTOP SERENTAK MENAMPILKAN CHALLENGE YANG SAMA!          -->
-    <!-- Ada aba-aba 3-2-1 Mulai + Black Box Workspace + Tombol Bel         -->
-    <!-- ================================================================== -->
-    <section id="view-match" class="pos-view">
-      <!-- 3-2-1 Ready Countdown Overlay -->
-      <div id="match-ready-overlay" class="match-ready-overlay active">
-        <div class="countdown-circle">
-          <span id="match-countdown-num" class="countdown-num">3</span>
-        </div>
-        <h2 id="match-ready-title" class="match-ready-title">BERSAP TANDING...</h2>
-        <p class="match-ready-sub">Perwakilan kelompok duduk di kursi laptop pos meja tengah!</p>
-        <button id="btn-manual-start-match" class="btn-manual-start">▶ MULAI TANDING SEKARANG</button>
-      </div>
-
-      <!-- Match Active Workspace -->
-      <div class="match-workspace-container">
-        <div class="match-header-bar">
-          <div class="match-title-group">
-            <span class="match-pos-badge" id="match-challenge-badge">CHALLENGE 1: KALANANTI</span>
-            <h1 class="match-challenge-name" id="match-challenge-name">Scratch Code Debugging</h1>
-          </div>
-          <div class="match-score-rule">
-            <span class="score-rule-badge">Benar 1st: <strong>+5 Poin</strong></span>
-            <span class="score-rule-badge">Benar 2nd: <strong>+4 Poin</strong></span>
-          </div>
-        </div>
-
-        <!-- The Actual Challenge Arena (Black Box) -->
-        <div class="match-challenge-arena">
-          <!-- ========================================================== -->
-          <!-- YAZID: CONTAINER AREA GAME AKTIF                          -->
-          <!-- ========================================================== -->
-          <div class="game-blackbox full-match-box" id="match-blackbox-container">
-            <div class="blackbox-header">
-              <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-              <span class="blackbox-title" id="match-blackbox-title">active_challenge_workspace</span>
-            </div>
-            <div class="blackbox-inner match-inner" id="match-blackbox-content">
-              <!-- Dynamically rendered or customizable by Yazid -->
-              <div class="blackbox-placeholder-active">
-                <div class="placeholder-icon">💻</div>
-                <h3 id="match-display-title">Tantangan Sedang Berlangsung</h3>
-                <p id="match-display-desc">Perbaiki bug atau selesaikan soal di bawah ini secepat mungkin!</p>
-                <div class="placeholder-custom-slot" id="match-custom-slot">
-                  <!-- Embed link, iframe, atau teks game Yazid masuk di sini -->
-                  <div class="slot-instruction">
-                    <em>[KONTEN GAME AKTIF: Peserta mengerjakan tantangan di laptop ini]</em>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Giant Sprint Bell Button -->
-        <div class="match-footer-action">
-          <button id="btn-sprint-bell" class="btn-giant-sprint-bell">
+        <!-- GIANT BELL BUTTON: LARI KEJAR KAK BALQIS! -->
+        <div class="battle-bell-container">
+          <button id="btn-sprint-bell" class="btn-giant-bell">
             <span class="bell-emoji">🔔</span>
-            <span class="bell-text-group">
-              <span class="bell-main-text">SELESAI! SPRINT KEJAR KAK BALQIS!</span>
-              <span class="bell-sub-text">Pencet bel meja di depan untuk mengunci waktu & dapatkan 5 poin!</span>
-            </span>
+            <span class="bell-main-text">KITA UDAH KELAR! LARI KEJAR KAK BALQIS!</span>
+            <span class="bell-sub-text">Tekan bel ini, lalu 1 perwakilan tim lari secepat kilat ke meja panitia! (+5 / +4 Pt)</span>
           </button>
         </div>
+
       </div>
-    </section>
+    </div>
 
   </main>
 
-  <!-- Audio Ding Player -->
+  <script src="sync-engine.js"></script>
   <script src="pos.js"></script>
 </body>
 </html>
