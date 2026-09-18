@@ -977,7 +977,21 @@ Melakukan eksekusi penuh pemecahan 4 babak tantangan menjadi alur **Briefing Ter
 4. **Verifikasi Otomatis Playwright (`scripts/verify_countdown_flow.py`):**
    - Menguji interaksi 3 tab serentak (MC Deck, Pos 1, Admin Mobile).
    - Hasil: `🎉 ALL TESTS PASSED WITH 0 CONSOLE ERRORS!`.
-5. **Git Checkpoint & Push:**
-   - Commit dan push otomatis ke remote personal: `git@github.com-personal:madyazdhil/hh-kids-26.git`.
+### User — 2026-09-18T11:14:30+07:00
 
+continue
+
+### Assistant — 2026-09-18T11:18:00+07:00
+
+Menyelesaikan penyelarasan akhir (final polish) untuk integrasi Spectator Arena (VDO.ninja) dan pemisahan Slide Briefing vs Battle Countdown (26 slides):
+1. **Peningkatan Sync Queue Server (`scripts/server.py` & `sync-engine.js`):**
+   - Menambahkan buffer `signals: []` (60 sinyal terakhir) di endpoint `/api/sync` untuk menjamin tidak ada sinyal remote (seperti `REMOTE_GOTO_SLIDE` atau `BATTLE_COUNTDOWN`) yang terlewatkan saat banyak client mengirim request dalam interval polling yang sama.
+2. **Perbaikan State Input Admin (`admin.js` & `src/admin.js`):**
+   - Menambahkan guard `document.activeElement !== remoteSlideSelect` agar nilai dropdown lompat slide di HP Aldeina tidak ter-reset secara tidak sengaja oleh sinyal update proyektor yang sedang masuk saat user sedang memilih slide.
+3. **Verifikasi Otomatis 100% Lolos:**
+   - `scripts/verify_pos_flow.py`: Verifikasi alur 26 slide, transisi standby lock, hitungan 3-2-1, pembukaan soal, bel sprint, dan kembalinya laptop ke logo Office Olympic pada Slide 21 lulus sempurna.
+   - `scripts/verify_spectator_arena.py`: Verifikasi overlay spectator 4 layar, tombol broadcast 1-klik di laptop pos, dan shortcut remote `V` lulus sempurna.
+   - `scripts/verify_countdown_flow.py`: Verifikasi countdown 3-2-1 dan jump Slide 23 (Awarding) / Slide 24 (Doorprize) dari HP Aldeina lulus 100% dengan 0 console error.
+4. **Git Checkpoint & Push:**
+   - Seluruh perubahan di-commit dan di-push ke GitHub: `git@github.com-personal:madyazdhil/hh-kids-26.git`.
 
