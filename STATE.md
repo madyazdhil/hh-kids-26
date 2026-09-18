@@ -26,14 +26,13 @@
   - Sinkronisasi instan tombol *"Kirim Juara ke Proyektor"* menuju Slide 23 (Awarding) dan remote spin Doorprize menuju Slide 24.
 - **Automated Playwright Verification:**
   - `scripts/verify_countdown_flow.py` memvalidasi MC deck 26 slide, locked briefing states, countdown transitions, and admin awarding jump (0 console errors).
-- **Tantangan Babak 3: Memory Academy Visual Flash Integrasi Penuh:**
-  - Desain diselaraskan 100% dengan template Dark Navy Black Glassmorphism `pos.html`.
-  - Menggunakan 20 objek (10 objek baru dari Ruangguru CDN `cdn-web-2.ruangguru.com` + 10 objek klasik) dengan pengacakan dinamis Fisher-Yates shuffle.
-  - Alur otomatis: Terkunci di Slide 17 (Briefing), terbuka serentak di semua meja (Pos 1 s/d 4) begitu hitungan mundur 3-2-1 di proyektor Slide 18 selesai (`MULAI!`).
-  - Fase observasi 20 kartu 3D flip berurutan (1.0s) dilengkapi tombol lewati instan (`Spasi`).
-  - Fase kuis 20 pertanyaan bergambar yang didesain **Keyboard-First** (`A`/`1`/`←` dan `B`/`2`/`→`) dengan tactile glow badge dan Web Audio synth sound effects.
-  - Begitu kuis selesai, sistem menampilkan skor akurasi dan menyalakan pulsing glow pada tombol bel raksasa: *"🔔 KITA UDAH KELAR! LARI KEJAR KAK BALQIS!"*.
-  - Terverifikasi via Playwright dengan 0 console error (`verify_memory_pos_integration.py`).
+- **Tantangan Babak 3: Memory Academy Visual Flash (Pemisahan Observasi Proyektor & Kuis Pos):**
+  - **Arsitektur Pemisahan Layar Proyektor vs Pos**:
+    - **Layar Proyektor MC (Big Screen)**: Setelah hitungan mundur 3, 2, 1 mencapai "MULAI!", fase observasi (20 kartu 3D flip bergambar, 1.2 detik/kartu) ditampilkan secara megah di layar proyektor utama depan ruangan. MC memiliki kontrol lewati (`⏩ Lewati Observasi`).
+    - **Layar Meja Pos Pemain (`pos.html`)**: Selama kartu sedang di-flip di proyektor, kuis ditahan dan layar pos menampilkan pesan atensi: *"👀 TATAP LAYAR PROYEKTOR DI DEPAN! HAFALKAN 20 OBJEK BERSAMA TIMMU!"*.
+    - **Kuis Serentak Tanpa Observasi Ulang**: Begitu 20 kartu selesai di-flip (atau MC klik lewati), proyektor menyiarkan `MEMORY_START_QUIZ`. Di proyektor muncul banner kuis aktif & siaga bel juri, sementara di meja Pos 1 s/d 4, soal kuis 20 pertanyaan bergambar serentak terbuka langsung (`mode=quiz`) untuk dijawab kilat via keyboard (`A`/`1`/`←` dan `B`/`2`/`→`).
+    - Setelah nomor 20 terjawab, skor langsung dihitung dan tombol bel raksasa di bawah layar pos menyalakan pulsing glow untuk sprint ke Kak Balqis!
+  - Terverifikasi 100% via Playwright (`scripts/verify_projector_memory_flow.py`) dengan 0 console error dan tangkapan layar verifikasi lengkap.
 - **Tantangan Babak 4: Spreadsheet Emergency Room (Google Sheets #REF! Fixer) Integrasi Penuh ke `pos.html`:**
   - Tampilan spreadsheet otentik khas Google Workspace (Formula bar `fx`, cell address box, toolbar Undo `Ctrl+Z`, F4 Kunci Sel `$`, dan sheet tab bawah) dengan aksen Dark Navy Glassmorphism senada dengan `pos.html`.
   - 5 Kasus Troubleshoot Kantor Nyata:

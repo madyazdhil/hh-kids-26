@@ -1205,4 +1205,41 @@ continuee
      - Sinkronisasi ganda root dan `src/` (`pos.js`, `src/pos.js`, `sempoa-slide.html`, `src/sempoa-slide.html`).
      - Commit `feat(pos): integrate keyboard-only sempoa speed math arena into pos battle workspace` (`c94e3c3`) dan push sukses ke `git@github.com-personal:madyazdhil/hh-kids-26.git`.
 
+### User — 2026-09-18T13:30:45+07:00
+
+```text
+eh ini ada perbaikan , haruwsnya nanti urutan memory nya ditampilin di bagian ini aja di proyektor , 
+
+jadi abis 3, 2, 1, itu dia nampilin cardnya doi flip filip kan 
+
+nah kalo udah soal nya langsung muncul di masing amsing pos nyaaa gituuu biar seruuu 
+```
+
+### Assistant — 2026-09-18T13:36:00+07:00
+
+- **Pemisahan Arsitektur Babak 3 Memory Challenge (Observasi Proyektor & Kuis Serentak Meja Pos)**:
+  1. **Layar Proyektor MC (Big Screen Observasi - Slide 18)**:
+     - Menambahkan kontainer 3-tahap pada Slide 18 (`index.html` & `src/index.html`):
+       - *Stage 1*: Hitungan mundur hitung 3, 2, 1 (`#memory-stage-countdown`).
+       - *Stage 2*: Flip card 3D observasi 20 objek bergambar (`#memory-stage-observation`) dengan tempo 1.2s per kartu, visual kartu flip realistis bergradasi neon magenta/cyan, badge nomor kartu `KARTU X DARI 20`, progress bar, dan tombol kendali MC: `⏩ Lewati Observasi`.
+       - *Stage 3*: Banner pengumuman kuis aktif di meja peserta (`#memory-stage-quiz-active`) dan radar siaga bel sprint di meja juri Kak Balqis.
+     - Mengintegrasikan engine observasi di `app.js` & `src/app.js` yang otomatis broadcast `MEMORY_OBSERVATION_START` ke semua laptop pos saat countdown mencapai 0 ("MULAI!"), memutar animasi flip 3D berurutan, dan mem-broadcast `MEMORY_START_QUIZ` begitu 20 kartu selesai.
+  2. **Layar Meja Pos Pemain (`pos.html`, `pos.js`, `src/pos.js`)**:
+     - *Fase Observasi*: Menahan kuis selama observasi di proyektor berjalan, menampilkan countdown display `👀 HAFALKAN!` dan pesan atensi: *"👀 TATAP LAYAR PROYEKTOR DI DEPAN! Hafalkan 20 objek yang sedang di-flip MC bersama timmu! Soal kuis 20 pertanyaan akan serentak terbuka di laptop ini begitu hafalan selesai!"*.
+     - *Fase Kuis Serentak*: Begitu sinyal `MEMORY_START_QUIZ` diterima, layar pos otomatis membuka arena tantangan (`memory-slide.html?mode=quiz&autostart=1`) langsung ke Fase Kuis 20 pertanyaan tanpa fase observasi ulang di pos.
+     - Menambahkan guard `renderedBattleRound` di `pos.js` untuk mencegah iframe kuis ter-reload ulang saat polling sinkronisasi berjalan.
+  3. **Direct Quiz Engine & Keyboard Controls (`memory-slide.html` & `src/memory-slide.html`)**:
+     - Menambahkan fungsi `startDirectQuiz()` yang dapat dipicu via parameter URL `?mode=quiz` atau sinyal postMessage `MEMORY_START_QUIZ`.
+     - Kontrol keyboard super responsif: `A`/`1`/`←` untuk Opsi A dan `B`/`2`/`→` untuk Opsi B.
+     - Skor akhir dan trigger pulsing glow pada tombol bel sprint raksasa: *"🔔 KITA UDAH KELAR! LARI KEJAR KAK BALQIS!"*.
+  4. **Multi-Threaded Sync Server & Resilience (`scripts/server.py`, `sync-engine.js`)**:
+     - Meng-upgrade server HTTP Python menjadi `ThreadedHTTPServer(ThreadingMixIn, HTTPServer)` dengan `threading.Lock()` untuk mencegah connection reset saat 4+ tab browser polling `/api/sync` secara bersamaan.
+     - Menambahkan deduplikasi `seenMessageIds` saat startup client agar sinyal lama tidak mengacaukan slide aktif.
+  5. **Verifikasi Pengujian Otomatis (`scripts/verify_projector_memory_flow.py`)**:
+     - Menjalankan skrip Playwright end-to-end multi-page yang memvalidasi transisi Slide 17 (locked) -> Slide 18 countdown -> Proyektor flip card stage 2 -> Pos attention status -> Proyektor skip/finish stage 3 -> Pos auto-unlock quiz -> Simulasi jawab 20 soal via keyboard -> Hasil skor & sprint bell.
+     - Hasil pengujian: **100% Lulus (PASS)** dengan **0 console error**.
+  6. **Git Checkpoint & Push**:
+     - Melakukan commit `feat(regroup-hh): split memory challenge projector observation and pos quiz` (`25eba0f`) dan sukses push ke repositori GitHub personal `git@github.com-personal:madyazdhil/hh-kids-26.git`.
+
+
 
