@@ -711,22 +711,23 @@ document.addEventListener('DOMContentLoaded', () => {
       target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/a49445b5-2191-40fc-ab02-08c50ba62317.png'
     },
     {
+      name: 'Kalkulator Digital',
+      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/d60b31a0-5d31-49c6-ba4a-aa506324e9eb.png'
+    },
+    {
+      name: 'Penghapus Karet',
+      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/acacd102-f722-407d-a934-f0f0fe033e98.png'
+    },
+    {
       name: 'Selotip Bening',
-      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/cf99156f-f236-4122-861f-f1388b903f0d.png'
+      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6637bca5-ab3b-4317-884c-563a351936ae.png'
     },
     {
-      name: 'Rautan Pensil Meja',
-      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/fe8e7058-ba81-4202-b0ba-4475470559a4.png'
-    },
-    {
-      name: 'Kalkulator Meja',
-      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/418f725a-939e-4c74-8b6a-935105e46802.png'
-    },
-    {
-      name: 'Penghapus Putih',
-      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/b02c892b-8a71-46bb-be11-97b7707e7811.png'
+      name: 'Penggaris Kayu',
+      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/124e6158-10fb-4c89-a81d-81dc91c0c58f.png'
     }
   ];
+  window.MEMORY_PROJECTOR_ITEMS = MEMORY_PROJECTOR_ITEMS;
 
   let projectorObsTimer = null;
   let projectorObsIndex = 0;
@@ -827,6 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
       startProjectorMemoryObservation();
     });
   }
+  window.startProjectorMemoryObservation = startProjectorMemoryObservation;
 
   // Bind trigger buttons on slides
   document.querySelectorAll('.btn-trigger-countdown').forEach(btn => {
