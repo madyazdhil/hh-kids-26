@@ -1422,3 +1422,15 @@ Status: camera feed / spectator rendering issue under investigation.
 - Added an explicit `REQUEST_PROYEKTOR_ID` handshake: each Pos requests the current projector Peer ID when its Peer opens and when streaming starts; the MC responds with the actual active Peer ID.
 - Updated `pos.js` / `src/pos.js` and `app.js` / `src/app.js`; syntax checks passed.
 - Status: implemented; ready to push and retest camera feed after refreshing MC spectator and Pos pages.
+
+### Assistant — 2026-09-18
+
+Penyebab kamera tidak muncul: tombol kamera di Pos memang aktif, tetapi Pos masih mengirim stream ke PeerJS ID projector lama/fallback. Spectator menerima layar kosong karena tidak mendapatkan ID projector aktif.
+
+Sudah diperbaiki di commit `52bdc77` dengan handshake baru `REQUEST_PROYEKTOR_ID` → `PROYEKTOR_READY`, lalu sudah dipush ke GitHub.
+
+Cara retest:
+1. Hard refresh halaman MC dan semua Pos.
+2. Di MC, buka Spectator Arena terlebih dahulu.
+3. Di setiap Pos, klik `Siaran ke Proyektor` dan izinkan camera + screen share.
+4. Tunggu 2–3 detik; feed kamera akan muncul sebagai PiP di kartu Pos masing-masing.
