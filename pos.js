@@ -429,8 +429,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnBroadcastStream = document.getElementById('btn-broadcast-stream');
   if (btnBroadcastStream) {
     btnBroadcastStream.addEventListener('click', () => {
-      const pushUrl = `https://vdo.ninja/?push=hhkids26_pos${assignedPos}&screenshare&webcam=0&quality=1&label=Pos%20${assignedPos}&transparent=1`;
-      window.open(pushUrl, `vdo_stream_pos${assignedPos}`, 'width=950,height=650,menubar=no,toolbar=no,location=no');
+      // Hilangkan &webcam=0 agar track video tidak ter-mute secara otomatis oleh VDO.ninja
+      const pushUrl = `https://vdo.ninja/?push=hhkids26_pos${assignedPos}&screenshare&quality=1&label=Pos%20${assignedPos}&transparent=1`;
+      window.open(pushUrl, '_blank');
       btnBroadcastStream.classList.add('streaming');
       btnBroadcastStream.innerHTML = `<span class="broadcast-icon">🟢</span><span class="broadcast-text">Siaran Aktif (Pos ${assignedPos})</span>`;
     });
