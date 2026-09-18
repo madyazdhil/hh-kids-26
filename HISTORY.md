@@ -1529,3 +1529,13 @@ Tes sedang memeriksa empat Pos di sesi browser yang terpisah: instruksi saat sco
 ### Failed Attempt
 
 - Browser clock acceleration ran excessively slowly while processing animations; terminated only this task's test process and replaced the accelerated 60-second timer with a real two-second preset in the test harness.
+
+### Assistant commentary
+
+Scouting sudah lolos: empat Pos menampilkan instruksi masing-masing tanpa game, refresh kembali ke fase yang benar, dan timer habis mengunci layar. Aku lanjut menguji semua babak dan jalur WebRTC dengan relay ntfy sengaja dibuat gagal, supaya perbaikan tidak hanya lolos lewat jalur cadangan.
+
+### Failed Attempt / diagnostics
+
+- Four full Scratch editor loads made the synchronization regression unnecessarily heavy. Restricted nested editor content at the test boundary; the real Pos/Scratch wrapper and all state code remain unchanged.
+- First real PeerJS test timed out forming data connections. Signaling OFFER/ANSWER/CANDIDATE reached the correct peers. Found watchdog retry could close a still-negotiating data connection every 5 seconds; extended negotiation grace to 25 seconds. Test also disables mDNS host obfuscation to keep controlled same-machine ICE deterministic.
+- Cleanup retry reported no such process because the earlier test processes had already exited.

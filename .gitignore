@@ -5,3 +5,8 @@ node_modules/
 dist/
 output/
 src/turbowarp/
+
+.build/
+DerivedData/
+.env.*
+__pycache__/

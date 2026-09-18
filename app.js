@@ -1273,6 +1273,18 @@ document.addEventListener('DOMContentLoaded', () => {
         call.on('stream', (remoteStream) => {
           const { pos, type } = call.metadata || {};
           const posNum = pos || 1;
+          const cleanup = () => {
+            const video = document.getElementById(`stream-${type === 'cam' ? 'cam' : 'screen'}-pos${posNum}`);
+            if (!video || video.srcObject !== remoteStream) return;
+            video.srcObject = null;
+            if (type === 'cam') document.getElementById(`cam-pip-pos${posNum}`)?.classList.add('hidden');
+            else {
+              video.classList.add('hidden');
+              document.getElementById(`waiting-pos${posNum}`)?.classList.remove('hidden');
+            }
+          };
+          call.on('close', cleanup);
+          call.on('error', cleanup);
           const receipt = { type: 'STREAM_RECEIVED', payload: { pos: posNum, type } };
           syncConnections.forEach(connection => { if (connection.open) connection.send(receipt); });
           

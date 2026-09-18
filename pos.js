@@ -471,6 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnBroadcastStream = document.getElementById('btn-broadcast-stream');
   let posPeer = null;
   let dataConnection = null;
+  let dataConnectStartedAt = 0;
   const mediaCalls = new Map();
   let activeScreenStream = null;
   let activeCamStream = null;
@@ -505,16 +506,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function connectProjectorData() {
     if (!posPeer?.open) return;
-    if (dataConnection && dataConnection.peer === activeProyektorPeerId && dataConnection.open) return;
+    if (dataConnection && dataConnection.peer === activeProyektorPeerId
+      && (dataConnection.open || Date.now() - dataConnectStartedAt < 25000)) return;
     if (dataConnection) dataConnection.close();
     const connection = posPeer.connect(activeProyektorPeerId, { reliable: true });
     dataConnection = connection;
+    dataConnectStartedAt = Date.now();
     connection.on('open', () => {
       window.HHSync?.send('REQUEST_STATUS');
       if (activeScreenStream || activeCamStream) transmitStreamsToProyektor();
     });
     connection.on('data', message => window.HHSync?.receive(message));
-    connection.on('error', error => console.warn('Koneksi proyektor:', error));
+    connection.on('error', error => { dataConnectStartedAt = 0; console.warn('Koneksi proyektor:', error); });
+    connection.on('close', () => { if (dataConnection === connection) dataConnectStartedAt = 0; });
   }
   window.HHSync?.addTransport(message => {
     if (dataConnection?.open) dataConnection.send(message);

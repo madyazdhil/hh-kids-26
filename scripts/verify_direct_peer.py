@@ -13,7 +13,7 @@ ORIGIN = 'https://happy-hour.test'
 
 def run():
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(headless=True)
+        browser = pw.chromium.launch(headless=True, args=['--disable-features=WebRtcHideLocalIpsWithMdns'])
         sockets, errors = {}, []
         def signaling(ws):
             peer_id = parse_qs(urlparse(ws.url).query)['id'][0]
