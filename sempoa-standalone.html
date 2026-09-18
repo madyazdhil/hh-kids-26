@@ -1160,16 +1160,16 @@
         playWrongBuzz();
         feedbackBox.className = 'feedback-box wrong';
         feedbackTitle.innerHTML = '❌ YAH, BELUM TEPAT!';
-        feedbackDetail.innerHTML = `Jawabanmu: <strong>${playerAns}</strong> | Kunci Jawaban: <strong>${correctAns}</strong>`;
+        feedbackDetail.innerHTML = `Jawabanmu: <strong>${playerAns}</strong> — Silakan coba lagi!`;
       }
 
-      // Rincian rumus hitungan
+      // Rincian rumus hitungan (hanya tampil kalau benar)
       const formula = currentActiveNumbers.map((n, idx) => {
         if (idx === 0) return `${n}`;
         return n >= 0 ? `+ ${n}` : `- ${Math.abs(n)}`;
       }).join(' ');
 
-      breakdownText.innerHTML = `📐 <strong>Rincian:</strong> ${formula} = <strong>${correctAns}</strong>`;
+      breakdownText.innerHTML = isCorrect ? `📐 <strong>Rincian:</strong> ${formula} = <strong>${correctAns}</strong>` : '';
     }
 
     function retryCurrentQuestion() {
