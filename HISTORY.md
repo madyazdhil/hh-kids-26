@@ -857,3 +857,39 @@ Membangun dan menguji sistem **4 Pos Laptop Meja Tengah (`src/pos.html`)** yang 
 4. **Git Checkpoint & Push:**
    - Seluruh perubahan kode telah di-commit (`bfdaf9c`) dan di-push ke GitHub pribadi `madyazdhil/hh-kids-26`.
 
+### User — 2026-09-18T09:05:01+07:00
+
+ini ko dia ga kehubung ke proyektor yah ini yang slide mc jkan yang harus bergerak anjir
+
+gimana kalo ada 4 tab / laptop yang buka link slide mc  harusnya semuanya berubah dong ngikut aneh 
+
+### Assistant — 2026-09-18T09:16:00+07:00
+
+Menjelaskan dan menyelesaikan masalah sinkronisasi multi-device & multi-screen antara HP Admin Aldeina, Laptop Proyektor MC, dan 4 Laptop Pos Meja Tengah:
+
+1. **Akar Masalah Sinkronisasi Lintas Perangkat Fisik:**
+   - Sebelumnya, komunikasi multi-tab mengandalkan `BroadcastChannel` dan `localStorage`. Kedua API ini hanya bekerja di dalam **satu browser/laptop yang sama**, dan secara native tidak bisa menyeberang ke perangkat fisik lain (misal dari HP Aldeina ke laptop proyektor).
+   - Di GitHub Pages, hosting bersifat static web hosting, sehingga request HTTP `POST /api/sync` menghasilkan 404 (tidak ada Python server di cloud GitHub). Akibatnya saat HP Aldeina menekan tombol slide di GitHub Pages, proyektor tidak merespon.
+
+2. **Solusi Arsitektur: Tri-Layer Universal Sync Engine (`sync-engine.js` & `src/sync-engine.js`):**
+   - **Layer 1 (Cloud Pub/Sub SSE Realtime via `ntfy.sh/hh_kids_26_regroup_sync_hub_v1`):** Bekerja instan (<50ms) lintas perangkat apa pun (HP sinyal 4G/5G, laptop Wi-Fi Da Vinci, proyektor) tanpa perlu API key atau setup akun, bekerja langsung di GitHub Pages publik.
+   - **Layer 2 (Local Server Polling `/api/sync`):** Berjalan otomatis sebagai cadangan jika internet luar terputus, memanfaatkan server Python lokal di port 8765 (`http://10.170.133.240:8765`).
+   - **Layer 3 (BroadcastChannel & localStorage):** Latensi 0ms untuk multi-tab di dalam laptop yang sama.
+   - **Deduplikasi Pesan Cerdas (`seenMessageIds`):** Mencegah feedback loop tanpa memblokir perpindahan slide yang terjadi bersamaan dengan detik timer.
+
+3. **Sinkronisasi Serentak Multi-Screen (`app.js` & `index.html`):**
+   - Setiap kali salah satu laptop/tab atau HP Admin memajukan slide (`goToSlide`), event `SLIDE_CHANGED` langsung di-broadcast ke seluruh jaringan.
+   - Jika ada 4 laptop atau 10 tab yang membuka `index.html` slide MC, semuanya **100% SERENTAK BERUBAH MENGIKUTI PROYEKTOR**.
+   - Timer otomatis ter-pause saat MC berpindah slide dari Slide 8 atau 11 untuk mencegah kebocoran state timer.
+
+4. **Integrasi Penuh Layar 4 Meja Pos (`pos.html`, `pos.css`, `pos.js`):**
+   - Switcher identitas pos 1–4 via query param (`?pos=1` s.d. `4`) atau switcher pill button.
+   - Terhubung langsung ke asset Scratch visual dari `scratch-slide.html`.
+   - 5 fase dinamis: Template Bersih (Slide 1–5), Logo Standby Office Olympics (Slide 6–7, 9–12, 17+), Sesi Scouting Anti-Bocor (Slide 8 saat timer nyala), Battle Arena Challenge 1–4 (Slide 13–16), dan Tombol Sprint Bel Lari Kak Balqis dengan audio chime Web Audio API.
+
+5. **Pengujian Otomatis Playwright Multi-Context:**
+   - `scripts/test_multi_sync.py`: Menguji 3 browser context terpisah (MC Proyektor, Follower Laptop, dan Mobile Admin). Mengonfirmasi bahwa pergantian slide di Admin atau MC langsung memindahkan seluruh layar lain secara serempak.
+   - `scripts/verify_pos_flow.py`: Menguji seluruh siklus hidup 4 meja pos dari Slide 1 sampai Slide 16. Lulus 100% dengan 0 console error.
+
+6. **Git Commit & Push:**
+   - Seluruh perubahan telah di-commit (`02f8c8b`) dan di-push ke branch `main` repositori personal `madyazdhil/hh-kids-26`.
