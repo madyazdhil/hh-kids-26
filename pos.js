@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let isTimerRunning = false;
   let timerCurrentSec = 60;
   let isBattleUnlocked = false;
+  let isMemoryObserving = false;
 
   // Update Pos Assignment UI
   function updatePosIdentity(posNum) {
@@ -181,12 +182,22 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         if (battleLockedOverlay) battleLockedOverlay.classList.remove('hidden');
         if (battleActiveContent) battleActiveContent.classList.add('hidden');
-        if (countdownDisplay) {
-          countdownDisplay.textContent = 'STANDBY';
-          countdownDisplay.className = 'countdown-digits-big';
-        }
-        if (countdownHint) {
-          countdownHint.innerHTML = 'Tangan bersiap di atas keyboard!<br><strong>Semua Meja 1, 2, 3, 4 tanding bersama!</strong><br>Tantangan terbuka otomatis saat Countdown <strong>3, 2, 1 MULAI!</strong>';
+        if (currentSlideIndex === 17 && isMemoryObserving) {
+          if (countdownDisplay) {
+            countdownDisplay.textContent = '👀 HAFALKAN!';
+            countdownDisplay.className = 'countdown-digits-big countdown-pulse';
+          }
+          if (countdownHint) {
+            countdownHint.innerHTML = '👀 <strong>TATAP LAYAR PROYEKTOR DI DEPAN!</strong><br>Hafalkan 20 objek yang sedang di-flip MC bersama timmu!<br>Soal kuis 20 pertanyaan akan serentak terbuka di laptop ini begitu hafalan selesai!';
+          }
+        } else {
+          if (countdownDisplay) {
+            countdownDisplay.textContent = 'STANDBY';
+            countdownDisplay.className = 'countdown-digits-big';
+          }
+          if (countdownHint) {
+            countdownHint.innerHTML = 'Tangan bersiap di atas keyboard!<br><strong>Semua Meja 1, 2, 3, 4 tanding bersama!</strong><br>Tantangan terbuka otomatis saat Countdown <strong>3, 2, 1 MULAI!</strong>';
+          }
         }
       }
     }
@@ -330,13 +341,13 @@ document.addEventListener('DOMContentLoaded', () => {
         <div style="height: 100%; display: flex; flex-direction: column;">
           <div style="padding: 10px 16px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(0,255,157,0.25); display: flex; justify-content: space-between; align-items: center;">
             <span style="font-weight: 800; color: var(--neon-green); font-family: 'JetBrains Mono', monospace; font-size: 0.88rem;">
-              🧠 ARENA VISUAL MEMORY (MEJA ${assignedPos}) • KEYBOARD [A] / [B] • 20 OBJEK
+              🧠 ARENA KUIS KILAT MEMORY (MEJA ${assignedPos}) • KEYBOARD [A] / [B] • 20 SOAL
             </span>
-            <a href="memory-slide.html" target="_blank" class="btn btn-xs btn-outline" style="border-color: var(--neon-green); color: var(--neon-green);">
+            <a href="memory-slide.html?mode=quiz" target="_blank" class="btn btn-xs btn-outline" style="border-color: var(--neon-green); color: var(--neon-green);">
               Buka Fullscreen Tab ↗
             </a>
           </div>
-          <iframe id="memory-battle-frame" src="memory-slide.html?autostart=1" style="width: 100%; height: calc(100% - 45px); border: none; background: #030712;"></iframe>
+          <iframe id="memory-battle-frame" src="memory-slide.html?mode=quiz&autostart=1" style="width: 100%; height: calc(100% - 45px); border: none; background: #030712;"></iframe>
         </div>
       `;
     } else if (roundIdx === 3) {
@@ -622,6 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (typeof idx === 'number') {
         if (currentSlideIndex !== idx) {
           isBattleUnlocked = false;
+          isMemoryObserving = false;
         }
         currentSlideIndex = idx;
         posSyncStatus.textContent = `🟢 Terhubung ke Proyektor (Slide ${idx + 1})`;
@@ -635,21 +647,55 @@ document.addEventListener('DOMContentLoaded', () => {
         if (count > 0) {
           countdownDisplay.textContent = count;
           countdownDisplay.className = 'countdown-digits-big countdown-pulse';
-          if (countdownHint) countdownHint.innerHTML = 'Bersiaplah! Tantangan akan terbuka dalam hitungan...';
+          if (countdownHint) {
+            countdownHint.innerHTML = currentSlideIndex === 17
+              ? 'Bersiaplah! Hafalan 20 gambar di proyektor akan dimulai...'
+              : 'Bersiaplah! Tantangan akan terbuka dalam hitungan...';
+          }
           playBellChime();
         } else {
-          countdownDisplay.textContent = 'MULAI!';
-          countdownDisplay.className = 'countdown-digits-big countdown-go';
-          if (countdownHint) countdownHint.innerHTML = '🔥 WAKTU BERJALAN! SELESAIKAN MISI SEKARANG!';
-          playBellChime();
-          setTimeout(() => {
-            isBattleUnlocked = true;
-            evaluateScreenState();
-          }, 700);
+          if (currentSlideIndex === 17) {
+            // Babak 3: Memory observation starts on projector!
+            isMemoryObserving = true;
+            isBattleUnlocked = false;
+            countdownDisplay.textContent = '👀 HAFALKAN!';
+            countdownDisplay.className = 'countdown-digits-big countdown-pulse';
+            if (countdownHint) {
+              countdownHint.innerHTML = '👀 <strong>TATAP LAYAR PROYEKTOR DI DEPAN!</strong><br>Hafalkan 20 objek yang sedang di-flip MC bersama timmu!<br>Soal kuis 20 pertanyaan akan serentak terbuka di laptop ini begitu hafalan selesai!';
+            }
+            playBellChime();
+          } else {
+            countdownDisplay.textContent = 'MULAI!';
+            countdownDisplay.className = 'countdown-digits-big countdown-go';
+            if (countdownHint) countdownHint.innerHTML = '🔥 WAKTU BERJALAN! SELESAIKAN MISI SEKARANG!';
+            playBellChime();
+            setTimeout(() => {
+              isBattleUnlocked = true;
+              evaluateScreenState();
+            }, 700);
+          }
         }
       }
+    } else if (data.type === 'MEMORY_OBSERVATION_START') {
+      isMemoryObserving = true;
+      isBattleUnlocked = false;
+      const countdownDisplay = document.getElementById('battle-countdown-display');
+      const countdownHint = document.getElementById('battle-countdown-hint');
+      if (countdownDisplay) {
+        countdownDisplay.textContent = '👀 HAFALKAN!';
+        countdownDisplay.className = 'countdown-digits-big countdown-pulse';
+      }
+      if (countdownHint) {
+        countdownHint.innerHTML = '👀 <strong>TATAP LAYAR PROYEKTOR DI DEPAN!</strong><br>Hafalkan 20 objek yang sedang di-flip MC bersama timmu!<br>Soal kuis 20 pertanyaan akan serentak terbuka di laptop ini begitu hafalan selesai!';
+      }
+      evaluateScreenState();
+    } else if (data.type === 'MEMORY_START_QUIZ') {
+      isMemoryObserving = false;
+      isBattleUnlocked = true;
+      evaluateScreenState();
     } else if (data.type === 'BATTLE_UNLOCKED') {
       isBattleUnlocked = true;
+      isMemoryObserving = false;
       evaluateScreenState();
     } else if (data.type === 'TIMER_TICK' || data.type === 'TIMER_UPDATE') {
       isTimerRunning = data.payload.isRunning;

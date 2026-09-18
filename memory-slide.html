@@ -854,6 +854,17 @@
       showNextObservationCard();
     }
 
+    function startDirectQuiz() {
+      if (obsTimer) clearTimeout(obsTimer);
+      shuffledItems = shuffleArray(ITEM_PAIRS);
+      score = 0;
+      currentQuizIndex = 0;
+      introView.style.display = 'none';
+      observationView.style.display = 'none';
+      resultView.style.display = 'none';
+      startQuizPhase();
+    }
+
     function showNextObservationCard() {
       if (currentObsIndex >= shuffledItems.length) {
         // Switch to Quiz Phase
@@ -1040,7 +1051,9 @@
     // Auto-start & keydown message listener from parent (pos.html)
     window.addEventListener('message', (e) => {
       if (!e.data) return;
-      if (e.data.type === 'AUTO_START_CHALLENGE') {
+      if (e.data.type === 'START_QUIZ_PHASE' || e.data.type === 'MEMORY_START_QUIZ') {
+        startDirectQuiz();
+      } else if (e.data.type === 'AUTO_START_CHALLENGE') {
         if (currentPhase === 'intro') {
           startMemoryChallenge();
         }
@@ -1049,10 +1062,12 @@
       }
     });
 
-    // Auto-start on load if query param autostart=1
+    // Auto-start on load if query param autostart=1 or mode=quiz
     window.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('autostart') === '1') {
+      if (urlParams.get('mode') === 'quiz' || urlParams.get('step') === 'quiz') {
+        startDirectQuiz();
+      } else if (urlParams.get('autostart') === '1') {
         startMemoryChallenge();
       }
     });

@@ -103,6 +103,8 @@
   connectCloudSSE();
 
   // 4. Setup Local Server Polling (/api/sync) for offline Da Vinci Wi-Fi
+  let isInitialPoll = true;
+
   function startLocalPolling() {
     // Only poll if running on http:// (localhost or local IP), not file://
     if (!window.location.protocol.startsWith('http')) return;
@@ -113,6 +115,21 @@
         if (res.ok) {
           const data = await res.json();
           if (data) {
+            if (isInitialPoll) {
+              isInitialPoll = false;
+              // On initial poll, seed seenMessageIds with existing historical messages so they don't replay
+              if (Array.isArray(data.signals)) {
+                data.signals.forEach(sig => {
+                  if (sig && sig.msgId) seenMessageIds.add(sig.msgId);
+                });
+              }
+              // If lastSignal is a current slide status, apply it to sync initial position
+              if (data.lastSignal && (data.lastSignal.type === 'SLIDE_CHANGED' || data.lastSignal.type === 'CURRENT_SLIDE_STATUS')) {
+                dispatchMessage(data.lastSignal);
+              }
+              return;
+            }
+
             if (Array.isArray(data.signals) && data.signals.length > 0) {
               data.signals.forEach(sig => dispatchMessage(sig));
             } else if (data.lastSignal) {
@@ -123,7 +140,7 @@
       } catch (e) {
         // Local server not available (e.g. running on GitHub Pages), safely ignore
       }
-    }, 400);
+    }, 300);
   }
   startLocalPolling();
 

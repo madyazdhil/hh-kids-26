@@ -547,85 +547,6 @@
       z-index: 200;
     }
 
-    .modal-overlay.active {
-      display: flex;
-    }
-
-    .modal-box {
-      width: 100%;
-      max-width: 520px;
-      max-height: 85vh;
-      background: #0d1e38;
-      border: 2px solid var(--neon-gold);
-      border-radius: var(--radius-lg);
-      box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .modal-head {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border-subtle);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .modal-head h3 {
-      font-family: var(--font-display);
-      font-size: 1.15rem;
-      color: var(--neon-gold);
-    }
-
-    .modal-body-content {
-      padding: 16px 20px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .edit-soal-card {
-      background: rgba(3, 7, 18, 0.7);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      padding: 10px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .edit-soal-label {
-      display: flex;
-      justify-content: space-between;
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
-
-    .edit-soal-input {
-      background: rgba(0, 0, 0, 0.6);
-      border: 1px solid var(--border-subtle);
-      color: #ffffff;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-family: var(--font-mono);
-      font-size: 0.95rem;
-      font-weight: 700;
-    }
-
-    .edit-soal-input:focus {
-      border-color: var(--neon-gold);
-    }
-
-    .modal-foot {
-      padding: 14px 20px;
-      border-top: 1px solid var(--border-subtle);
-      display: flex;
-      gap: 10px;
-      background: rgba(3, 7, 18, 0.5);
-    }
   </style>
 </head>
 <body>
@@ -642,7 +563,6 @@
       </div>
       <div class="header-actions">
         <button id="btnSoundToggle" class="icon-action-btn" title="Nyalakan/Matikan Audio" onclick="toggleSound()">🔊</button>
-        <button id="btnEditQuestions" class="icon-action-btn" title="Kustomisasi 10 Soal" onclick="openEditModal()">⚙️</button>
       </div>
     </div>
 
@@ -733,26 +653,6 @@
       <span>Babak 2: Mathchamps</span>
       <span>Akumulasi: <span id="scoreDisplay" class="score-glow">0 / 10 Selesai</span></span>
       <span id="soundStatusText">🔊 Audio ON</span>
-    </div>
-  </div>
-
-  <!-- Modal Edit 10 Soal -->
-  <div id="editModal" class="modal-overlay">
-    <div class="modal-box">
-      <div class="modal-head">
-        <h3>⚙️ Kustomisasi Deret 10 Soal</h3>
-        <button class="icon-action-btn" onclick="closeEditModal()">✕</button>
-      </div>
-      <div class="modal-body-content">
-        <p style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;">
-          Pisahkan angka dengan koma (contoh: <code>38, 47, -19, 52</code>). Tanda minus (<code>-</code>) otomatis dihitung sebagai pengurangan.
-        </p>
-        <div id="modalInputsContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
-      </div>
-      <div class="modal-foot">
-        <button class="btn-action-secondary" onclick="resetDefaultQuestions()">Reset Default</button>
-        <button class="btn-action-primary" style="font-size: 0.95rem; padding: 10px 18px;" onclick="saveCustomQuestions()">Simpan Perubahan</button>
-      </div>
     </div>
   </div>
 
@@ -1082,20 +982,19 @@
         playCorrectChime();
         feedbackBanner.className = 'feedback-banner correct';
         feedbackTitleText.innerHTML = '🎉 BENAR SEKALI! MANTAP!';
-        feedbackDetailText.innerHTML = `Hasil Perhitungan: <strong>${correctAns}</strong>`;
+        feedbackDetailText.innerHTML = `Hasil Perhitungan: <strong>${correctAns}</strong> (Tepat!)`;
+        const formula = currentActiveNumbers.map((n, idx) => {
+          if (idx === 0) return `${n}`;
+          return n >= 0 ? `+ ${n}` : `- ${Math.abs(n)}`;
+        }).join(' ');
+        feedbackCalcBreakdown.innerHTML = `📐 Rincian: ${formula} = <strong>${correctAns}</strong>`;
       } else {
         playWrongBuzz();
         feedbackBanner.className = 'feedback-banner wrong';
-        feedbackTitleText.innerHTML = '❌ YAH, BELUM TEPAT!';
-        feedbackDetailText.innerHTML = `Jawabanmu: <strong>${playerAns}</strong> | Kunci: <strong>${correctAns}</strong>`;
+        feedbackTitleText.innerHTML = '❌ JAWABAN BELUM TEPAT!';
+        feedbackDetailText.innerHTML = `Jawabanmu: <strong>${playerAns}</strong> • Silakan coba lagi!`;
+        feedbackCalcBreakdown.innerHTML = '';
       }
-
-      const formula = currentActiveNumbers.map((n, idx) => {
-        if (idx === 0) return `${n}`;
-        return n >= 0 ? `+ ${n}` : `- ${Math.abs(n)}`;
-      }).join(' ');
-
-      feedbackCalcBreakdown.innerHTML = `📐 Rincian: ${formula} = <strong>${correctAns}</strong>`;
     }
 
     function retryCurrentQuestion() {
@@ -1128,76 +1027,6 @@
       numberDisplayHero.innerText = 'READY';
       btnStartNum.textContent = `${currentQuestionIndex + 1}`;
     }
-
-    // ========================================================================
-    // 6. MODAL EDIT SOAL KUSTOM
-    // ========================================================================
-    const editModal = document.getElementById('editModal');
-    const modalInputsContainer = document.getElementById('modalInputsContainer');
-
-    function openEditModal() {
-      renderModalInputs();
-      editModal.classList.add('active');
-    }
-
-    function closeEditModal() {
-      editModal.classList.remove('active');
-    }
-
-    function renderModalInputs() {
-      modalInputsContainer.innerHTML = '';
-      questions.forEach((q, idx) => {
-        const sum = q.numbers.reduce((a, b) => a + b, 0);
-        const card = document.createElement('div');
-        card.className = 'edit-soal-card';
-        card.innerHTML = `
-          <div class="edit-soal-label">
-            <span>SOAL #${idx + 1} (${q.numbers.length} Baris)</span>
-            <span style="color: var(--neon-gold); font-weight: 800;">Kunci = ${sum}</span>
-          </div>
-          <input type="text" class="edit-soal-input" id="edit_input_${idx}" value="${q.numbers.join(', ')}" />
-        `;
-        modalInputsContainer.appendChild(card);
-      });
-    }
-
-    function saveCustomQuestions() {
-      const updated = [];
-      for (let i = 0; i < questions.length; i++) {
-        const el = document.getElementById(`edit_input_${i}`);
-        if (!el) continue;
-        const nums = el.value.trim().split(/[\s,]+/).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
-        if (nums.length === 0) {
-          alert(`Soal #${i + 1} tidak boleh kosong!`);
-          return;
-        }
-        updated.push({
-          id: i + 1,
-          numbers: nums,
-          label: `Soal ${i + 1}`
-        });
-      }
-
-      questions = updated;
-      localStorage.setItem('sempoa_custom_10_soal', JSON.stringify(questions));
-      closeEditModal();
-      renderQuestionPills();
-      resetToStandby();
-    }
-
-    function resetDefaultQuestions() {
-      if (confirm('Kembalikan semua 10 soal ke default?')) {
-        questions = JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
-        localStorage.removeItem('sempoa_custom_10_soal');
-        renderModalInputs();
-        renderQuestionPills();
-        resetToStandby();
-      }
-    }
-
-    editModal.addEventListener('click', (e) => {
-      if (e.target === editModal) closeEditModal();
-    });
 
     // Check URL autostart param
     window.addEventListener('DOMContentLoaded', () => {

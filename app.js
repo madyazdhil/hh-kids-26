@@ -310,6 +310,10 @@ document.addEventListener('DOMContentLoaded', () => {
         timers[2].isRunning = false;
         broadcastSync('TIMER_UPDATE', { timerId: 2, isRunning: false, currentSec: timers[2].currentSec, totalSec: timers[2].totalSec });
       }
+      if (currentSlideIndex === 17 && typeof isMemoryObservingProjector !== 'undefined' && isMemoryObservingProjector) {
+        if (projectorObsTimer) clearTimeout(projectorObsTimer);
+        isMemoryObservingProjector = false;
+      }
 
       currentSlideIndex = index;
       updateSlideUI();
@@ -335,6 +339,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const round = parseInt(activeSlide.dataset.round, 10);
       const statusEl = document.getElementById(`battle-status-${round}`);
       if (statusEl) {
+        if (round === 3 && typeof isMemoryObservingProjector !== 'undefined' && isMemoryObservingProjector) {
+          finishProjectorMemoryObservation();
+          return;
+        }
         if (statusEl.textContent.includes('SEDANG BERJALAN')) {
           return;
         }
@@ -622,11 +630,202 @@ document.addEventListener('DOMContentLoaded', () => {
         if (statusEl) statusEl.innerHTML = '🔥 PERTANDINGAN AKTIF! KAK BALQIS STANDBY DENGAN BEL! 🔥';
         SoundFx.playDing();
         broadcastSync('BATTLE_COUNTDOWN', { round: roundNum, count: 0 });
-        broadcastSync('BATTLE_UNLOCKED', { round: roundNum });
+        if (roundNum === 3) {
+          startProjectorMemoryObservation();
+        } else {
+          broadcastSync('BATTLE_UNLOCKED', { round: roundNum });
+        }
       }
     }, 1000);
 
     battleCountdowns[roundNum] = { interval };
+  }
+
+  // ==========================================================================
+  // 6C. SLIDE 18 PROJECTOR MEMORY FLASH OBSERVATION ENGINE
+  // ==========================================================================
+  const MEMORY_PROJECTOR_ITEMS = [
+    {
+      name: 'Sepatu Lari Merah',
+      target: 'https://cdn-web-2.ruangguru.com/landing-pages/assets/3a5d0409-c6e2-4793-be78-572dd2b0db95.jpg'
+    },
+    {
+      name: 'Cangkir Kopi Hijau',
+      target: 'https://cdn-web-2.ruangguru.com/landing-pages/assets/f3f1a5f3-76a1-4116-95da-ec48345d7c41.jpg'
+    },
+    {
+      name: 'Jam Weker Mint Vintage',
+      target: 'https://cdn-web-2.ruangguru.com/landing-pages/assets/f659f8cd-f981-4d4c-89c8-e1d0a7f7e125.jpg'
+    },
+    {
+      name: 'Buah Apel Merah Segar',
+      target: 'https://cdn-web-2.ruangguru.com/landing-pages/assets/b83d03c0-8db3-4c05-9e2d-1e49aa38c2e3.jpg'
+    },
+    {
+      name: 'Buku Jurnal Kulit Biru',
+      target: 'https://cdn-web-2.ruangguru.com/landing-pages/assets/6355f9c8-7826-4fd9-8156-e3c206b1a865.jpg'
+    },
+    {
+      name: 'Headphone Hitam Studio',
+      target: 'https://cdn-web-2.ruangguru.com/landing-pages/assets/fe677312-fc72-4b7b-a538-90726413c4b0.jpg'
+    },
+    {
+      name: 'Botol Minum Stainless',
+      target: 'https://cdn-web-2.ruangguru.com/landing-pages/assets/86664b8c-d479-4383-bf8a-600249f792cd.jpg'
+    },
+    {
+      name: 'Kamera Digital Klasik',
+      target: 'https://cdn-web-2.ruangguru.com/landing-pages/assets/ee85ff51-b03b-4f39-b9c2-1d47c6bf2b1d.jpg'
+    },
+    {
+      name: 'Tanaman Sukulen Pot',
+      target: 'https://cdn-web-2.ruangguru.com/landing-pages/assets/f0383bdf-7fd2-4e06-8027-0e460f788f2d.jpg'
+    },
+    {
+      name: 'Kacamata Hitam Stylish',
+      target: 'https://cdn-web-2.ruangguru.com/landing-pages/assets/73b5263b-aab0-4c03-b2db-be11ae76150a.jpg'
+    },
+    // Classic 10
+    {
+      name: 'Pensil Kayu',
+      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6610ed06-a7fa-48d9-a0b5-3e70dfe96b64.png'
+    },
+    {
+      name: 'Kabel Kusut Putih',
+      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/2f3408b8-b6c5-42ce-8fc4-76544da13aec.png'
+    },
+    {
+      name: 'Gulungan Tali Merah',
+      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/dda1163e-cfee-4085-a128-1cee88d2a2b2.png'
+    },
+    {
+      name: 'Klip Kertas Warna',
+      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/dfa1f11f-573e-47a1-b21f-b43677430afa.png'
+    },
+    {
+      name: 'Gunting Kantor',
+      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/f2b6051d-8fe6-449d-a1bd-700906845629.png'
+    },
+    {
+      name: 'Stapler Meja',
+      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/a49445b5-2191-40fc-ab02-08c50ba62317.png'
+    },
+    {
+      name: 'Selotip Bening',
+      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/cf99156f-f236-4122-861f-f1388b903f0d.png'
+    },
+    {
+      name: 'Rautan Pensil Meja',
+      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/fe8e7058-ba81-4202-b0ba-4475470559a4.png'
+    },
+    {
+      name: 'Kalkulator Meja',
+      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/418f725a-939e-4c74-8b6a-935105e46802.png'
+    },
+    {
+      name: 'Penghapus Putih',
+      target: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/b02c892b-8a71-46bb-be11-97b7707e7811.png'
+    }
+  ];
+
+  let projectorObsTimer = null;
+  let projectorObsIndex = 0;
+  let isMemoryObservingProjector = false;
+
+  function startProjectorMemoryObservation() {
+    isMemoryObservingProjector = true;
+    projectorObsIndex = 0;
+
+    const countdownBox = document.getElementById('memory-stage-countdown');
+    const obsBox = document.getElementById('memory-stage-observation');
+    const quizBox = document.getElementById('memory-stage-quiz-active');
+    const calloutText = document.getElementById('memory-callout-text');
+    const calloutSub = document.getElementById('memory-callout-sub');
+
+    if (countdownBox) countdownBox.classList.add('hidden');
+    if (quizBox) quizBox.classList.add('hidden');
+    if (obsBox) obsBox.classList.remove('hidden');
+
+    if (calloutText) calloutText.innerHTML = '<strong>👀 HAFALKAN 20 GAMBAR DI LAYAR BESAR INI BERSAMA TIMMU!</strong>';
+    if (calloutSub) calloutSub.textContent = 'Laptop Meja Pos menahan kuis sampai hafalan selesai • Fokus ke proyektor!';
+
+    broadcastSync('MEMORY_OBSERVATION_START', { round: 3, totalItems: MEMORY_PROJECTOR_ITEMS.length });
+
+    showNextProjectorObsCard();
+  }
+
+  function showNextProjectorObsCard() {
+    if (!isMemoryObservingProjector) return;
+
+    if (projectorObsIndex >= MEMORY_PROJECTOR_ITEMS.length) {
+      finishProjectorMemoryObservation();
+      return;
+    }
+
+    const item = MEMORY_PROJECTOR_ITEMS[projectorObsIndex];
+    const counterEl = document.getElementById('proj-obs-counter');
+    const progressEl = document.getElementById('proj-obs-progress');
+    const flipScene = document.getElementById('proj-flip-scene');
+    const cardImg = document.getElementById('proj-card-img');
+    const cardName = document.getElementById('proj-card-name');
+
+    if (counterEl) counterEl.textContent = `KARTU ${projectorObsIndex + 1} DARI ${MEMORY_PROJECTOR_ITEMS.length}`;
+    if (progressEl) {
+      const pct = ((projectorObsIndex + 1) / MEMORY_PROJECTOR_ITEMS.length) * 100;
+      progressEl.style.width = `${pct}%`;
+    }
+
+    if (cardImg) cardImg.src = item.target;
+    if (cardName) cardName.textContent = item.name;
+
+    if (flipScene) {
+      flipScene.classList.remove('is-revealed');
+      setTimeout(() => {
+        flipScene.classList.add('is-revealed');
+        SoundFx.playTick();
+      }, 50);
+    }
+
+    projectorObsIndex++;
+    if (projectorObsTimer) clearTimeout(projectorObsTimer);
+    projectorObsTimer = setTimeout(() => {
+      showNextProjectorObsCard();
+    }, 1200);
+  }
+
+  function finishProjectorMemoryObservation() {
+    if (projectorObsTimer) clearTimeout(projectorObsTimer);
+    isMemoryObservingProjector = false;
+
+    const obsBox = document.getElementById('memory-stage-observation');
+    const quizBox = document.getElementById('memory-stage-quiz-active');
+    const calloutText = document.getElementById('memory-callout-text');
+    const calloutSub = document.getElementById('memory-callout-sub');
+
+    if (obsBox) obsBox.classList.add('hidden');
+    if (quizBox) quizBox.classList.remove('hidden');
+
+    if (calloutText) calloutText.innerHTML = '<strong>🔥 SOAL KUIS SUDAH TERBUKA DI LAPTOP POS 1, 2, 3, 4! 🔥</strong>';
+    if (calloutSub) calloutSub.textContent = 'Jawab 20 soal dengan tombol A / B • Tim pertama yang selesai langsung lari pencet bel!';
+
+    SoundFx.playDing();
+    broadcastSync('MEMORY_START_QUIZ', { round: 3 });
+    broadcastSync('BATTLE_UNLOCKED', { round: 3 });
+  }
+
+  // Bind MC control buttons on Slide 18
+  const btnSkipObsProj = document.getElementById('btn-skip-obs-projector');
+  if (btnSkipObsProj) {
+    btnSkipObsProj.addEventListener('click', () => {
+      finishProjectorMemoryObservation();
+    });
+  }
+
+  const btnRestartObsProj = document.getElementById('btn-restart-obs-projector');
+  if (btnRestartObsProj) {
+    btnRestartObsProj.addEventListener('click', () => {
+      startProjectorMemoryObservation();
+    });
   }
 
   // Bind trigger buttons on slides

@@ -476,7 +476,8 @@
         <div class="product-badge memory">BABAK 3 • MEMORY ACADEMY FLASH</div>
         <h1 class="title-bold neon-magenta">ARENA TANDING: VISUAL MEMORY FLASH</h1>
 
-        <div class="countdown-arena-box glass-card">
+        <!-- STAGE 1: COUNTDOWN BOX (Visible initially) -->
+        <div class="countdown-arena-box glass-card" id="memory-stage-countdown">
           <div class="countdown-arena-display" id="battle-countdown-3">
             <span class="countdown-digit-huge pulse-glow">3</span>
           </div>
@@ -488,10 +489,61 @@
           </div>
         </div>
 
-        <div class="arena-live-callout glass-card mt-2">
+        <!-- STAGE 2: OBSERVATION BIG SCREEN FLIP CARD (Visible after countdown) -->
+        <div class="projector-memory-obs-box glass-card glow-magenta hidden" id="memory-stage-observation">
+          <div class="obs-header-bar">
+            <span class="badge-pill bg-magenta" id="proj-obs-counter">KARTU 1 DARI 20</span>
+            <span class="obs-sub-text">👀 HAFALKAN GAMBAR BERSAMA TIMMU!</span>
+            <button class="btn btn-xs btn-outline-gold" id="btn-skip-obs-projector">⏩ Lewati Observasi (Langsung Buka Kuis)</button>
+          </div>
+
+          <div class="obs-progress-bar-wrap">
+            <div class="obs-progress-bar-fill" id="proj-obs-progress" style="width: 5%;"></div>
+          </div>
+
+          <div class="proj-flip-scene" id="proj-flip-scene">
+            <div class="proj-flip-card" id="proj-flip-card">
+              <!-- Back / Initial Face -->
+              <div class="proj-card-face proj-card-back">
+                <div class="proj-card-brand">🧠</div>
+                <div class="proj-card-cover-title">MEMORY ACADEMY</div>
+                <div class="proj-card-cover-sub">SIAP-SIAP HAFALKAN!</div>
+              </div>
+              <!-- Front / Target Image Face -->
+              <div class="proj-card-face proj-card-front">
+                <img id="proj-card-img" src="" alt="Target Object" class="proj-card-image" />
+                <div class="proj-card-name-pill" id="proj-card-name">Nama Objek</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STAGE 3: QUIZ ACTIVE IN POS SCREEN (Visible after 20 cards or skip) -->
+        <div class="projector-memory-quiz-active-box glass-card glow-green hidden" id="memory-stage-quiz-active">
+          <div class="quiz-active-banner">
+            <span class="pulse-icon" style="font-size: 3rem;">🔥</span>
+            <h2 class="title-bold neon-green" style="font-size: 2.2rem; margin-bottom: 8px;">HAFALAN SELESAI! KUIS SUDAH TERBUKA DI POS 1, 2, 3, 4!</h2>
+            <p class="subtitle" style="font-size: 1.25rem; color: #f8fafc;">Peserta sedang menjawab 20 soal kilat di laptop meja masing-masing...</p>
+          </div>
+
+          <div class="sprint-bell-live-alert">
+            <span class="bell-huge-anim">🔔</span>
+            <div class="bell-instruction-box" style="text-align: left;">
+              <h3 style="color: var(--neon-gold); font-size: 1.35rem; margin-bottom: 4px;">SIAPKAN BEL SPRINT DI MEJA KAK BALQIS!</h3>
+              <p style="color: #cbd5e1; font-size: 1rem; margin: 0;">Tim pertama yang selesai menjawab 20 soal akan sprint lari ke depan menekan bel!</p>
+            </div>
+          </div>
+
+          <div class="quiz-active-actions mt-3" style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <button class="btn btn-outline-cyan btn-sm" id="btn-restart-obs-projector">🔄 Ulangi Fase Hafalan Gambar</button>
+            <button class="btn btn-cyan btn-sm btn-open-spectator-round" data-round="3">📺 Buka Spectator Grid (V)</button>
+          </div>
+        </div>
+
+        <div class="arena-live-callout glass-card mt-2" id="memory-stage-callout">
           <span class="live-dot-indicator"></span>
-          <span><strong>GAMBAR VISUAL AKAN TAMPIL SETELAH COUNTDOWN!</strong></span>
-          <p class="arena-sub-hint">Hafalkan semua objek dalam sekejap • Jawab pertanyaan rahasia MC!</p>
+          <span id="memory-callout-text"><strong>GAMBAR VISUAL AKAN TAMPIL SETELAH COUNTDOWN!</strong></span>
+          <p class="arena-sub-hint" id="memory-callout-sub">Hafalkan semua objek dalam sekejap • Jawab 20 soal kuis di meja pos!</p>
         </div>
       </div>
     </section>
