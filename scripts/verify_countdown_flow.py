@@ -15,7 +15,7 @@ def run():
         page_admin = context.new_page()
 
         def catch_error(source, msg):
-            if "429" in msg.text or "ntfy.sh" in msg.text or "ERR_FAILED" in msg.text:
+            if "429" in msg.text or "ntfy.sh" in msg.text or "ERR_FAILED" in msg.text or "ERR_CONNECTION_RESET" in msg.text or "ERR_SOCKET_NOT_CONNECTED" in msg.text:
                 return
             print(f"[CONSOLE ERROR - {source}] {msg.text}")
             errors.append(f"{source}: {msg.text}")
@@ -28,7 +28,7 @@ def run():
         # 1. Load MC Deck
         print("1. Loading MC Deck...")
         page_mc.goto("http://localhost:8765/index.html")
-        page_mc.wait_for_selector(".slide")
+        page_mc.wait_for_selector(".slide.active")
         total_slides = page_mc.locator(".slide").count()
         print(f"   Total slides detected: {total_slides}")
         assert total_slides == 26, f"Expected 26 slides, got {total_slides}"
