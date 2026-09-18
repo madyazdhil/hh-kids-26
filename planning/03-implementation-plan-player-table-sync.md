@@ -1,77 +1,89 @@
-# Implementation Plan: Player Table Screen & Remote Sync (`player.html`)
+# Implementation Plan: 4 Pos Laptop Meja Tengah & Remote Sync (`pos.html`)
 
-Membangun aplikasi web khusus untuk meja pemain (**4 Meja Kelompok / 4 Pos Laptop Meja Tengah**) yang secara otomatis tersinkronisasi dan mengikuti navigasi slide MC dari proyektor secara real-time via jaringan lokal (Wi-Fi Da Vinci) maupun single-machine.
+Membangun aplikasi web khusus untuk **4 Laptop di Meja Tengah (Pos 1 s.d. Pos 4)** yang secara otomatis tersinkronisasi dan mengikuti navigasi slide MC dari proyektor secara real-time via jaringan lokal (Wi-Fi Da Vinci) maupun single-machine.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> - Layar meja pemain ini dapat dibuka di 4 laptop peserta di meja kelompok masing-masing melalui browser: `http://<IP-Laptop-Yazid>:8765/player.html` (atau `http://localhost:8765/player.html`).
-> - Terdapat tombol pemilihan meja: **Meja Kelompok 1, 2, 3, 4** (tersedia opsi 5 & 6 jika dibutuhkan) atau **Pos 1–4 Meja Tengah**.
-> - Terdapat tombol darurat raksasa di setiap babak game: **"🔔 KITA UDAH KELAR! LARI KEJAR KAK BALQIS!"** yang membunyikan lonceng audio dan memberikan sinyal ke tim untuk segera sprint.
+> - **Mekanisme Identifikasi 4 Laptop:**
+>   - Setiap laptop cukup membuka URL dengan parameter:
+>     - Laptop 1: `http://localhost:8765/pos.html?pos=1` (Pos 1: Scratch Debugging)
+>     - Laptop 2: `http://localhost:8765/pos.html?pos=2` (Pos 2: Mathchamps)
+>     - Laptop 3: `http://localhost:8765/pos.html?pos=3` (Pos 3: Memory Academy)
+>     - Laptop 4: `http://localhost:8765/pos.html?pos=4` (Pos 4: Spreadsheet)
+>   - Tersedia juga tombol pemilih di pojok atas layar laptop: `[ 💻 Pos 1 ] [ 💻 Pos 2 ] [ 💻 Pos 3 ] [ 💻 Pos 4 ]` yang otomatis tersimpan permanen di `localStorage` masing-masing laptop.
+> - **Alur Spesifik Sesuai Voice Note Yazid:**
+>   1. **Slide 1–5 (Pre-Show s.d. Post-Senam):** Keempat laptop menampilkan Judul Bersih Grand Template (tanpa spoiler Office Olympic).
+>   2. **Slide 6 & 7 (Office Olympics Splash & Briefing):** Keempat laptop menampilkan Logo & Cincin Neon Office Olympics.
+>   3. **Slide 8 (Timer 1 Menit Ketua Kelompok Mencari / Scouting):**
+>      - Awalnya tetap Logo Office Olympics.
+>      - Begitu tombol **START TIMER** ditekan di laptop MC/Admin: Keempat laptop **serentak membuka 4 tantangan yang berbeda-beda** sesuai posnya (Laptop 1: Scratch, Laptop 2: Math, Laptop 3: Memory, Laptop 4: Spreadsheet).
+>      - Begitu timer habis (00:00) atau MC pindah ke Slide 9: Keempat laptop **langsung otomatis menutup soal dan kembali ke Logo Office Olympics** (anti-bocor!).
+>   4. **Slide 10, 11, 12 (Rules Bel, Timer 2 Menit Rapat Kelompok, Ready):** Tetap menampilkan Logo Office Olympics.
+>   5. **Slide 13 (Challenge 1 - Scratch):** Ada aba-aba *"3, 2, 1 MULAI!"*, dan saat mulai: **KEEMPAT LAPTOP SERENTAK membuka Challenge 1 (Scratch)** di dalam area Black Box container.
+>   6. **Slide 14 (Challenge 2 - Math):** Keempat laptop membuka Challenge 2 (Mathchamps).
+>   7. **Slide 15 (Challenge 3 - Memory):** Keempat laptop membuka Challenge 3 (Memory Academy).
+>   8. **Slide 16 (Challenge 4 - Spreadsheet):** Keempat laptop membuka Challenge 4 (Spreadsheet).
+>   9. **Slide 17 s.d. 22 (Sesi Santuy, Awarding, Closing):** Keempat laptop kembali ke Logo Office Olympics / Celebration.
+> - **Black Box Container:** Disediakan area bersih dan rapi dengan komentar `<!-- YAZID: ISI KONTEN GAME DI SINI -->` sehingga Yazid bisa langsung memasukkan iframe, soal, gambar, atau link game tanpa merusak styling.
 
 ## Proposed Changes
 
-### 1. Player Table Web View (`src/player.html` & `src/player.css`)
+### 1. Web View (`src/pos.html` & `src/pos.css`)
 
-#### [NEW] [`src/player.html`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/src/player.html)
-- Header HUD:
-  - Identitas Meja: Dropdown switcher (`Meja Kelompok 1 - 4` / `Pos 1 - 4`) yang tersimpan di `localStorage`.
-  - Indikator Status Koneksi: `● SINKRON DENGAN PROYEKTOR MC (Slide X)`.
-  - Toggle Auto-Follow: `Auto-Sync: ON / OFF`.
-- Dynamic Content Viewports (mengikuti 22 slide MC):
-  1. **Pre-Show & Welcome:** Sambutan hangat per kelompok, reminder blind box kado.
-  2. **Senam Arcade:** Panduan gerak senam MR.MINIRA + tombol aksi arcade interaktif (Dodge, Jump, Duck, Punch).
-  3. **Scouting Ketua Kelompok:** Countdown timer 1 menit + instruksi rahasia ketua kelompok.
-  4. **Rapat Strategi:** Countdown timer 2 menit + form pembagian 4 peran jagoan kelompok.
-  5. **Challenge 1 (Kalananti Scratch):** Deskripsi bug kode, visual Scratch block, link eksternal project, dan Giant Bell button.
-  6. **Challenge 2 (Mathchamps Speed Math):** Simulasi soal hitung kilat sempoa dan Giant Bell button.
-  7. **Challenge 3 (Memory Academy Visual Memory):** Flash card memori visual detail objek dan Giant Bell button.
-  8. **Challenge 4 (Spreadsheet #REF! Fixer):** Mini interactive spreadsheet table dengan error formula dan Giant Bell button.
-  9. **Sesi Santuy & Tebak Angel:** Display status makan sore dan cue tebak kado putih.
-  10. **Awarding & Doorprize:** Podium live ranking (tersinkron dari Admin Panel), foto pemenang Lunch Challenge (Aulia & Nurul), dan doorprize number display.
-  11. **Sambutan & Penutup:** Cue sambutan Queen Aldeina dan confetti foto bersama.
+#### [NEW] [`src/pos.html`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/src/pos.html)
+- Header status:
+  - Pos Switcher Badge: `[ 💻 Pos 1: Scratch ] [ 💻 Pos 2: Mathchamps ] [ 💻 Pos 3: Memory ] [ 💻 Pos 4: Spreadsheet ]` (otomatis mendeteksi `?pos=X` atau `localStorage`).
+  - Indikator Sinkronisasi: `● Terhubung ke Proyektor (Slide X)`.
+- Multi-state Viewports:
+  1. `#view-title`: Judul Grand Template (Slide 1–5).
+  2. `#view-olympics-logo`: Logo Cincin Neon Office Olympics (Slide 6, 7, 9, 10, 11, 12, 17+).
+  3. `#view-scouting`: Tampilan 4 pos berbeda saat Slide 8 Timer Start (Laptop 1 buka Scratch, Laptop 2 buka Math, Laptop 3 buka Memory, Laptop 4 buka Spreadsheet).
+  4. `#view-match`: Tampilan babak tanding aktif serentak untuk semua laptop (Slide 13, 14, 15, 16) lengkap dengan countdown 3-2-1 Mulai, Black Box game container, dan tombol lonceng *"🔔 KELAR! LARI KEJAR KAK BALQIS!"*.
 
-#### [NEW] [`src/player.css`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/src/player.css)
-- Tema visual Navy & Black Cyber Glassmorphism (`rgba(10, 25, 47, 0.85)`).
-- Neon glow border untuk status aktif meja.
-- Tombol sprint bell lonceng raksasa beranimasi pulsing gold/cyan.
-- Layout responsif optimal untuk laptop dan tablet.
+#### [NEW] [`src/pos.css`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/src/pos.css)
+- Tema Navy & Black Glassmorphism senada dengan deck proyektor (`rgba(10, 25, 47, 0.9)`).
+- Animasi pendar neon untuk Logo Office Olympics.
+- Styling Black Box container yang rapi dengan visual terminal / workspace.
+- Tombol lonceng Kak Balqis beranimasi pulse gold.
 
 ---
 
-### 2. Player Logic & Auto-Sync Engine (`src/player.js`)
+### 2. Synchronization & Client Logic (`src/pos.js`)
 
-#### [NEW] [`src/player.js`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/src/player.js)
-- **Multi-Transport Sync Hub**:
-  - `BroadcastChannel('regroup_happy_hour_sync')` untuk 0ms latency di laptop yang sama.
-  - `window.addEventListener('storage', ...)` sebagai fallback cross-tab.
-  - Polling `/api/sync` setiap 600ms untuk koneksi lintas laptop via Wi-Fi Da Vinci.
-- **Timer Synchronization**: Menampilkan waktu detik timer yang sinkron dengan MC proyektor.
-- **Sound Effects (Web Audio API)**: Suara bel meja nyaring saat tombol "Lari Kejar Kak Balqis" ditekan, suara arcade, dan chime transisi.
+#### [NEW] [`src/pos.js`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/src/pos.js)
+- Identifikasi pos otomatis dari query parameter `?pos=X` atau `localStorage`.
+- Integrasi `BroadcastChannel('regroup_happy_hour_sync')` + `localStorage` storage events + `/api/sync` HTTP polling (600ms).
+- Logika state mesin:
+  - Deteksi `CURRENT_SLIDE_STATUS` dari MC deck.
+  - Deteksi `TIMER_START` dan `TIMER_STOP` / `TIMER_EXPIRED` pada Slide 8 untuk membuka dan mengunci kembali soal scouting.
+  - Deteksi `MATCH_START` untuk hitungan mundur 3-2-1 pada Slide 13–16.
 
 ---
 
-### 3. Server & MC Sync Integration (`scripts/server.py` & `src/app.js`)
+### 3. Server & MC Deck Integration
 
 #### [MODIFY] [`src/app.js`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/src/app.js)
-- Memastikan setiap kali slide MC berpindah atau timer berjalan, deck mem-POST status terbaru ke `/api/sync` pada server lokal agar 4 laptop peserta di Wi-Fi Da Vinci langsung ter-update secara otomatis.
+- Pastikan saat Timer Slide 8 dimulai / berhenti / habis, event `TIMER_RUNNING`, `TIMER_TICK`, dan `TIMER_EXPIRED` ter-broadcast secara konsisten via `BroadcastChannel`, `localStorage`, dan POST `/api/sync`.
 
-#### [NEW] [`player.html`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/player.html)
-- File redirect praktis di root direktori agar URL `http://localhost:8765/player.html` langsung terbuka mulus.
+#### [NEW] [`pos.html`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/pos.html) & [`player.html`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/player.html)
+- Redirect file di root direktori agar link `http://localhost:8765/pos.html` langsung terbuka.
 
 ---
 
 ## Verification Plan
 
 ### Automated Tests
-- Menjalankan Playwright test script: `scripts/verify_player_sync.py`
-  - Membuka MC Deck (`src/index.html`) dan Player Screen (`src/player.html`).
-  - Mengubah slide MC ke Slide 8 (Timer Scouting) -> Verifikasi player screen beralih ke mode Timer Scouting.
-  - Mengubah slide MC ke Slide 13 (Challenge 1 Scratch) -> Verifikasi player screen menampilkan arena tantangan Scratch dan tombol lonceng Kak Balqis.
-  - Mengubah slide MC ke Slide 19 (Awarding) -> Verifikasi podium juara dan foto Aulia & Nurul tampil di layar meja pemain.
-  - Menangkap screenshot verifikasi di `output/player_screen_*.png`.
-
-### Manual Verification
-- Buka `http://localhost:8765/player.html` di browser.
-- Coba pilih "Meja Kelompok 2".
-- Ganti slide di MC deck atau Admin panel dan amati layar meja pemain berganti otomatis secara instan.
+- Script Playwright `scripts/verify_pos_sync.py`:
+  - Membuka MC Deck dan 4 tab Pos Laptop (Pos 1, Pos 2, Pos 3, Pos 4).
+  - Verifikasi pada Slide 1–5: Keempat pos menampilkan judul bersih.
+  - Verifikasi pada Slide 7: Keempat pos menampilkan Logo Office Olympics.
+  - Verifikasi pada Slide 8 sebelum timer: Menampilkan Logo Office Olympics.
+  - Verifikasi saat Timer Slide 8 ditekan Start:
+    - Pos 1 membuka Scratch
+    - Pos 2 membuka Mathchamps
+    - Pos 3 membuka Memory
+    - Pos 4 membuka Spreadsheet
+  - Verifikasi saat pindah ke Slide 9: Keempat pos serentak menutup soal dan kembali ke Logo Office Olympics.
+  - Verifikasi pada Slide 13: Keempat pos serentak menampilkan Challenge 1 (Scratch).
+  - Menangkap screenshot verifikasi setiap fase di `output/pos_*.png`.

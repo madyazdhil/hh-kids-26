@@ -784,3 +784,51 @@ Menjelaskan status GitHub Pages dan cache browser:
    - Admin Panel: `http://localhost:8765/admin.html`
    - Akses HP/Laptop Panitia via Wi-Fi Da Vinci: `http://10.170.133.240:8765/admin.html`
 
+### User — 2026-09-18T08:49:13+07:00
+
+(Voice Note: Spesifikasi detail alur 4 laptop pos meja tengah yang terkontrol dari slide MC:
+1. Sebelum Office Olympic (Slide 1–5): Laptop peserta hanya nampilin judul bersih template yang sama.
+2. Saat Office Olympic (Slide 6 & 7): Muncul logo Office Olympic di setiap laptop.
+3. Slide 8 (Ketua Kelompok Mencari / Scouting):
+   - Awalnya tetap logo Office Olympic.
+   - Begitu timer di slide 8 diklik START: Masing-masing dari 4 laptop menampilkan challenge yang berbeda-beda:
+     - Laptop 1: Pos 1 Scratch Debugging
+     - Laptop 2: Pos 2 Mathchamps
+     - Laptop 3: Pos 3 Memory Academy
+     - Laptop 4: Pos 4 Spreadsheet Special
+   - Begitu timer habis atau masuk Slide 9: Keempat laptop langsung kembali otomatis ke logo Office Olympic (zero leak!).
+4. Slide 10, 11, 12: Tetap menampilkan logo Office Olympic.
+5. Babak Pertandingan (Slide 13 ke atas):
+   - Pas masuk Slide 13 (Scratch): MC jelaskan aturan, ada aba-aba 3-2-1 Mulai.
+   - Saat mulai: KEEMPAT LAPTOPS serentak membuka Challenge 1 (Scratch). Disediakan black box kosong / container agar Yazid bisa memasukkan isi tantangannya nanti.
+   - Hal yang sama berulang untuk Challenge 2 (Mathchamps), Challenge 3 (Memory), Challenge 4 (Spreadsheet).
+   - Setelah Spreadsheet selesai (Slide 17 ke atas): Layar kembali ke logo Office Olympic / closing.
+6. Identifikasi 4 laptop: Buat mekanisme yang mudah agar tiap laptop bisa mengidentifikasi apakah dia Laptop 1, 2, 3, atau 4).
+
+### User — 2026-09-18T08:49:51+07:00
+
+yang admin mobile vie yah soalnya pake hp laptop deina dipake main
+
+### Assistant — 2026-09-18T08:56:30+07:00
+
+Mengubah total tampilan `admin.html`, `admin.css`, dan `admin.js` menjadi **Mobile-First Operator Station** yang ergonomis untuk HP smartphone Aldeina (ramah jempol / thumb-friendly):
+
+1. **Navigasi Tab Segmented & Sticky Bottom Dock:**
+   - **Top Segmented Pills & Bottom Dock:** Tab navigasi 3 menu (`🎛 Remote`, `🏆 Olympic Score`, `🎁 Awarding`) yang selalu menempel di layar HP, bisa berpindah menu hanya dengan 1 tap jempol tanpa perlu refresh atau reload.
+2. **Tab 1 — Remote Slide & Timer (Thumb Action Center):**
+   - **Tombol Raksasa "NEXT STEP / SLIDE ▶" (72px tinggi):** Terletak tepat di area jangkauan jempol dengan efek glow cyan, memudahkan Aldeina memajukan slide sambil berjalan.
+   - **Tombol PREV & Lompat Slide Dropdown:** Akses cepat slide 1–22.
+   - **Remote Timer:** Tombol besar `▶ START / PAUSE` dan `↺ RESET` untuk timer 1 menit & 2 menit.
+   - **Remote Doorprize & Confetti:** Tombol satu tap untuk memutar roda doorprize di proyektor.
+3. **Tab 2 — Olympic Live Scorekeeper (Mobile Card View):**
+   - Menggantikan tabel desktop lebar dengan **Kartu Kelompok (Kelompok 1 s.d. 6)** yang tersusun rapi secara vertikal.
+   - **Pill Filter Pos Cepat (`Semua Pos`, `Pos 1: Scratch`, `Pos 2: Math`, `Pos 3: Memory`, `Pos 4: Sheets`):** Saat Aldeina berdiri di pos tertentu (misal Pos 1), cukup tap "Pos 1: Scratch" maka seluruh kartu kelompok hanya menampilkan Pos 1 dengan tombol ekstra besar!
+   - **Touch Target Ramah Jempol (Tinggi min. 44px):** Tombol `+5 (1st try)` (hijau neon), `Salah` (merah), dan `+4 (2nd try)` (emas) sangat mudah dipencet tanpa risiko salah sentuh.
+   - **Tombol Ekstra "👑 Kirim Juara 1 ke Slide 19"** di bagian atas untuk langsung memproyeksikan juara umum.
+4. **Tab 3 — Awarding Dispatcher (Touch Forms):**
+   - Kartu Lunch Challenge (sudah terisi otomatis **Aulia & Nurul**) lengkap dengan fitur preview foto langsung saat dipilih dari galeri HP, tombol kirim ke proyektor.
+   - Kartu Kostum Terbaik & Most Entertaining Person.
+5. **Verifikasi & Deployment:**
+   - Diuji menggunakan Playwright dengan emulasi layar iPhone 14 Pro (`scripts/verify_mobile_admin.py`). Seluruh interaksi touch, tab switching, dan scoring berjalan 100% mulus tanpa error console.
+   - Screenshot hasil uji tersimpan di `output/mobile_admin_tab1_remote.png`, `output/mobile_admin_tab2_scoring.png`, `output/mobile_admin_tab2_pos1_filter.png`, dan `output/mobile_admin_tab3_awarding.png`.
+   - Kode telah di-commit (`f115bcc`) dan langsung di-push ke GitHub Pages `main`.
