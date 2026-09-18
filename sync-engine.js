@@ -251,7 +251,10 @@
       try {
         fetch(PUB_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          // Do not set application/json here: that triggers a CORS
+          // preflight from GitHub Pages and can silently block the publish
+          // on managed browsers. ntfy accepts the JSON string as the message
+          // body, and subscribers parse raw.message below.
           body: JSON.stringify(msg)
         }).catch(() => {});
       } catch (e) {}

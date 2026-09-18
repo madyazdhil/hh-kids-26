@@ -1377,3 +1377,25 @@ Sudah diperbaiki dan dipush di commit `03f193b`:
 - SSE tetap dipakai sebagai jalur utama.
 
 Deployment GitHub Pages sudah diverifikasi memakai endpoint polling ntfy terbaru. Hard refresh semua laptop (`Cmd/Ctrl + Shift + R`), buka ulang link Pos, lalu tunggu 1–2 detik sampai status terhubung.
+
+### User — 2026-09-18
+
+> masi gabisa ini kok dia masi eror sihhh video juga ga muncul
+>
+> ini kan harusnya nampilin kalo slide 8 dan coundtond ya berati muncul sesuai pos nya instruksi games nya a
+> Laptop Meja 1 (Scratch): https://madyazdhil.github.io/hh-kids-26/pos.html?pos=1
+> Laptop Meja 2 (Mathchamps): https://madyazdhil.github.io/hh-kids-26/pos.html?pos=2
+> Laptop Meja 3 (Memory Academy): https://madyazdhil.github.io/hh-kids-26/pos.html?pos=3
+> Laptop Meja 4 (Spreadsheet): https://madyazdhil.github.io/hh-kids-26/pos.html?pos=4
+>
+> anjirr kau bingung
+
+Status: live sync still failing; screenshot confirms MC is on Slide 8/countdown while Pos remains on Slide 1.
+
+### Assistant action — 2026-09-18
+
+- Screenshot confirms the Pos page loads correctly, but it remains at `Terhubung ke Proyektor (Slide 1)` while MC is visibly on Slide 8 with the countdown running.
+- Root cause narrowed to GitHub Pages cloud publish: `fetch` used `Content-Type: application/json`, which triggers a cross-origin preflight and can silently block ntfy publishing in managed browsers.
+- Removed the custom JSON header from the ntfy publish request while keeping the JSON body; this avoids the preflight and preserves the existing subscriber parser.
+- Updated both `sync-engine.js` and `src/sync-engine.js`; syntax checks passed.
+- Status: ready to push and retest.
