@@ -129,16 +129,21 @@ document.addEventListener('DOMContentLoaded', () => {
       const countdownDisplay = document.getElementById('battle-countdown-display');
       const countdownHint = document.getElementById('battle-countdown-hint');
 
+      if (currentPosBadge) {
+        const shortNames = ['SCRATCH', 'MATH', 'MEMORY', 'SHEETS'];
+        currentPosBadge.textContent = `MEJA ${assignedPos} • BABAK ${roundIdx + 1}: ${shortNames[roundIdx]}`;
+      }
+
       if (battleLockedOverlay) battleLockedOverlay.classList.remove('hidden');
       if (battleActiveContent) battleActiveContent.classList.add('hidden');
-      if (lockedRoundBadge) lockedRoundBadge.textContent = `BABAK ${roundIdx + 1} DARI 4 • BRIEFING ATURAN`;
+      if (lockedRoundBadge) lockedRoundBadge.textContent = `BABAK ${roundIdx + 1} DARI 4 • MEJA ${assignedPos}`;
       if (lockedGameTitle) lockedGameTitle.textContent = gameTitles[roundIdx] || 'Office Olympic Battle';
       if (countdownDisplay) {
         countdownDisplay.textContent = 'STANDBY';
         countdownDisplay.className = 'countdown-digits-big';
       }
       if (countdownHint) {
-        countdownHint.innerHTML = 'Dengarkan penjelasan MC di depan proyektor.<br>Tantangan masih <strong>TERKUNCI</strong> dan akan terbuka saat aba-aba Countdown <strong>3, 2, 1 MULAI!</strong>';
+        countdownHint.innerHTML = 'Dengarkan penjelasan MC di depan proyektor.<br><strong>Semua Meja (1, 2, 3, 4) tanding serentak di babak ini!</strong><br>Tantangan masih <strong>TERKUNCI</strong> dan akan terbuka saat Countdown <strong>3, 2, 1 MULAI!</strong>';
       }
     }
     // BATTLE SLIDES: Slide 14, 16, 18, 20 (indices 13, 15, 17, 19) - UNLOCKED AFTER COUNTDOWN
@@ -159,7 +164,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const countdownDisplay = document.getElementById('battle-countdown-display');
       const countdownHint = document.getElementById('battle-countdown-hint');
 
-      if (lockedRoundBadge) lockedRoundBadge.textContent = `BABAK ${roundIdx + 1} DARI 4 • ARENA PERTANDINGAN`;
+      if (currentPosBadge) {
+        const shortNames = ['SCRATCH', 'MATH', 'MEMORY', 'SHEETS'];
+        currentPosBadge.textContent = `MEJA ${assignedPos} • BABAK ${roundIdx + 1}: ${shortNames[roundIdx]}`;
+      }
+
+      if (lockedRoundBadge) lockedRoundBadge.textContent = `BABAK ${roundIdx + 1} DARI 4 • MEJA ${assignedPos}`;
       if (lockedGameTitle) lockedGameTitle.textContent = gameTitles[roundIdx] || 'Office Olympic Battle';
 
       if (isBattleUnlocked) {
@@ -174,12 +184,16 @@ document.addEventListener('DOMContentLoaded', () => {
           countdownDisplay.className = 'countdown-digits-big';
         }
         if (countdownHint) {
-          countdownHint.innerHTML = 'Tangan bersiap di atas keyboard!<br>Tantangan akan terbuka otomatis setelah hitungan <strong>3, 2, 1 MULAI!</strong>';
+          countdownHint.innerHTML = 'Tangan bersiap di atas keyboard!<br><strong>Semua Meja 1, 2, 3, 4 tanding bersama!</strong><br>Tantangan terbuka otomatis saat Countdown <strong>3, 2, 1 MULAI!</strong>';
         }
       }
     }
     // Slide 21+ (indices 20+): Sesi Santuy / Awarding / Closing
     else {
+      if (currentPosBadge) {
+        const conf = posConfig[assignedPos];
+        currentPosBadge.textContent = `POS ${assignedPos}: ${conf.short.toUpperCase()}`;
+      }
       showPanel(stateOlympicIdle);
     }
   }
@@ -274,22 +288,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const roundIdx = typeof overrideRoundIdx === 'number' ? overrideRoundIdx : getActiveRoundIndex();
     
     if (roundIdx === 0) {
-      // CHALLENGE 1: SCRATCH (SLIDE 13)
-      battleRoundBadge.textContent = 'BABAK 1 DARI 4 • POS 1';
+      // CHALLENGE 1: SCRATCH (SLIDE 14)
+      battleRoundBadge.textContent = `BABAK 1 DARI 4 • MEJA ${assignedPos}`;
       battleGameTitle.textContent = '🐱 Challenge 1: Kalananti Scratch Debugging';
       
       battleWorkspace.innerHTML = `
         <div style="height: 100%; display: flex; flex-direction: column;">
           <div style="padding: 12px 16px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 800; color: var(--neon-cyan);">ARENA TANTANGAN SCRATCH GUI:</span>
+            <span style="font-weight: 800; color: var(--neon-cyan);">ARENA TANTANGAN SCRATCH GUI (MEJA ${assignedPos}):</span>
             <a href="scratch-slide.html" target="_blank" class="btn btn-xs btn-outline">Buka Fullscreen Tab ↗</a>
           </div>
           <iframe src="scratch-slide.html" style="width: 100%; height: calc(100% - 45px); border: none; background: #0f172a;"></iframe>
         </div>
       `;
     } else if (roundIdx === 1) {
-      // CHALLENGE 2: MATH (SLIDE 14)
-      battleRoundBadge.textContent = 'BABAK 2 DARI 4 • POS 2';
+      // CHALLENGE 2: MATH (SLIDE 16)
+      battleRoundBadge.textContent = `BABAK 2 DARI 4 • MEJA ${assignedPos}`;
       battleGameTitle.textContent = '🧮 Challenge 2: Mathchamps Speed Math';
 
       battleWorkspace.innerHTML = `
@@ -298,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
             38 + 47 - 19 + 52 = ?
           </div>
           <p style="color: #94a3b8; font-size: 1.1rem; max-width: 600px;">
-            Hitung secepat mungkin tanpa kalkulator! Begitu anggota timmu mendapatkan angka yang benar, langsung tekan bel di bawah dan lari ke Kak Balqis!
+            Hitung secepat mungkin tanpa kalkulator! Begitu anggota tim Meja ${assignedPos} mendapatkan angka yang benar, langsung tekan bel di bawah dan lari ke Kak Balqis!
           </p>
           <div style="background: rgba(255,215,0,0.1); border: 1px solid var(--neon-gold); padding: 12px 24px; border-radius: 8px; color: #fff; font-size: 0.95rem;">
             🎯 Tulis jawaban di kertas atau sebutkan langsung ke Kak Balqis!
@@ -306,8 +320,8 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `;
     } else if (roundIdx === 2) {
-      // CHALLENGE 3: MEMORY (SLIDE 15)
-      battleRoundBadge.textContent = 'BABAK 3 DARI 4 • POS 3';
+      // CHALLENGE 3: MEMORY (SLIDE 18)
+      battleRoundBadge.textContent = `BABAK 3 DARI 4 • MEJA ${assignedPos}`;
       battleGameTitle.textContent = '🧠 Challenge 3: Memory Academy Flash';
 
       battleWorkspace.innerHTML = `
@@ -324,8 +338,8 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `;
     } else if (roundIdx === 3) {
-      // CHALLENGE 4: SPREADSHEET (SLIDE 16)
-      battleRoundBadge.textContent = 'BABAK 4 DARI 4 • POS 4';
+      // CHALLENGE 4: SPREADSHEET (SLIDE 20)
+      battleRoundBadge.textContent = `BABAK 4 DARI 4 • MEJA ${assignedPos}`;
       battleGameTitle.textContent = '📊 Challenge 4: Spreadsheet Special (#REF! Fixer)';
 
       battleWorkspace.innerHTML = `
