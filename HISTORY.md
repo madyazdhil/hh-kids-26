@@ -1036,3 +1036,23 @@ Menganalisis dan mengatasi tampilan hitam (black screen) pada Spectator Arena VD
 5. **Git Push:**
    - Perubahan telah di-commit dan di-push ke GitHub: `git@github.com-personal:madyazdhil/hh-kids-26.git` (commit `08b6f18`).
 
+### User — 2026-09-18T11:32:43+07:00
+
+lah oon bego ini kan aku mau layarnyaa juga 
+
+muka nya ujung kanan floating aja gapapa wkwkw
+
+### Assistant — 2026-09-18T11:41:00+07:00
+
+Mengimplementasikan fitur **Floating Team Facecam (Picture-in-Picture Streamer Cam)** langsung di dalam aplikasi meja pos (`pos.html`, `pos.css`, `pos.js` dan `src/`):
+1. **Konsep & Arsitektur Solusi:**
+   - Menambahkan kotak video webcam tim mengambang (floating box) ala streamer Twitch/YouTube di pojok kanan bawah layar meja pemain (`pos.html`).
+   - Karena facecam dirender langsung di atas halaman web tantangan secara native, saat peserta melakukan Share Screen (via VDO.ninja atau Google Meet), video feed yang terkirim ke proyektor MC **otomatis memuat layar tantangan (Scratch/Math/Sheets) secara penuh SEKALIGUS wajah anggota tim di pojok kanan**, tanpa membutuhkan OBS Studio atau dua link terpisah!
+2. **Fitur Facecam Interaktif:**
+   - **Tombol Top Bar HUD:** Tombol `📹 Facecam` untuk menyalakan/mematikan webcam tim secara mandiri.
+   - **Auto-Activate:** Saat klik `📡 Broadcast ke Proyektor`, facecam otomatis menyala agar wajah tim dan layar langsung siap disiarkan bersamaan.
+   - **Draggable:** Kotak facecam dapat digeser (drag & drop) bebas ke pojok mana saja jika menutupi tombol atau blok tantangan tertentu.
+   - **Tombol Close (×):** Mematikan track kamera secara instan kapan saja.
+3. **Git Push:**
+   - Perubahan telah di-commit dan di-push ke GitHub: `git@github.com-personal:madyazdhil/hh-kids-26.git` (commit `572bac2`).
+
