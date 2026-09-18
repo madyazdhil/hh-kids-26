@@ -7,39 +7,26 @@
 ## What Has Been Completed
 
 - **Atomic 22-Slide Presentation Deck (`src/index.html`):**
-  - Pemisahan total slide menjadi 22 slide independen tanpa spoiler pembuka.
-  - Penambahan slide Bumper Judul elegan di setiap jeda segmen agar MC memiliki backdrop bersih saat berbicara.
-  - Alur 22 slide mencakup:
-    1. Pre-Show Lounge (YouTube BGM + Blind drop box reminder)
-    2. Welcome Screen (Bersih tanpa spoiler)
-    3. Game Cari Korban Senam (Batu-Gunting-Kertas Terbalik)
-    4. Senam Arcade MR.MINIRA
-    5. Bumper Post-Senam (Cooling Down)
-    6. Title Splash: Office Olympics (Murni logo cincin & judul)
-    7. Briefing: 4 Pos Laptop Meja Tengah (Aturan inspeksi mandiri ketua kelompok)
-    8. Timer 1 Menit Ketua Kelompok Mencari
-    9. Bumper: Waktu Inspeksi Selesai
-    10. Briefing Rules & Aturan Bel Kak Balqis (+5 / +4 pt)
-    11. Timer 2 Menit Group Strategizing
-    12. Bumper: Ready to Battle!
-    13. Challenge 1: Kalananti (Scratch Debugging)
-    14. Challenge 2: Mathchamps (Speed Math)
-    15. Challenge 3: Memory Academy (Visual Memory)
-    16. Challenge 4: Spreadsheet Special (#REF! Fixer)
-    17. Bumper: Sesi Santuy (Kenyang Sore)
-    18. Tebak Guardian Angel
-    19. Grand Awarding Stage (Sinkron otomatis dari Admin Panel + Lunch Challenge default Aulia & Nurul)
-    20. Doorprize Nyeleneh Lottery Machine
-    21. Speech Khidmat Queen Aldeina
-    22. Closing & Foto Bersama
-- **Admin Station & Remote Control (`src/admin.html` & `src/admin.js`):**
-  - Panel kontrol khusus operator (Aldeina/Balqis) via laptop kedua.
-  - Live Scorekeeper 6 kelompok & 4 game dengan tombol status attempt ("Salah" -> percobaan 2 skor 4, "Benar 1st (+5)", "Benar 2nd (+4)").
-  - Sinkronisasi instan Juara Olympic ke slide proyektor via `BroadcastChannel` dan `localStorage`.
-  - Awarding dispatcher dengan default pemenang Lunch Challenge: **Aulia & Nurul** beserta display fotonya.
-  - Remote slide switcher (`◀ Prev`, `Next ▶`, Jump to Slide), timer controller, confetti blaster, dan doorprize trigger.
-- **GitHub Repository:** Terhubung dan ter-push ke personal GitHub `git@github.com-personal:madyazdhil/hh-kids-26.git`.
+  - 22 slide teratomisasi dengan zero spoiler pembuka dan bumper titles bersih di setiap jeda segmen.
+  - Alur lengkap: Pre-Show -> Welcome -> Game Senam -> Senam MR.MINIRA -> Bumper -> Splash Olympic -> Briefing 4 Pos -> Timer 1m Scouting -> Bumper Waktu Habis -> Rules Bel -> Timer 2m Rapat -> Bumper Ready -> 4 Match Rounds -> Sesi Santuy -> Tebak Angel -> Grand Awarding -> Doorprize Lottery -> Speech Queen Aldeina -> Closing Foto Bersama.
+- **Admin Mobile & Remote Control (`src/admin.html` & `src/admin.js`):**
+  - Tampilan khusus smartphone ergonomis (satu jempol) untuk Aldeina (`admin_mobile_view.png`).
+  - Remote clicker proyektor (`Next Step/Slide`, `Previous`, `Jump Slide`, `Start/Pause Timer`, `Confetti`).
+  - Olympic Live Scorekeeper 6 kelompok dengan attempt scoring (+5 / Salah / +4) dan 1-klik dispatch juara ke proyektor.
+  - Pemenang Lunch Challenge terkunci default: **Aulia & Nurul** beserta foto.
+- **4 Pos Laptop Meja Tengah (`src/pos.html`, `src/pos.css`, `src/pos.js`):**
+  - Identifikasi otomatis 4 pos via parameter URL (`?pos=1..4`) atau tombol switcher on-screen yang tersimpan di `localStorage`.
+  - **Slide 1–5:** Menampilkan judul bersih template grand (zero spoiler).
+  - **Slide 6 & 7:** Menampilkan Logo & Cincin Neon Office Olympics.
+  - **Slide 8 (Timer 1 Menit Scouting):** Begitu timer START, Pos 1..4 membuka 4 tantangan berbeda (Scratch, Math, Memory, Spreadsheet). Begitu timer habis atau masuk Slide 9, keempat laptop langsung mengunci kembali ke Logo Office Olympics.
+  - **Slide 10–12:** Tetap di Logo Office Olympics.
+  - **Slide 13–16 (Babak Tanding):** Keempat laptop serentak menampilkan tantangan aktif (Slide 13 Scratch, Slide 14 Math, Slide 15 Memory, Slide 16 Spreadsheet) dengan aba-aba 3-2-1 Mulai, Black Box container untuk konten Yazid, dan tombol raksasa *"🔔 KELAR! SPRINT KEJAR KAK BALQIS!"*.
+  - **Slide 17+:** Otomatis kembali ke Logo Office Olympics / Celebration.
+- **Automated Playwright Verification:**
+  - `scripts/verify_pos_sync.py` memvalidasi MC deck, Admin Mobile, dan 4 Pos Laptop serentak (0 console error).
+- **Personal GitHub:**
+  - Repo: `git@github.com-personal:madyazdhil/hh-kids-26.git`.
 
 ## Blockers and Open Questions
 
-- Tidak ada blocker. Aplikasi terverifikasi lancar tanpa console error dan siap pakai.
+- Tidak ada blocker. Seluruh aplikasi telah teruji dan siap live.

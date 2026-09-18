@@ -364,22 +364,26 @@ document.addEventListener('DOMContentLoaded', () => {
   function toggleTimer(timerId) {
     const t = timers[timerId];
     if (!t) return;
+    const tid = parseInt(timerId, 10);
 
     if (t.isRunning) {
       clearInterval(t.intervalId);
       t.isRunning = false;
       const btn = document.querySelector(`.btn-start-timer[data-timer="${timerId}"]`);
       if (btn) btn.textContent = '▶ RESUME (T)';
+      broadcastSync('TIMER_UPDATE', { timerId: tid, isRunning: false, currentSec: t.currentSec, totalSec: t.totalSec });
     } else {
       initAudio();
       t.isRunning = true;
       const btn = document.querySelector(`.btn-start-timer[data-timer="${timerId}"]`);
       if (btn) btn.textContent = '⏸ PAUSE (T)';
+      broadcastSync('TIMER_UPDATE', { timerId: tid, isRunning: true, currentSec: t.currentSec, totalSec: t.totalSec });
 
       t.intervalId = setInterval(() => {
         if (t.currentSec > 0) {
           t.currentSec--;
           renderTimer(timerId);
+          broadcastSync('TIMER_TICK', { timerId: tid, isRunning: true, currentSec: t.currentSec, totalSec: t.totalSec });
           if (t.currentSec <= 10 && t.currentSec > 0) {
             SoundFx.playTick();
           }
@@ -388,6 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
             t.isRunning = false;
             if (btn) btn.textContent = '▶ START (T)';
             SoundFx.playBuzzer();
+            broadcastSync('TIMER_EXPIRED', { timerId: tid, isRunning: false, currentSec: 0, totalSec: t.totalSec });
           }
         }
       }, 1000);
@@ -397,12 +402,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function resetTimer(timerId) {
     const t = timers[timerId];
     if (!t) return;
+    const tid = parseInt(timerId, 10);
     clearInterval(t.intervalId);
     t.isRunning = false;
     t.currentSec = t.totalSec;
     renderTimer(timerId);
     const btn = document.querySelector(`.btn-start-timer[data-timer="${timerId}"]`);
     if (btn) btn.textContent = '▶ START (T)';
+    broadcastSync('TIMER_RESET', { timerId: tid, isRunning: false, currentSec: t.totalSec, totalSec: t.totalSec });
   }
 
   document.querySelectorAll('.btn-start-timer').forEach(btn => {
@@ -721,7 +728,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const syncChannel = new BroadcastChannel(SYNC_CHANNEL_NAME);
 
   function broadcastSync(type, payload = {}) {
-    syncChannel.postMessage({ type, payload, timestamp: Date.now() });
+    const message = { type, payload, timestamp: Date.now() };
+    syncChannel.postMessage(message);
+    try {
+      localStorage.setItem('hh_last_broadcast', JSON.stringify(message));
+    } catch (e) {}
+    try {
+      fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(message)
+      }).catch(() => {});
+    } catch (e) {}
   }
 
   let lastProcessedTimestamp = 0;
@@ -926,4 +944,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initial UI refresh
   updateSlideUI();
+
+  // Expose methods for testing & remote programmatic control
+  window.goToSlide = goToSlide;
+  window.toggleTimer = toggleTimer;
+  window.resetTimer = resetTimer;
+  window.advanceOrNext = advanceOrNext;
 });
+

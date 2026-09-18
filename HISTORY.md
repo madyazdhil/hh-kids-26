@@ -832,3 +832,10 @@ Mengubah total tampilan `admin.html`, `admin.css`, dan `admin.js` menjadi **Mobi
    - Diuji menggunakan Playwright dengan emulasi layar iPhone 14 Pro (`scripts/verify_mobile_admin.py`). Seluruh interaksi touch, tab switching, dan scoring berjalan 100% mulus tanpa error console.
    - Screenshot hasil uji tersimpan di `output/mobile_admin_tab1_remote.png`, `output/mobile_admin_tab2_scoring.png`, `output/mobile_admin_tab2_pos1_filter.png`, dan `output/mobile_admin_tab3_awarding.png`.
    - Kode telah di-commit (`f115bcc`) dan langsung di-push ke GitHub Pages `main`.
+
+### User — 2026-09-18T09:01:01+07:00
+
+ini ko dia ga kehubung ke proyektor yah ini yang slide mc jkan yang harus bergerak anjir
+
+gimana kalo ada 4 tab / laptop yang buka link slide mc  harusnya semuanya berubah dong ngikut aneh
+
