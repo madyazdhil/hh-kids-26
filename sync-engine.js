@@ -197,6 +197,21 @@
     },
 
     /**
+     * Listen for a specific message type
+     * @param {string} type
+     * @param {function} callback
+     */
+    on(type, callback) {
+      if (typeof callback === 'function') {
+        listeners.push((msg) => {
+          if (msg && msg.type === type) {
+            callback(msg);
+          }
+        });
+      }
+    },
+
+    /**
      * Listen for incoming messages from any device
      * @param {function} callback
      */

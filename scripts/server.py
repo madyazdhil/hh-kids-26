@@ -8,17 +8,23 @@ import sys
 import os
 import json
 import socket
+import threading
+from socketserver import ThreadingMixIn
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8765
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 # Global in-memory sync state
+sync_lock = threading.Lock()
 sync_state = {
     "lastSignal": None,
     "signals": [],
     "timestamp": 0
 }
+
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    daemon_threads = True
 
 class SyncHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -31,7 +37,9 @@ class SyncHandler(SimpleHTTPRequestHandler):
                 self.send_header('Content-Type', 'application/json')
                 self.send_header('Access-Control-Allow-Origin', '*')
                 self.end_headers()
-                self.wfile.write(json.dumps(sync_state).encode('utf-8'))
+                with sync_lock:
+                    payload = json.dumps(sync_state).encode('utf-8')
+                self.wfile.write(payload)
             except (BrokenPipeError, ConnectionResetError):
                 pass
         else:
@@ -46,11 +54,12 @@ class SyncHandler(SimpleHTTPRequestHandler):
             post_data = self.rfile.read(content_length)
             try:
                 data = json.loads(post_data.decode('utf-8'))
-                sync_state["lastSignal"] = data
-                sync_state["timestamp"] = data.get("timestamp", 0)
-                sync_state["signals"].append(data)
-                if len(sync_state["signals"]) > 60:
-                    sync_state["signals"].pop(0)
+                with sync_lock:
+                    sync_state["lastSignal"] = data
+                    sync_state["timestamp"] = data.get("timestamp", 0)
+                    sync_state["signals"].append(data)
+                    if len(sync_state["signals"]) > 60:
+                        sync_state["signals"].pop(0)
                 
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
@@ -101,7 +110,7 @@ if __name__ == '__main__':
     print(f"👉 Pos 4 (Spreadsheet)  : http://{local_ip}:{PORT}/pos.html?pos=4")
     print("=" * 65)
     
-    server = HTTPServer(('0.0.0.0', PORT), SyncHandler)
+    server = ThreadedHTTPServer(('0.0.0.0', PORT), SyncHandler)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

@@ -1192,12 +1192,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let isSpectatorOpen = false;
   let proyektorPeer = null;
-  let proyektorRetryTimer = null;
 
-  function initProyektorPeer() {
+  function initProyektorPeer(forceUnique = false) {
     if (proyektorPeer && !proyektorPeer.destroyed) return;
     try {
-      proyektorPeer = new Peer('hhkids26-proyektor-main', {
+      const peerId = forceUnique
+        ? `hhkids26-proyektor-${Math.random().toString(36).substring(2, 7)}`
+        : 'hhkids26-proyektor-main';
+
+      proyektorPeer = new Peer(peerId, {
         debug: 1,
         config: {
           iceServers: [
@@ -1265,25 +1268,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       });
 
-      proyektorPeer.on('disconnected', () => {
-        console.log('Proyektor Peer disconnected, reconnecting...');
-        if (proyektorPeer && !proyektorPeer.destroyed) {
-          proyektorPeer.reconnect();
-        }
-      });
-
       proyektorPeer.on('error', (err) => {
         console.warn('Proyektor Peer notice:', err);
         if (err.type === 'unavailable-id') {
-          console.log('ID taken, retrying in 2 seconds...');
-          clearTimeout(proyektorRetryTimer);
-          proyektorRetryTimer = setTimeout(() => {
-            if (proyektorPeer) {
-              try { proyektorPeer.destroy(); } catch(e) {}
-              proyektorPeer = null;
-            }
-            initProyektorPeer();
-          }, 2000);
+          console.log('ID taken, fallback to unique session ID...');
+          try { proyektorPeer.destroy(); } catch(e) {}
+          proyektorPeer = null;
+          initProyektorPeer(true);
         }
       });
     } catch (e) {

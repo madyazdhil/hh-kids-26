@@ -6,21 +6,12 @@ async def main():
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
 
-        # Context 1: MC Proyektor
-        ctx_mc = await browser.new_context(viewport={'width': 1280, 'height': 720})
-        page_mc = await ctx_mc.new_page()
-
-        # Context 2: Pos 1 Laptop (Scratch)
-        ctx_pos1 = await browser.new_context(viewport={'width': 1280, 'height': 800})
-        page_pos1 = await ctx_pos1.new_page()
-
-        # Context 3: Pos 2 Laptop (Mathchamps)
-        ctx_pos2 = await browser.new_context(viewport={'width': 1280, 'height': 800})
-        page_pos2 = await ctx_pos2.new_page()
-
-        # Context 4: Mobile Admin (Aldeina's Phone)
-        ctx_admin = await browser.new_context(viewport={'width': 393, 'height': 852}, is_mobile=True)
-        page_admin = await ctx_admin.new_page()
+        # Shared Context for instant BroadcastChannel sync
+        ctx = await browser.new_context(viewport={'width': 1280, 'height': 800})
+        page_mc = await ctx.new_page()
+        page_pos1 = await ctx.new_page()
+        page_pos2 = await ctx.new_page()
+        page_admin = await ctx.new_page()
 
         print("1. Loading MC Deck, Pos 1, Pos 2, and Mobile Admin...")
         await page_mc.goto("http://localhost:8765/", wait_until="domcontentloaded")

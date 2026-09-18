@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let timerCurrentSec = 60;
   let isBattleUnlocked = false;
   let isMemoryObserving = false;
+  let renderedBattleRound = -1;
 
   // Update Pos Assignment UI
   function updatePosIdentity(posNum) {
@@ -180,6 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (battleActiveContent) battleActiveContent.classList.remove('hidden');
         renderBattleContent(roundIdx);
       } else {
+        renderedBattleRound = -1;
         if (battleLockedOverlay) battleLockedOverlay.classList.remove('hidden');
         if (battleActiveContent) battleActiveContent.classList.add('hidden');
         if (currentSlideIndex === 17 && isMemoryObserving) {
@@ -299,6 +301,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   function renderBattleContent(overrideRoundIdx) {
     const roundIdx = typeof overrideRoundIdx === 'number' ? overrideRoundIdx : getActiveRoundIndex();
+    if (renderedBattleRound === roundIdx && battleWorkspace && battleWorkspace.firstElementChild) return;
+    renderedBattleRound = roundIdx;
     
     if (roundIdx === 0) {
       // CHALLENGE 1: SCRATCH (SLIDE 14)
@@ -445,6 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let posPeer = null;
   let activeScreenStream = null;
   let activeCamStream = null;
+  let activeProyektorPeerId = 'hhkids26-proyektor-main';
 
   function initPosPeer() {
     if (posPeer && !posPeer.destroyed) return;
@@ -476,15 +481,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!posPeer) return;
 
     const doCall = () => {
+      const targetId = activeProyektorPeerId || 'hhkids26-proyektor-main';
       if (activeScreenStream) {
-        console.log(`📡 Sending Screen Stream from Pos ${assignedPos} to Proyektor...`);
-        posPeer.call('hhkids26-proyektor-main', activeScreenStream, {
+        console.log(`📡 Sending Screen Stream from Pos ${assignedPos} to Proyektor (${targetId})...`);
+        posPeer.call(targetId, activeScreenStream, {
           metadata: { pos: assignedPos, type: 'screen' }
         });
       }
       if (activeCamStream) {
-        console.log(`📷 Sending Team Cam Stream from Pos ${assignedPos} to Proyektor...`);
-        posPeer.call('hhkids26-proyektor-main', activeCamStream, {
+        console.log(`📷 Sending Team Cam Stream from Pos ${assignedPos} to Proyektor (${targetId})...`);
+        posPeer.call(targetId, activeCamStream, {
           metadata: { pos: assignedPos, type: 'cam' }
         });
       }
@@ -579,7 +585,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Re-send stream if Proyektor requests status or sends PROYEKTOR_READY
   if (window.HHSync) {
-    window.HHSync.on('PROYEKTOR_READY', () => {
+    window.HHSync.on('PROYEKTOR_READY', (data) => {
+      if (data && data.payload && data.payload.peerId) {
+        activeProyektorPeerId = data.payload.peerId;
+        console.log('⚡ Active Proyektor Peer ID updated:', activeProyektorPeerId);
+      }
       if (activeScreenStream || activeCamStream) {
         console.log('⚡ Signal PROYEKTOR_READY diterima, mengirim ulang stream...');
         transmitStreamsToProyektor();
