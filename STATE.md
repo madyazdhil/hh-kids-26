@@ -49,6 +49,12 @@
   - **Mathchamps Sempoa (`sempoa-slide.html` & `src/sempoa-slide.html`)**: Menghapus ikon gear `⚙️` dan `#editModal` yang sebelumnya membocorkan nilai `Kunci = ...`. Feedback salah dibersihkan agar tidak membocorkan angka kunci maupun rincian formula.
   - **Root `turbowarp/` Tracked**: Root `turbowarp/` dilacak ke Git sehingga live GitHub Pages (`https://madyazdhil.github.io/hh-kids-26/pos.html?pos=1`) memiliki editor Scratch GUI lengkap tanpa 404.
   - Terverifikasi otomatis via Playwright headless (`scripts/verify_sanitized_screens.py`) dengan 0 console error dan nol kebocoran kunci jawaban.
+- **Tantangan Babak 2: Mathchamps Sempoa Speed Math Arena Integrasi Penuh (`pos.html`, `sempoa-slide.html`)**:
+  - Desain diselaraskan 100% dengan template Dark Navy Cyber Glassmorphism `pos.html` (`#070d19`, neon gold `#ffd700`, neon cyan `#00f0ff`).
+  - **Keyboard-Only Input**: Menghilangkan tombol virtual touch/keypad di layar; peserta langsung mengetik di input keyboard fisik dengan auto-focus dan tombol `Enter` untuk submit jawaban.
+  - **Kecepatan Default 2.0 Detik**: Kecepatan pergantian angka default diset 2.0s per angka dengan animasi visual pulse dan Web Audio API synth bleeps.
+  - **Integrasi Countdown Otomatis**: Pos 1 s/d 4 terkunci di Slide 15 (Briefing), lalu otomatis membuka arena hitung cepat sempoa (`sempoa-slide.html?autostart=1`) tepat setelah MC menyelesaikan countdown 3-2-1 di proyektor Slide 16.
+  - Diuji dan diverifikasi live via browser subagent dan Playwright script. Pushed ke GitHub (`madyazdhil/hh-kids-26`).
 
 ## Blockers and Open Questions
 
