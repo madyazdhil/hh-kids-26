@@ -1561,3 +1561,23 @@ Tes WebRTC juga sudah lolos: saat relay dibuat gagal, empat Pos tetap menerima s
 - `verify_recovery_flow.py` exit 0 covers all four rounds and unordered snapshots. Camera/frame source uses controlled test doubles in that suite.
 - `node --check` app.js, pos.js, sync-engine.js and `git diff --check` passed. Root/src parity passed for scripts and entry HTML.
 - Visually inspected output/direct-peer-camera.png: camera video visible in Pos 1 PiP, camera-only status rendered correctly.
+
+### Deployment verification
+
+- `git push origin main`: Everything up-to-date (concurrent workspace push had already synchronized commit 5183894).
+- `gh run list` could not inspect Actions because gh is not authenticated. Used direct public asset verification instead.
+- Downloaded live pos.js, app.js and sync-engine.js to ignored output/ files; all three byte-for-byte MATCH the tested local scripts. GitHub Pages serves the fixes.
+
+### Assistant final
+
+Sudah diperbaiki dan **sudah tayang di link yang sama**. Ketiga skrip live sudah aku cocokkan dengan versi yang diuji.
+
+- **Slide 8 + timer aktif:** instruksi berbeda sesuai Pos 1–4; waktu habis mengunci lagi.
+- **Slide 14/16/18/20:** semua Pos membuka challenge yang sama setelah countdown. Memory menunggu hafalan selesai sebelum kuis.
+- **Kamera:** tetap dikirim meski berbagi layar dibatalkan; status berhasil menunggu konfirmasi proyektor.
+
+Tes empat sesi browser terpisah dan penerimaan video WebRTC sudah lulus. Jaringan serta kamera fisik di lokasi belum aku verifikasi.
+
+**Sekarang hard refresh MC dan semua Pos (`Cmd/Ctrl + Shift + R`)**, buka Spectator, lalu klik **Siarkan ke Proyektor** di Pos.
+
+[Catatan perbaikan](/Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/planning/03-implementation-plan-player-table-sync.md)
