@@ -1434,3 +1434,15 @@ Cara retest:
 2. Di MC, buka Spectator Arena terlebih dahulu.
 3. Di setiap Pos, klik `Siaran ke Proyektor` dan izinkan camera + screen share.
 4. Tunggu 2–3 detik; feed kamera akan muncul sebagai PiP di kartu Pos masing-masing.
+
+### User — 2026-09-18
+
+> pushh
+
+Status: explicit request to push latest camera-feed fix.
+
+### User — 2026-09-18
+
+> pushh
+
+Status: explicit request to push latest camera-feed fix.
