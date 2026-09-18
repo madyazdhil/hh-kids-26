@@ -32,6 +32,10 @@
     </div>
 
     <div class="hud-right">
+      <button id="btn-broadcast-stream" class="btn btn-xs btn-broadcast" title="Mulai Share Screen ke Proyektor">
+        <span class="broadcast-icon">📡</span>
+        <span class="broadcast-text">Broadcast ke Proyektor</span>
+      </button>
       <div class="sync-pill" id="pos-sync-status">🟢 Terhubung ke Proyektor (Slide 1)</div>
       <button id="btn-fullscreen-pos" class="btn btn-xs btn-outline" title="Layar Penuh (F)">⛶ Fullscreen</button>
     </div>
@@ -113,8 +117,22 @@
          STATE 4: BATTLE PERTANDINGAN (Slide 13, 14, 15, 16)
          ==================================================================== -->
     <div id="state-battle" class="pos-state-panel">
-      <div class="battle-card glass-card">
-        
+      <!-- 4A: Pre-Battle Locked / Countdown Standby -->
+      <div id="battle-locked-overlay" class="battle-card glass-card text-center">
+        <div class="lock-shield-icon">🔒</div>
+        <div class="battle-round-badge" id="locked-round-badge">BABAK 1 DARI 4</div>
+        <h2 class="battle-game-title" id="locked-game-title">Challenge 1: Kalananti Scratch Debugging</h2>
+        <div class="countdown-stage">
+          <div class="countdown-digits-big" id="battle-countdown-display">STANDBY</div>
+          <p class="countdown-hint" id="battle-countdown-hint">Dengarkan penjelasan MC di depan proyektor.<br>Tantangan akan terbuka otomatis setelah hitungan <strong>3, 2, 1 MULAI!</strong></p>
+        </div>
+        <div class="standby-rules-pill">
+          ⚡ Posisi tangan siap di keyboard • Jangan sentuh soal sebelum aba-aba!
+        </div>
+      </div>
+
+      <!-- 4B: Active Battle Screen (Revealed after 3-2-1 countdown) -->
+      <div id="battle-active-content" class="battle-card glass-card hidden">
         <div class="battle-header-hud">
           <div class="battle-round-badge" id="battle-round-badge">BABAK 1 DARI 4</div>
           <h2 class="battle-game-title" id="battle-game-title">Challenge 1: Kalananti Scratch Debugging</h2>
@@ -134,7 +152,6 @@
             <span class="bell-sub-text">Tekan bel ini, lalu 1 perwakilan tim lari secepat kilat ke meja panitia! (+5 / +4 Pt)</span>
           </button>
         </div>
-
       </div>
     </div>
 

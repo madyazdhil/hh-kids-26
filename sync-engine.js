@@ -112,8 +112,12 @@
         const res = await fetch('/api/sync', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
-          if (data && data.lastSignal) {
-            dispatchMessage(data.lastSignal);
+          if (data) {
+            if (Array.isArray(data.signals) && data.signals.length > 0) {
+              data.signals.forEach(sig => dispatchMessage(sig));
+            } else if (data.lastSignal) {
+              dispatchMessage(data.lastSignal);
+            }
           }
         }
       } catch (e) {

@@ -1,32 +1,35 @@
 # State: Regroup Happy Hour Interactive Web Deck
 
-- Status: Implementation Complete, Verified & Pushed to GitHub
+- Status: 26 Slides & Challenge Countdown Split Complete & Verified
 - Focus: Siap digunakan untuk gladi bersih / live event Da Vinci
 - Last-updated: 2026-09-18
 
 ## What Has Been Completed
 
-- **Atomic 22-Slide Presentation Deck (`src/index.html`):**
-  - 22 slide teratomisasi dengan zero spoiler pembuka dan bumper titles bersih di setiap jeda segmen.
-  - Alur lengkap: Pre-Show -> Welcome -> Game Senam -> Senam MR.MINIRA -> Bumper -> Splash Olympic -> Briefing 4 Pos -> Timer 1m Scouting -> Bumper Waktu Habis -> Rules Bel -> Timer 2m Rapat -> Bumper Ready -> 4 Match Rounds -> Sesi Santuy -> Tebak Angel -> Grand Awarding -> Doorprize Lottery -> Speech Queen Aldeina -> Closing Foto Bersama.
-- **Admin Mobile & Remote Control (`src/admin.html` & `src/admin.js`):**
-  - Tampilan khusus smartphone ergonomis (satu jempol) untuk Aldeina (`admin_mobile_view.png`).
-  - Remote clicker proyektor (`Next Step/Slide`, `Previous`, `Jump Slide`, `Start/Pause Timer`, `Confetti`).
-  - Olympic Live Scorekeeper 6 kelompok dengan attempt scoring (+5 / Salah / +4) dan 1-klik dispatch juara ke proyektor.
-  - Pemenang Lunch Challenge terkunci default: **Aulia & Nurul** beserta foto.
+- **Atomic 26-Slide Presentation Deck (`src/index.html` & `index.html`):**
+  - Pemisahan 4 tantangan Office Olympics menjadi **Slide Briefing (Slide 13, 15, 17, 19)** dan **Slide Countdown Arena (Slide 14, 16, 18, 20)**.
+  - Alur lengkap 26 slide:
+    - Slide 1–5: Pre-Show, Welcome, Game Pemanasan Senam, Video Senam, Bumper Senam Selesai.
+    - Slide 6–12: Splash Olympic, Briefing 4 Pos Meja Tengah, Timer 1m Scouting, Bumper Scouting Selesai, Rules Bel Meja & Lari ke Balqis, Timer 2m Diskusi, Bumper Siap Bertanding.
+    - Slide 13–14: Briefing 1 (Scratch) + Battle 1 Arena (Countdown 3-2-1 & Bel Lari).
+    - Slide 15–16: Briefing 2 (Mathchamps) + Battle 2 Arena (Countdown 3-2-1 & Bel Lari).
+    - Slide 17–18: Briefing 3 (Memory Academy) + Battle 3 Arena (Countdown 3-2-1 & Bel Lari).
+    - Slide 19–20: Briefing 4 (Spreadsheet Emergency) + Battle 4 Arena (Countdown 3-2-1 & Bel Lari).
+    - Slide 21–26: Sesi Santuy, Tebak Foto Angel, Grand Awarding (Slide 23), Doorprize Lottery (Slide 24), Speech Queen Aldeina, Closing Foto Bersama.
 - **4 Pos Laptop Meja Tengah (`src/pos.html`, `src/pos.css`, `src/pos.js`):**
-  - Identifikasi otomatis 4 pos via parameter URL (`?pos=1..4`) atau tombol switcher on-screen yang tersimpan di `localStorage`.
-  - **Slide 1–5:** Menampilkan judul bersih template grand (zero spoiler).
-  - **Slide 6 & 7:** Menampilkan Logo & Cincin Neon Office Olympics.
-  - **Slide 8 (Timer 1 Menit Scouting):** Begitu timer START, Pos 1..4 membuka 4 tantangan berbeda (Scratch, Math, Memory, Spreadsheet). Begitu timer habis atau masuk Slide 9, keempat laptop langsung mengunci kembali ke Logo Office Olympics.
-  - **Slide 10–12:** Tetap di Logo Office Olympics.
-  - **Slide 13–16 (Babak Tanding):** Keempat laptop serentak menampilkan tantangan aktif (Slide 13 Scratch, Slide 14 Math, Slide 15 Memory, Slide 16 Spreadsheet) dengan aba-aba 3-2-1 Mulai, Black Box container untuk konten Yazid, dan tombol raksasa *"🔔 KELAR! SPRINT KEJAR KAK BALQIS!"*.
-  - **Slide 17+:** Otomatis kembali ke Logo Office Olympics / Celebration.
+  - **Layar Terkunci (STANDBY) saat Briefing MC (Slide 13, 15, 17, 19):** Soal dan workspace 100% terkunci dengan gembok emas 🔒 dan status *"STANDBY: BRIEFING MC"*, mencegah pemain mencuri start saat MC menjelaskan aturan di proyektor.
+  - **Buka Otomatis setelah Countdown (Slide 14, 16, 18, 20):** Begitu MC menekan tombol *"MULAI COUNTDOWN 3-2-1!"* (atau spasi), hitungan mundur 3... 2... 1... MULAI! berdering dan layar pos otomatis membuka workspace soal lengkap dengan tombol sprint bel raksasa: *"🔔 KELAR! SPRINT KEJAR KAK BALQIS!"*.
+  - **Slide 21+:** Pos laptop otomatis kembali ke tampilan Olympic Idle.
+- **Admin Mobile & Remote Control (`src/admin.html` & `src/admin.js`):**
+  - Tampilan smartphone ergonomis (satu jempol) untuk Aldeina.
+  - Remote clicker proyektor dengan pemetaan 26 slide lengkap.
+  - Sinkronisasi instan tombol *"Kirim Juara ke Proyektor"* menuju Slide 23 (Awarding) dan remote spin Doorprize menuju Slide 24.
 - **Automated Playwright Verification:**
-  - `scripts/verify_pos_sync.py` memvalidasi MC deck, Admin Mobile, dan 4 Pos Laptop serentak (0 console error).
+  - `scripts/verify_countdown_flow.py` memvalidasi MC deck 26 slide, locked briefing states, countdown transitions, and admin awarding jump (0 console errors).
 - **Personal GitHub:**
   - Repo: `git@github.com-personal:madyazdhil/hh-kids-26.git`.
 
 ## Blockers and Open Questions
 
-- Tidak ada blocker. Seluruh aplikasi telah teruji dan siap live.
+- Tidak ada blocker. Seluruh alur 26 slide dan sinkronisasi pos standby telah teruji dan siap live.
+

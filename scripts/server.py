@@ -16,6 +16,7 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src'))
 # Global in-memory sync state
 sync_state = {
     "lastSignal": None,
+    "signals": [],
     "timestamp": 0
 }
 
@@ -41,6 +42,9 @@ class SyncHandler(SimpleHTTPRequestHandler):
                 data = json.loads(post_data.decode('utf-8'))
                 sync_state["lastSignal"] = data
                 sync_state["timestamp"] = data.get("timestamp", 0)
+                sync_state["signals"].append(data)
+                if len(sync_state["signals"]) > 60:
+                    sync_state["signals"].pop(0)
                 
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')

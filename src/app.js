@@ -331,6 +331,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function advanceOrNext() {
     const activeSlide = slides[currentSlideIndex];
+    if (activeSlide && activeSlide.classList.contains('battle-arena-slide')) {
+      const round = parseInt(activeSlide.dataset.round, 10);
+      const statusEl = document.getElementById(`battle-status-${round}`);
+      if (statusEl) {
+        if (statusEl.textContent.includes('SEDANG BERJALAN')) {
+          return;
+        }
+        if (!statusEl.textContent.includes('AKTIF')) {
+          triggerBattleCountdown(round);
+          return;
+        }
+      }
+    }
+
     const unrevealedStep = activeSlide.querySelector('.step-reveal:not(.active)');
 
     if (unrevealedStep) {
@@ -576,7 +590,68 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 7. GRAND AWARDING & PHOTO DISPLAY (SLIDE 19)
+  // 6B. BATTLE ARENA COUNTDOWN ENGINE (SLIDES 14, 16, 18, 20)
+  // ==========================================================================
+  const battleCountdowns = {};
+
+  function triggerBattleCountdown(roundNum) {
+    const displayEl = document.getElementById(`battle-countdown-${roundNum}`);
+    const statusEl = document.getElementById(`battle-status-${roundNum}`);
+    if (!displayEl) return;
+
+    if (battleCountdowns[roundNum] && battleCountdowns[roundNum].interval) {
+      clearInterval(battleCountdowns[roundNum].interval);
+    }
+
+    let count = 3;
+    displayEl.parentElement.classList.add('counting');
+    displayEl.innerHTML = `<span class="countdown-digit-huge pulse-glow">${count}</span>`;
+    if (statusEl) statusEl.textContent = 'BERSIAPLAH! HITUNGAN MUNDUR SEDANG BERJALAN...';
+    SoundFx.playTick();
+    broadcastSync('BATTLE_COUNTDOWN', { round: roundNum, count: count });
+
+    const interval = setInterval(() => {
+      count--;
+      if (count > 0) {
+        displayEl.innerHTML = `<span class="countdown-digit-huge pulse-glow">${count}</span>`;
+        SoundFx.playTick();
+        broadcastSync('BATTLE_COUNTDOWN', { round: roundNum, count: count });
+      } else {
+        clearInterval(interval);
+        displayEl.innerHTML = `<span class="countdown-digit-huge" style="color: #00ff9d; font-size: 3rem; text-shadow: 0 0 30px #00ff9d;">MULAI!</span>`;
+        if (statusEl) statusEl.innerHTML = '🔥 PERTANDINGAN AKTIF! KAK BALQIS STANDBY DENGAN BEL! 🔥';
+        SoundFx.playDing();
+        broadcastSync('BATTLE_COUNTDOWN', { round: roundNum, count: 0 });
+        broadcastSync('BATTLE_UNLOCKED', { round: roundNum });
+      }
+    }, 1000);
+
+    battleCountdowns[roundNum] = { interval };
+  }
+
+  // Bind trigger buttons on slides
+  document.querySelectorAll('.btn-trigger-countdown').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const round = parseInt(btn.dataset.round, 10);
+      triggerBattleCountdown(round);
+    });
+  });
+
+  // Bind spectator round openers
+  document.querySelectorAll('.btn-open-spectator-round').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const round = parseInt(btn.dataset.round, 10);
+      if (typeof openSpectatorOverlay === 'function') {
+        openSpectatorOverlay();
+        if (typeof setSpectatorMode === 'function') {
+          setSpectatorMode(`pos${round}`);
+        }
+      }
+    });
+  });
+
+  // ==========================================================================
+  // 7. GRAND AWARDING & PHOTO DISPLAY (SLIDE 23)
   // ==========================================================================
   function revealWinnerOnCard(cardId, winnerName, photoDataUrl = null) {
     const card = document.getElementById(cardId);
@@ -803,7 +878,9 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
 
       case 'REMOTE_SPIN_DOORPRIZE':
-        goToSlide(19, true); // Jump to Slide 20 (index 19)
+        const doorprizeSlide = document.getElementById('slide-doorprize') || document.querySelector('[data-id="slide-doorprize"]');
+        const doorprizeIdx = doorprizeSlide ? Array.from(slides).indexOf(doorprizeSlide) : 23;
+        goToSlide(doorprizeIdx, true);
         setTimeout(() => triggerDoorprizeSpin(), 400);
         break;
 
@@ -816,7 +893,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = data.payload.name;
         const photo = data.payload.photoDataUrl;
 
-        goToSlide(18, true); // Jump to Slide 19 (Awarding)
+        const awardingSlide = document.getElementById('slide-awarding') || document.querySelector('[data-id="slide-awarding"]');
+        const awardingIdx = awardingSlide ? Array.from(slides).indexOf(awardingSlide) : 22;
+        goToSlide(awardingIdx, true);
         setTimeout(() => {
           if (cat === 'olympic') {
             revealWinnerOnCard('award-olympic', name);
@@ -835,6 +914,17 @@ document.addEventListener('DOMContentLoaded', () => {
           index: currentSlideIndex,
           title: slides[currentSlideIndex] ? slides[currentSlideIndex].dataset.title : ''
         });
+        break;
+
+      case 'SPECTATOR_TOGGLE':
+        toggleSpectatorOverlay();
+        break;
+
+      case 'SPECTATOR_FOCUS':
+        if (data.payload && data.payload.mode) {
+          if (!isSpectatorOpen) openSpectatorOverlay();
+          setSpectatorMode(data.payload.mode);
+        }
         break;
 
       default:
@@ -892,7 +982,112 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 12. KEYBOARD SHORTCUTS ENGINE
+  // 12. SPECTATOR ARENA CONTROLLER (VDO.ninja 4-Screen Live Stream)
+  // ==========================================================================
+  const spectatorOverlay = document.getElementById('spectator-overlay');
+  const btnSpectatorLaunch = document.getElementById('btn-spectator-launch');
+  const btnCloseSpectator = document.getElementById('btn-close-spectator');
+  const spectatorGridStage = document.getElementById('spectator-grid-stage');
+  const specModeBtns = document.querySelectorAll('.spec-mode-btn');
+  const feedPinBtns = document.querySelectorAll('.feed-pin-btn');
+
+  let isSpectatorOpen = false;
+
+  function loadSpectatorIframes() {
+    ['pos1', 'pos2', 'pos3', 'pos4'].forEach(id => {
+      const iframe = document.getElementById(`iframe-${id}`);
+      if (iframe && (iframe.src === 'about:blank' || !iframe.src)) {
+        iframe.src = iframe.dataset.src;
+      }
+    });
+  }
+
+  function setSpectatorMode(mode) {
+    if (!spectatorGridStage) return;
+    
+    spectatorGridStage.classList.remove('mode-grid', 'mode-focus-1', 'mode-focus-2', 'mode-focus-3', 'mode-focus-4');
+    
+    if (mode === 'grid') {
+      spectatorGridStage.classList.add('mode-grid');
+    } else if (mode === 'pos1' || mode === '1') {
+      spectatorGridStage.classList.add('mode-focus-1');
+    } else if (mode === 'pos2' || mode === '2') {
+      spectatorGridStage.classList.add('mode-focus-2');
+    } else if (mode === 'pos3' || mode === '3') {
+      spectatorGridStage.classList.add('mode-focus-3');
+    } else if (mode === 'pos4' || mode === '4') {
+      spectatorGridStage.classList.add('mode-focus-4');
+    }
+
+    specModeBtns.forEach(btn => {
+      if (btn.dataset.mode === mode) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  function openSpectatorOverlay() {
+    if (!spectatorOverlay) return;
+    spectatorOverlay.classList.remove('hidden');
+    isSpectatorOpen = true;
+    loadSpectatorIframes();
+    SoundFx.playClick();
+  }
+
+  function closeSpectatorOverlay() {
+    if (!spectatorOverlay) return;
+    spectatorOverlay.classList.add('hidden');
+    isSpectatorOpen = false;
+    SoundFx.playClick();
+  }
+
+  function toggleSpectatorOverlay() {
+    if (isSpectatorOpen) {
+      closeSpectatorOverlay();
+    } else {
+      openSpectatorOverlay();
+    }
+  }
+
+  if (btnSpectatorLaunch) {
+    btnSpectatorLaunch.addEventListener('click', toggleSpectatorOverlay);
+  }
+
+  if (btnCloseSpectator) {
+    btnCloseSpectator.addEventListener('click', closeSpectatorOverlay);
+  }
+
+  if (spectatorOverlay) {
+    spectatorOverlay.addEventListener('click', (e) => {
+      if (e.target === spectatorOverlay) closeSpectatorOverlay();
+    });
+  }
+
+  specModeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      setSpectatorMode(btn.dataset.mode);
+      SoundFx.playClick();
+    });
+  });
+
+  feedPinBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const target = btn.dataset.target;
+      const focusNum = target.replace('pos', '');
+      if (spectatorGridStage.classList.contains(`mode-focus-${focusNum}`)) {
+        setSpectatorMode('grid');
+      } else {
+        setSpectatorMode(target);
+      }
+      SoundFx.playClick();
+    });
+  });
+
+  // ==========================================================================
+  // 13. KEYBOARD SHORTCUTS ENGINE
   // ==========================================================================
   window.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
@@ -909,6 +1104,19 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'ArrowLeft':
         e.preventDefault();
         prevSlide();
+        break;
+
+      case 'v':
+      case 'V':
+        e.preventDefault();
+        toggleSpectatorOverlay();
+        break;
+
+      case 'Escape':
+        if (isSpectatorOpen) {
+          e.preventDefault();
+          closeSpectatorOverlay();
+        }
         break;
 
       case 't':
@@ -967,5 +1175,8 @@ document.addEventListener('DOMContentLoaded', () => {
   window.toggleTimer = toggleTimer;
   window.resetTimer = resetTimer;
   window.advanceOrNext = advanceOrNext;
+  window.toggleSpectatorOverlay = toggleSpectatorOverlay;
+  window.setSpectatorMode = setSpectatorMode;
 });
+
 

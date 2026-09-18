@@ -934,3 +934,50 @@ Menjelaskan perbandingan mendalam antara **Opsi 3 (VDO.ninja)** vs **Opsi 1 (Goo
    - Di 4 laptop pos (`pos.html`), kita tambahkan 1 tombol praktis: `[ 📡 Mulai Share Screen ke Proyektor ]` yang otomatis membuka link VDO.ninja share screen dalam 1 klik!
    - Tetap sediakan tombol darurat `[ ↗ Fallback Google Meet ]` di pojok grid jika sewaktu-waktu Wi-Fi lokal bermasalah.
 
+### User — 2026-09-18T10:52:50+07:00
+
+iya bisa gas
+
+### User — 2026-09-18T10:57:05+07:00
+
+continue
+
+### User — 2026-09-18T10:57:57+07:00
+
+ini slide nya harusnya 13 - 16 itu dia ahrusnya sudah bisa ini dong ada slide dulu sebelahnya countdown 3, 2, 1 baru yang di pos 1 2 3 buka ke soalnyaa
+
+### Assistant — 2026-09-18T11:03:00+07:00
+
+Menyajikan dokumen rencana implementasi [05-implementation-plan-challenge-briefing-and-countdown-split.md](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/planning/05-implementation-plan-challenge-briefing-and-countdown-split.md) untuk memecah 4 babak tantangan menjadi 8 slide atomik (4 Briefing + 4 Countdown Arena), memperluas deck MC menjadi total 26 slide, mengunci soal di 4 laptop pos pada state `#state-briefing-standby`, dan membuka soal serta bel sprint hanya setelah countdown 3-2-1 selesai.
+
+### User — 2026-09-18T11:03:21+07:00
+
+*(User approves implementation plan [05-implementation-plan-challenge-briefing-and-countdown-split.md](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/planning/05-implementation-plan-challenge-briefing-and-countdown-split.md))*
+
+### Assistant — 2026-09-18T11:14:00+07:00
+
+Melakukan eksekusi penuh pemecahan 4 babak tantangan menjadi alur **Briefing Terkunci + Countdown Arena Terbuka** pada deck MC dan laptop pos:
+1. **Struktur 26 Slide Atomik (`index.html` & `src/index.html`):**
+   - Slide 13: Briefing 1 (Kalananti Scratch Debugging)
+   - Slide 14: Battle 1 Arena (Countdown 3-2-1 + Portal Status Mulai)
+   - Slide 15: Briefing 2 (Mathchamps Speed Math)
+   - Slide 16: Battle 2 Arena (Countdown 3-2-1)
+   - Slide 17: Briefing 3 (Memory Academy)
+   - Slide 18: Battle 3 Arena (Countdown 3-2-1)
+   - Slide 19: Briefing 4 (Google Sheets Emergency Room)
+   - Slide 20: Battle 4 Arena (Countdown 3-2-1)
+   - Slide 21–26: Sesi Santuy, Tebak Angel, Grand Awarding (Slide 23), Doorprize (Slide 24), Speech Queen Aldeina, Foto Bersama.
+2. **Pos Laptop Screen Locking (`pos.html`, `pos.css`, `pos.js` & `src/`):**
+   - Saat MC di Slide 13, 15, 17, 19: Pos laptop menampilkan overlay gembok 🔒, badge babak, dan banner bercahaya `STANDBY` (soal 100% terkunci agar peserta tidak mencuri start).
+   - Saat MC di Slide 14, 16, 18, 20: Hitungan mundur 3-2-1 berjalan di proyektor. Begitu menyentuh `MULAI!`, layar pos laptop otomatis membuka workspace soal lengkap dengan tombol emas raksasa `🔔 KITA UDAH KELAR! LARI KEJAR KAK BALQIS!`.
+3. **Mobile Admin Controller (`admin.html` & `admin.js`):**
+   - Slide selector diperbarui ke 26 slide.
+   - Tombol dispatch *"Kirim Juara ke Proyektor"* langsung melompat ke Slide 23 (Awarding).
+   - Tombol remote spin Doorprize langsung melompat ke Slide 24 (Doorprize).
+4. **Verifikasi Otomatis Playwright (`scripts/verify_countdown_flow.py`):**
+   - Menguji interaksi 3 tab serentak (MC Deck, Pos 1, Admin Mobile).
+   - Hasil: `🎉 ALL TESTS PASSED WITH 0 CONSOLE ERRORS!`.
+5. **Git Checkpoint & Push:**
+   - Commit dan push otomatis ke remote personal: `git@github.com-personal:madyazdhil/hh-kids-26.git`.
+
+

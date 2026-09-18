@@ -82,16 +82,20 @@ document.addEventListener('DOMContentLoaded', () => {
     "10. Rules: Strategi Tim & Bel Kak Balqis",
     "11. Timer: 2 Menit Rapat Strategi",
     "12. Bumper: Ready to Battle!",
-    "13. Challenge 1: Kalananti (Scratch)",
-    "14. Challenge 2: Mathchamps (Speed Math)",
-    "15. Challenge 3: Memory Academy (Flash)",
-    "16. Challenge 4: Spreadsheet Special (#REF!)",
-    "17. Bumper: Sesi Santuy Kenyang Sore",
-    "18. Tebak Guardian Angel",
-    "19. Grand Awarding Stage",
-    "20. Doorprize Nyeleneh Lottery",
-    "21. Speech Khidmat Queen Aldeina",
-    "22. Closing & Foto Bersama"
+    "13. [Briefing] Challenge 1: Kalananti (Scratch)",
+    "14. [Battle] Scratch Countdown 3-2-1 & Arena",
+    "15. [Briefing] Challenge 2: Mathchamps (Speed Math)",
+    "16. [Battle] Mathchamps Countdown 3-2-1 & Arena",
+    "17. [Briefing] Challenge 3: Memory Academy (Flash)",
+    "18. [Battle] Memory Countdown 3-2-1 & Arena",
+    "19. [Briefing] Challenge 4: Spreadsheet Special (#REF!)",
+    "20. [Battle] Spreadsheet Countdown 3-2-1 & Arena",
+    "21. Bumper: Sesi Santuy Kenyang Sore",
+    "22. Tebak Guardian Angel",
+    "23. Grand Awarding Stage",
+    "24. Doorprize Nyeleneh Lottery",
+    "25. Speech Khidmat Queen Aldeina",
+    "26. Closing & Foto Bersama"
   ];
 
   slideTitles.forEach((title, idx) => {
@@ -135,6 +139,19 @@ document.addEventListener('DOMContentLoaded', () => {
     broadcast('REMOTE_CONFETTI');
   });
 
+  const remoteSpectatorToggle = document.getElementById('remote-spectator-toggle');
+  if (remoteSpectatorToggle) {
+    remoteSpectatorToggle.addEventListener('click', () => {
+      broadcast('SPECTATOR_TOGGLE');
+    });
+  }
+
+  document.querySelectorAll('.btn-spec-mode').forEach(btn => {
+    btn.addEventListener('click', () => {
+      broadcast('SPECTATOR_FOCUS', { mode: btn.dataset.mode });
+    });
+  });
+
   function handleIncomingStatus(data) {
     if (!data || !data.type) return;
 
@@ -142,10 +159,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const idx = data.payload.index;
       const title = data.payload.title || `Slide ${idx + 1}`;
       activeSlideLabel.textContent = `Slide ${idx + 1}: ${title}`;
-      activeSlideNum.textContent = `${idx + 1} / 22`;
-      remoteSlideSelect.value = idx;
+      activeSlideNum.textContent = `${idx + 1} / 26`;
+      if (document.activeElement !== remoteSlideSelect) {
+        remoteSlideSelect.value = idx;
+      }
       if (remoteConnStatus) {
-        remoteConnStatus.textContent = `🟢 Slide ${idx + 1}/22 Online`;
+        remoteConnStatus.textContent = `🟢 Slide ${idx + 1}/26 Online`;
       }
     }
   }
@@ -309,20 +328,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const winner = sorted[0];
     const total = calculateTotal(winner);
     
-    if (total === 0) {
-      if (!confirm('Skor tertinggi saat ini masih 0 poin. Tetap kirim ke proyektor?')) {
-        return;
-      }
-    }
-
-    const winnerName = `${winner.name} (Total: ${total} Poin)`;
+    const winnerName = total > 0 ? `${winner.name} (${total} Poin)` : `${winner.name}`;
 
     broadcast('SET_WINNER', {
       category: 'olympic',
       name: winnerName
     });
 
-    alert(`👑 Juara Olympic "${winnerName}" berhasil dikirim ke Slide 19 Proyektor!`);
+    const origText = btnSyncOlympicWinner.textContent;
+    btnSyncOlympicWinner.textContent = '👑 Terkirim ke Slide 23!';
+    setTimeout(() => {
+      btnSyncOlympicWinner.textContent = origText;
+    }, 2500);
   });
 
   renderTeamCards();

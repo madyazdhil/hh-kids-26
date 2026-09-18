@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentSlideIndex = 0;
   let isTimerRunning = false;
   let timerCurrentSec = 60;
+  let isBattleUnlocked = false;
 
   // Update Pos Assignment UI
   function updatePosIdentity(posNum) {
@@ -79,6 +80,14 @@ document.addEventListener('DOMContentLoaded', () => {
     panelEl.classList.add('active');
   }
 
+  function getActiveRoundIndex() {
+    if (currentSlideIndex === 12 || currentSlideIndex === 13) return 0; // Kalananti Scratch
+    if (currentSlideIndex === 14 || currentSlideIndex === 15) return 1; // Mathchamps
+    if (currentSlideIndex === 16 || currentSlideIndex === 17) return 2; // Memory
+    if (currentSlideIndex === 18 || currentSlideIndex === 19) return 3; // Spreadsheet
+    return 0;
+  }
+
   function evaluateScreenState() {
     // Slide 1 - 5 (indices 0 - 4): Clean Template
     if (currentSlideIndex >= 0 && currentSlideIndex <= 4) {
@@ -101,12 +110,75 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (currentSlideIndex >= 8 && currentSlideIndex <= 11) {
       showPanel(stateOlympicIdle);
     }
-    // Slide 13 - 16 (indices 12 - 15): Live Battle Rounds
-    else if (currentSlideIndex >= 12 && currentSlideIndex <= 15) {
-      renderBattleContent();
+    // BRIEFING SLIDES: Slide 13, 15, 17, 19 (indices 12, 14, 16, 18) - 100% LOCKED
+    else if ([12, 14, 16, 18].includes(currentSlideIndex)) {
       showPanel(stateBattle);
+      isBattleUnlocked = false;
+      const roundIdx = getActiveRoundIndex();
+      const gameTitles = [
+        '🐱 Challenge 1: Kalananti Scratch Debugging',
+        '🧮 Challenge 2: Mathchamps Speed Math',
+        '🧠 Challenge 3: Memory Academy Flash',
+        '📊 Challenge 4: Spreadsheet Special (#REF! Fixer)'
+      ];
+
+      const battleLockedOverlay = document.getElementById('battle-locked-overlay');
+      const battleActiveContent = document.getElementById('battle-active-content');
+      const lockedRoundBadge = document.getElementById('locked-round-badge');
+      const lockedGameTitle = document.getElementById('locked-game-title');
+      const countdownDisplay = document.getElementById('battle-countdown-display');
+      const countdownHint = document.getElementById('battle-countdown-hint');
+
+      if (battleLockedOverlay) battleLockedOverlay.classList.remove('hidden');
+      if (battleActiveContent) battleActiveContent.classList.add('hidden');
+      if (lockedRoundBadge) lockedRoundBadge.textContent = `BABAK ${roundIdx + 1} DARI 4 • BRIEFING ATURAN`;
+      if (lockedGameTitle) lockedGameTitle.textContent = gameTitles[roundIdx] || 'Office Olympic Battle';
+      if (countdownDisplay) {
+        countdownDisplay.textContent = 'STANDBY';
+        countdownDisplay.className = 'countdown-digits-big';
+      }
+      if (countdownHint) {
+        countdownHint.innerHTML = 'Dengarkan penjelasan MC di depan proyektor.<br>Tantangan masih <strong>TERKUNCI</strong> dan akan terbuka saat aba-aba Countdown <strong>3, 2, 1 MULAI!</strong>';
+      }
     }
-    // Slide 17+ (indices 16+): Closing / Standby
+    // BATTLE SLIDES: Slide 14, 16, 18, 20 (indices 13, 15, 17, 19) - UNLOCKED AFTER COUNTDOWN
+    else if ([13, 15, 17, 19].includes(currentSlideIndex)) {
+      showPanel(stateBattle);
+      const roundIdx = getActiveRoundIndex();
+      const gameTitles = [
+        '🐱 Challenge 1: Kalananti Scratch Debugging',
+        '🧮 Challenge 2: Mathchamps Speed Math',
+        '🧠 Challenge 3: Memory Academy Flash',
+        '📊 Challenge 4: Spreadsheet Special (#REF! Fixer)'
+      ];
+
+      const battleLockedOverlay = document.getElementById('battle-locked-overlay');
+      const battleActiveContent = document.getElementById('battle-active-content');
+      const lockedRoundBadge = document.getElementById('locked-round-badge');
+      const lockedGameTitle = document.getElementById('locked-game-title');
+      const countdownDisplay = document.getElementById('battle-countdown-display');
+      const countdownHint = document.getElementById('battle-countdown-hint');
+
+      if (lockedRoundBadge) lockedRoundBadge.textContent = `BABAK ${roundIdx + 1} DARI 4 • ARENA PERTANDINGAN`;
+      if (lockedGameTitle) lockedGameTitle.textContent = gameTitles[roundIdx] || 'Office Olympic Battle';
+
+      if (isBattleUnlocked) {
+        if (battleLockedOverlay) battleLockedOverlay.classList.add('hidden');
+        if (battleActiveContent) battleActiveContent.classList.remove('hidden');
+        renderBattleContent(roundIdx);
+      } else {
+        if (battleLockedOverlay) battleLockedOverlay.classList.remove('hidden');
+        if (battleActiveContent) battleActiveContent.classList.add('hidden');
+        if (countdownDisplay) {
+          countdownDisplay.textContent = 'STANDBY';
+          countdownDisplay.className = 'countdown-digits-big';
+        }
+        if (countdownHint) {
+          countdownHint.innerHTML = 'Tangan bersiap di atas keyboard!<br>Tantangan akan terbuka otomatis setelah hitungan <strong>3, 2, 1 MULAI!</strong>';
+        }
+      }
+    }
+    // Slide 21+ (indices 20+): Sesi Santuy / Awarding / Closing
     else {
       showPanel(stateOlympicIdle);
     }
@@ -198,8 +270,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   // 4. BATTLE CONTENT GENERATOR (CHALLENGE 1 - 4)
   // ==========================================================================
-  function renderBattleContent() {
-    const roundIdx = currentSlideIndex - 12; // 0 for slide 13, 1 for slide 14, etc.
+  function renderBattleContent(overrideRoundIdx) {
+    const roundIdx = typeof overrideRoundIdx === 'number' ? overrideRoundIdx : getActiveRoundIndex();
     
     if (roundIdx === 0) {
       // CHALLENGE 1: SCRATCH (SLIDE 13)
@@ -339,6 +411,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // VDO.ninja Screen Share Broadcaster
+  const btnBroadcastStream = document.getElementById('btn-broadcast-stream');
+  if (btnBroadcastStream) {
+    btnBroadcastStream.addEventListener('click', () => {
+      const pushUrl = `https://vdo.ninja/?push=hhkids26_pos${assignedPos}&screenshare&webcam=0&quality=1&label=Pos%20${assignedPos}&transparent=1`;
+      window.open(pushUrl, `vdo_stream_pos${assignedPos}`, 'width=950,height=650,menubar=no,toolbar=no,location=no');
+      btnBroadcastStream.classList.add('streaming');
+      btnBroadcastStream.innerHTML = `<span class="broadcast-icon">🟢</span><span class="broadcast-text">Siaran Aktif (Pos ${assignedPos})</span>`;
+    });
+  }
+
   window.addEventListener('keydown', (e) => {
     if (e.key === 'f' || e.key === 'F') {
       if (!document.fullscreenElement) {
@@ -358,10 +441,37 @@ document.addEventListener('DOMContentLoaded', () => {
     if (data.type === 'SLIDE_CHANGED' || data.type === 'CURRENT_SLIDE_STATUS') {
       const idx = data.payload.index;
       if (typeof idx === 'number') {
+        if (currentSlideIndex !== idx) {
+          isBattleUnlocked = false;
+        }
         currentSlideIndex = idx;
         posSyncStatus.textContent = `🟢 Terhubung ke Proyektor (Slide ${idx + 1})`;
         evaluateScreenState();
       }
+    } else if (data.type === 'BATTLE_COUNTDOWN') {
+      const count = data.payload.count;
+      const countdownDisplay = document.getElementById('battle-countdown-display');
+      const countdownHint = document.getElementById('battle-countdown-hint');
+      if (countdownDisplay) {
+        if (count > 0) {
+          countdownDisplay.textContent = count;
+          countdownDisplay.className = 'countdown-digits-big countdown-pulse';
+          if (countdownHint) countdownHint.innerHTML = 'Bersiaplah! Tantangan akan terbuka dalam hitungan...';
+          playBellChime();
+        } else {
+          countdownDisplay.textContent = 'MULAI!';
+          countdownDisplay.className = 'countdown-digits-big countdown-go';
+          if (countdownHint) countdownHint.innerHTML = '🔥 WAKTU BERJALAN! SELESAIKAN MISI SEKARANG!';
+          playBellChime();
+          setTimeout(() => {
+            isBattleUnlocked = true;
+            evaluateScreenState();
+          }, 700);
+        }
+      }
+    } else if (data.type === 'BATTLE_UNLOCKED') {
+      isBattleUnlocked = true;
+      evaluateScreenState();
     } else if (data.type === 'TIMER_TICK' || data.type === 'TIMER_UPDATE') {
       isTimerRunning = data.payload.isRunning;
       timerCurrentSec = data.payload.currentSec;

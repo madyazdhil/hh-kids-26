@@ -437,3 +437,115 @@ body.pos-screen-body {
   font-weight: 700;
   opacity: 0.9;
 }
+
+/* Broadcast Button */
+.btn-broadcast {
+  background: linear-gradient(135deg, rgba(217, 70, 239, 0.25), rgba(0, 240, 255, 0.25));
+  border: 1px solid rgba(217, 70, 239, 0.6);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 12px rgba(217, 70, 239, 0.3);
+}
+
+.btn-broadcast:hover {
+  background: linear-gradient(135deg, rgba(217, 70, 239, 0.45), rgba(0, 240, 255, 0.45));
+  border-color: #d946ef;
+  box-shadow: 0 0 18px rgba(217, 70, 239, 0.6);
+}
+
+.btn-broadcast.streaming {
+  background: rgba(0, 255, 157, 0.25);
+  border-color: #00ff9d;
+  color: #00ff9d;
+  box-shadow: 0 0 15px rgba(0, 255, 157, 0.4);
+}
+
+/* PRE-BATTLE LOCKED / COUNTDOWN SCREEN */
+#battle-locked-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+  background: radial-gradient(circle at center, rgba(10, 25, 47, 0.98), #030712);
+  border: 2px solid var(--neon-gold);
+  box-shadow: 0 0 35px rgba(255, 215, 0, 0.2);
+}
+
+.lock-shield-icon {
+  font-size: 3.5rem;
+  margin-bottom: 12px;
+  animation: floatLock 2s infinite ease-in-out alternate;
+}
+
+@keyframes floatLock {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-6px); }
+}
+
+.countdown-stage {
+  margin: 24px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.countdown-digits-big {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(3.5rem, 8vw, 6rem);
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 2px;
+  padding: 12px 36px;
+  border-radius: var(--radius-md);
+  background: rgba(3, 7, 18, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.countdown-digits-big.countdown-pulse {
+  color: var(--neon-gold);
+  border-color: var(--neon-gold);
+  box-shadow: 0 0 45px rgba(255, 215, 0, 0.6);
+  transform: scale(1.1);
+}
+
+.countdown-digits-big.countdown-go {
+  color: #00ff9d;
+  border-color: #00ff9d;
+  box-shadow: 0 0 50px rgba(0, 255, 157, 0.8);
+  transform: scale(1.15);
+}
+
+.countdown-hint {
+  font-size: 1.05rem;
+  color: #94a3b8;
+  max-width: 550px;
+  line-height: 1.5;
+}
+
+.standby-rules-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  padding: 8px 18px;
+  border-radius: 999px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+
+
