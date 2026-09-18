@@ -722,6 +722,29 @@ Koreksi alur presentasi deck telah diterapkan 100% secara atomik dan zero spoile
    - Dispatcher pemenang dengan default Lunch Challenge: Aulia & Nurul beserta display foto.
    - Dual-screen remote slide switcher, timer toggle/reset, dan confetti trigger.
 3. **Commit & Push GitHub:** Seluruh pembaruan di-push ke personal GitHub `git@github.com-personal:madyazdhil/hh-kids-26.git`.
+4. **Verifikasi Otomatis Playwright:** Test sinkronisasi multi-tab mengonfirmasi transisi remote slide berjalan mulus, tombol salah mendegradasi target ke 4 poin, dan dispatch pemenang Lunch Challenge langsung me-reveal nama Aulia & Nurul di slide 19 proyektor secara realtime tanpa error.
+
+### User — 2026-09-18T08:37:51+07:00
+
+mana link page nya?
+
+### Assistant — 2026-09-18T08:39:00+07:00
+
+Memberikan daftar lengkap tautan halaman untuk Regroup Happy Hour Presentation Deck & Admin Control:
+
+1. **Akses Lokal / Wi-Fi Da Vinci (Sedang Berjalan & Siap Dipakai Sekarang):**
+   - **Slide MC Proyektor (Laptop Utama):** http://localhost:8765
+   - **Admin & Remote Control (Tab Kedua Laptop):** http://localhost:8765/admin.html
+   - **Admin di HP / Laptop Eldina (Wi-Fi Ruang Da Vinci):** http://10.170.133.240:8765/admin.html
+
+2. **Akses Online Publik (GitHub Pages):**
+   - **Slide MC:** https://madyazdhil.github.io/hh-kids-26/
+   - **Admin Control:** https://madyazdhil.github.io/hh-kids-26/admin.html
+   - Repositori: https://github.com/madyazdhil/hh-kids-26
+   *(Branch `gh-pages` dan redirect root telah dibuat dan di-push. Cukup aktifkan Pages di Settings > Pages > Source: Deploy from branch `gh-pages`)*.
+
+
+
 
 
 
