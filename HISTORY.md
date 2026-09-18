@@ -672,5 +672,20 @@ ini ko aplikasi kan pake html aja biar bisa di buka di web??!?
 
 Menjelaskan bahwa presentasi ini memang 100% murni file HTML biasa (`src/index.html`), bukan aplikasi software yang perlu di-install. Mengonfirmasi bahwa file tersebut bisa langsung di-double-click di browser biasa atau di-deploy ke GitHub Pages menjadi link website online jika ingin dibuka lewat URL di laptop proyektor Da Vinci. Menjalankan perintah `open` untuk langsung membukanya di browser pengguna.
 
+### User — 2026-09-18T08:14:32+07:00
+
+eror ni (Screenshot Arc/Chrome menampilkan file:///...src/index.html dengan error YouTube: "Video player configuration error Error 153")
+
+### Assistant — 2026-09-18T08:18:00+07:00
+
+Menganalisis dan memperbaiki akar penyebab YouTube "Error 153":
+1. Akar Masalah: Kebijakan keamanan Google YouTube secara ketat melarang pemutaran video iframe jika dibuka langsung lewat protokol file lokal (`file:///...`) tanpa origin HTTP/HTTPS, serta video live stream lama Lofi Girl yang kedaluwarsa.
+2. Perbaikan Kode:
+   - Memperbarui video default ke video permanen aktif (`lTRiuFIWV54` untuk Lofi, `5yx6BWlEVcY` untuk Chillhop, `WPni755-Krg` untuk Coffee Jazz).
+   - Menambahkan tombol fallback "↗ Tab Baru" agar musik bisa langsung diputar di tab latar belakang browser.
+   - Menambahkan banner deteksi otomatis protokol `file://` agar pengguna segera diarahkan ke local server `http://localhost:8765`.
+   - Mengonfirmasi melalui Playwright bahwa pembukaan via `http://localhost:8765` menghasilkan tampilan pemutar YouTube sempurna tanpa error.
+
+
 
 

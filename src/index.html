@@ -53,17 +53,21 @@
             <span>Pre-Show Music Player (YouTube Sandbox)</span>
           </div>
           <div class="sandbox-inputs">
-            <input type="text" id="yt-search-input" placeholder="Masukkan URL YouTube atau Lagu BGM..." value="https://www.youtube.com/watch?v=jfKfPfyJRdk">
+            <input type="text" id="yt-search-input" placeholder="Masukkan URL YouTube atau Lagu BGM..." value="https://www.youtube.com/watch?v=lTRiuFIWV54">
             <button id="btn-load-yt" class="btn btn-primary">Putar Musik</button>
+            <a id="btn-open-yt" href="https://www.youtube.com/watch?v=lTRiuFIWV54" target="_blank" class="btn btn-secondary" title="Putar di Tab Terpisah">↗ Tab Baru</a>
           </div>
           <div class="quick-presets">
             <span class="preset-label">Pilihan Cepat:</span>
-            <button class="preset-pill active" data-url="https://www.youtube.com/watch?v=jfKfPfyJRdk">☕ Lofi Beats</button>
-            <button class="preset-pill" data-url="https://www.youtube.com/watch?v=5qap5aO4i9A">⚡ Upbeat Pop</button>
+            <button class="preset-pill active" data-url="https://www.youtube.com/watch?v=lTRiuFIWV54">☕ Lofi Beats</button>
+            <button class="preset-pill" data-url="https://www.youtube.com/watch?v=5yx6BWlEVcY">⚡ Chillhop Beats</button>
             <button class="preset-pill" data-url="https://www.youtube.com/watch?v=WPni755-Krg">🎷 Coffee Jazz</button>
           </div>
+          <div id="file-protocol-warning" class="file-warning hidden">
+            <span>⚠️ YouTube membatasi embed jika dibuka via <code>file://</code>. Buka lewat <strong>http://localhost:8765</strong> atau klik <strong>↗ Tab Baru</strong>.</span>
+          </div>
           <div class="player-wrapper">
-            <iframe id="bgm-player" src="https://www.youtube.com/embed/jfKfPfyJRdk?enablejsapi=1&autoplay=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <iframe id="bgm-player" src="https://www.youtube.com/embed/lTRiuFIWV54?enablejsapi=1&autoplay=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
           </div>
         </div>
 

@@ -446,11 +446,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   const ytSearchInput = document.getElementById('yt-search-input');
   const btnLoadYt = document.getElementById('btn-load-yt');
+  const btnOpenYt = document.getElementById('btn-open-yt');
   const bgmPlayer = document.getElementById('bgm-player');
   const presetPills = document.querySelectorAll('.quick-presets .preset-pill');
+  const fileWarning = document.getElementById('file-protocol-warning');
+
+  // Detect file:// protocol and show helpful advisory banner
+  if (window.location.protocol === 'file:' && fileWarning) {
+    fileWarning.classList.remove('hidden');
+  }
 
   function parseYouTubeEmbedUrl(url) {
-    let videoId = 'jfKfPfyJRdk';
+    let videoId = 'lTRiuFIWV54';
     if (url.includes('youtu.be/')) {
       videoId = url.split('youtu.be/')[1].split(/[?&]/)[0];
     } else if (url.includes('watch?v=')) {
@@ -462,13 +469,17 @@ document.addEventListener('DOMContentLoaded', () => {
     return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1${originParam}`;
   }
 
-  if (btnLoadYt && ytSearchInput && bgmPlayer) {
+  function updateYtPlayer(url) {
+    if (!url) return;
+    if (bgmPlayer) bgmPlayer.src = parseYouTubeEmbedUrl(url);
+    if (btnOpenYt) btnOpenYt.href = url.startsWith('http') ? url : `https://www.youtube.com/watch?v=${url}`;
+    SoundFx.playClick();
+  }
+
+  if (btnLoadYt && ytSearchInput) {
     btnLoadYt.addEventListener('click', () => {
       const url = ytSearchInput.value.trim();
-      if (url) {
-        bgmPlayer.src = parseYouTubeEmbedUrl(url);
-        SoundFx.playClick();
-      }
+      updateYtPlayer(url);
     });
 
     presetPills.forEach(pill => {
@@ -477,8 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pill.classList.add('active');
         const url = pill.dataset.url;
         ytSearchInput.value = url;
-        bgmPlayer.src = parseYouTubeEmbedUrl(url);
-        SoundFx.playClick();
+        updateYtPlayer(url);
       });
     });
   }
