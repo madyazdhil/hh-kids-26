@@ -2,6 +2,7 @@
  * Regroup Happy Hour - Presentation Deck & MC Control Center
  * Built for Academic Kids Ruangguru (Kids Product MSIG)
  * Date: September 18, 2026 | Location: Ruang Da Vinci (HQ MSIG)
+ * Atomic 22-Slide Engine with Remote BroadcastChannel Synchronization
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -97,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
     playDrumroll() {
       if (isMuted) return;
       initAudio();
-      // Rapid series of percussive pops accelerating
       const totalPops = 24;
       let delay = 0;
       for (let i = 0; i < totalPops; i++) {
@@ -112,8 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
         gain.connect(audioCtx.destination);
         osc.start(stepTime);
         osc.stop(stepTime + 0.05);
-
-        // Gradually speed up
         delay += Math.max(0.04, 0.12 - (i * 0.0035));
       }
     },
@@ -160,11 +158,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Mute button handler
   const btnAudio = document.getElementById('btn-audio');
-  btnAudio.addEventListener('click', () => {
-    isMuted = !isMuted;
-    btnAudio.textContent = isMuted ? '🔇' : '🔊';
-    btnAudio.title = isMuted ? 'Unmute Audio (M)' : 'Mute Audio (M)';
-  });
+  if (btnAudio) {
+    btnAudio.addEventListener('click', () => {
+      isMuted = !isMuted;
+      btnAudio.textContent = isMuted ? '🔇' : '🔊';
+      btnAudio.title = isMuted ? 'Unmute Audio (M)' : 'Mute Audio (M)';
+    });
+  }
 
   // ==========================================================================
   // 2. THREE.JS PARTICLE STARFIELD (WEBGL BACKGROUND)
@@ -184,7 +184,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
 
-    // Color palette: Cyan, Gold, Deep Blue
     const colorPalette = [
       new THREE.Color('#00f0ff'),
       new THREE.Color('#ffd700'),
@@ -242,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 3. SLIDE ENGINE & NAVIGATION
+  // 3. SLIDE ENGINE & NAVIGATION (22 SLIDES)
   // ==========================================================================
   const slides = Array.from(document.querySelectorAll('.slide'));
   const totalSlides = slides.length;
@@ -253,17 +252,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const slideSelect = document.getElementById('slide-select');
   const btnPrev = document.getElementById('btn-prev');
   const btnNext = document.getElementById('btn-next');
+  const syncStatus = document.getElementById('sync-status');
 
   // Build dots and dropdown selector
   slides.forEach((slide, idx) => {
-    // Dot indicator
     const dot = document.createElement('div');
     dot.className = `dot-indicator ${idx === 0 ? 'active' : ''}`;
     dot.title = `Slide ${idx + 1}: ${slide.dataset.title || ''}`;
     dot.addEventListener('click', () => goToSlide(idx));
     slideDotsContainer.appendChild(dot);
 
-    // Dropdown option
     const opt = document.createElement('option');
     opt.value = idx;
     opt.textContent = `${idx + 1}. ${slide.dataset.title || `Slide ${idx + 1}`}`;
@@ -279,21 +277,24 @@ document.addEventListener('DOMContentLoaded', () => {
       slide.classList.toggle('active', idx === currentSlideIndex);
     });
 
-    // Update dots
     const dots = slideDotsContainer.querySelectorAll('.dot-indicator');
     dots.forEach((dot, idx) => {
       dot.classList.toggle('active', idx === currentSlideIndex);
     });
 
-    // Update Counter & Selector
     slideCounter.textContent = `Slide ${currentSlideIndex + 1} / ${totalSlides}`;
     slideSelect.value = currentSlideIndex;
 
-    // Reset or handle slide-specific animations
     const activeSlide = slides[currentSlideIndex];
     if (activeSlide) {
       activeSlide.scrollTop = 0;
     }
+
+    // Broadcast current slide status to Admin Panel
+    broadcastSync('CURRENT_SLIDE_STATUS', {
+      index: currentSlideIndex,
+      title: activeSlide ? activeSlide.dataset.title : ''
+    });
   }
 
   function goToSlide(index) {
@@ -310,7 +311,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Progressive Next: check for unrevealed steps inside active slide first!
   function advanceOrNext() {
     const activeSlide = slides[currentSlideIndex];
     const unrevealedStep = activeSlide.querySelector('.step-reveal:not(.active)');
@@ -325,10 +325,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  btnPrev.addEventListener('click', prevSlide);
-  btnNext.addEventListener('click', advanceOrNext);
+  if (btnPrev) btnPrev.addEventListener('click', prevSlide);
+  if (btnNext) btnNext.addEventListener('click', advanceOrNext);
 
-  // Explicit step reveal buttons inside slides 8, 9, 10, 11
+  // Explicit step reveal buttons inside challenges
   document.querySelectorAll('.btn-step').forEach(btn => {
     btn.addEventListener('click', () => {
       advanceOrNext();
@@ -336,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==========================================================================
-  // 4. COUNTDOWN TIMERS (SLIDE 6: POS INSPECTION & SLIDE 7: STRATEGY)
+  // 4. COUNTDOWN TIMERS (SLIDE 8: POS INSPECTION & SLIDE 11: STRATEGY)
   // ==========================================================================
   const timers = {
     1: { totalSec: 60, currentSec: 60, isRunning: false, intervalId: null, displayEl: document.getElementById('timer-display-1') },
@@ -405,7 +405,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btn) btn.textContent = '▶ START (T)';
   }
 
-  // Timer button bindings
   document.querySelectorAll('.btn-start-timer').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const timerId = e.currentTarget.dataset.timer;
@@ -420,7 +419,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Timer Preset Buttons
   document.querySelectorAll('.timer-presets .preset-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const timerId = e.currentTarget.dataset.timer;
@@ -437,7 +435,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Render initial display
   renderTimer(1);
   renderTimer(2);
 
@@ -451,7 +448,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const presetPills = document.querySelectorAll('.quick-presets .preset-pill');
   const fileWarning = document.getElementById('file-protocol-warning');
 
-  // Detect file:// protocol and show helpful advisory banner
   if (window.location.protocol === 'file:' && fileWarning) {
     fileWarning.classList.remove('hidden');
   }
@@ -547,7 +543,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Guardian Angel SFX Button
   const btnAngelSfx = document.getElementById('btn-angel-sfx');
   if (btnAngelSfx) {
     btnAngelSfx.addEventListener('click', () => {
@@ -556,37 +551,52 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 7. GRAND AWARDING & PHOTO UPLOAD
+  // 7. GRAND AWARDING & PHOTO DISPLAY (SLIDE 19)
   // ==========================================================================
+  function revealWinnerOnCard(cardId, winnerName, photoDataUrl = null) {
+    const card = document.getElementById(cardId);
+    if (!card) return;
+
+    const input = card.querySelector('.winner-input');
+    const placeholder = card.querySelector('.winner-placeholder');
+    const btn = card.querySelector('.btn-reveal-winner');
+
+    placeholder.textContent = winnerName;
+    placeholder.classList.add('revealed');
+    if (input) input.classList.add('hidden');
+    if (btn) btn.classList.add('hidden');
+
+    if (photoDataUrl) {
+      const img = card.querySelector('#lunch-photo-img');
+      const emptyText = card.querySelector('#lunch-photo-empty');
+      if (img) {
+        img.src = photoDataUrl;
+        img.classList.remove('hidden');
+      }
+      if (emptyText) emptyText.classList.add('hidden');
+    }
+
+    SoundFx.playFanfare();
+    if (typeof confetti === 'function') {
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+    }
+  }
+
   document.querySelectorAll('.btn-reveal-winner').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const card = e.currentTarget.closest('.award-card');
       const input = card.querySelector('.winner-input');
-      const placeholder = card.querySelector('.winner-placeholder');
-
       const name = input.value.trim() || 'TIM JUARA SEJATI';
-      placeholder.textContent = name;
-      placeholder.classList.add('revealed');
-      input.classList.add('hidden');
-      e.currentTarget.classList.add('hidden');
-
-      SoundFx.playFanfare();
-      if (typeof confetti === 'function') {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
-      }
+      revealWinnerOnCard(card.id, name);
     });
   });
 
-  // Lunch Challenge Photo Upload
   const btnUploadLunch = document.getElementById('btn-upload-lunch');
   const lunchPhotoInput = document.getElementById('lunch-photo-input');
-  const lunchPreview = document.getElementById('lunch-preview');
+  const lunchPhotoImg = document.getElementById('lunch-photo-img');
+  const lunchPhotoEmpty = document.getElementById('lunch-photo-empty');
 
-  if (btnUploadLunch && lunchPhotoInput && lunchPreview) {
+  if (btnUploadLunch && lunchPhotoInput) {
     btnUploadLunch.addEventListener('click', () => {
       lunchPhotoInput.click();
     });
@@ -596,8 +606,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (file) {
         const reader = new FileReader();
         reader.onload = (event) => {
-          lunchPreview.innerHTML = `<img src="${event.target.result}" alt="Foto Lunch Tim">`;
-          lunchPreview.classList.remove('hidden');
+          if (lunchPhotoImg) {
+            lunchPhotoImg.src = event.target.result;
+            lunchPhotoImg.classList.remove('hidden');
+          }
+          if (lunchPhotoEmpty) lunchPhotoEmpty.classList.add('hidden');
         };
         reader.readAsDataURL(file);
       }
@@ -605,7 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 8. DOORPRIZE NYELENEH LOTTERY MACHINE
+  // 8. DOORPRIZE NYELENEH LOTTERY MACHINE (SLIDE 20)
   // ==========================================================================
   const doorprizePool = [
     { name: '🩴 Sendal Jepit Anti-Slip', desc: 'Penunjang mobilitas super cepat saat dipanggil meeting dadakan' },
@@ -622,80 +635,190 @@ document.addEventListener('DOMContentLoaded', () => {
   const prizeDescEl = document.getElementById('prize-desc');
 
   let isSpinning = false;
-  if (btnSpinDoorprize) {
-    btnSpinDoorprize.addEventListener('click', () => {
-      if (isSpinning) return;
-      isSpinning = true;
+  function triggerDoorprizeSpin() {
+    if (isSpinning) return;
+    isSpinning = true;
+    if (btnSpinDoorprize) {
       btnSpinDoorprize.disabled = true;
       btnSpinDoorprize.textContent = '🎰 MENGUNDI...';
-      luckyNumberEl.classList.add('spinning');
-      prizeNameEl.textContent = 'Mengocok Nama...';
-      prizeDescEl.textContent = 'Harap tegang dan tahan napas!';
+    }
+    if (luckyNumberEl) luckyNumberEl.classList.add('spinning');
+    if (prizeNameEl) prizeNameEl.textContent = 'Mengocok Nama...';
+    if (prizeDescEl) prizeDescEl.textContent = 'Harap tegang dan tahan napas!';
 
-      SoundFx.playDrumroll();
+    SoundFx.playDrumroll();
 
-      let counter = 0;
-      const spinInterval = setInterval(() => {
+    let counter = 0;
+    const spinInterval = setInterval(() => {
+      if (luckyNumberEl) {
         luckyNumberEl.textContent = String(Math.floor(Math.random() * 50) + 1).padStart(2, '0');
-        counter++;
-        if (counter % 3 === 0) SoundFx.playTick();
-      }, 70);
+      }
+      counter++;
+      if (counter % 3 === 0) SoundFx.playTick();
+    }, 70);
 
-      setTimeout(() => {
-        clearInterval(spinInterval);
+    setTimeout(() => {
+      clearInterval(spinInterval);
+      if (luckyNumberEl) {
         luckyNumberEl.classList.remove('spinning');
-
         const finalNum = Math.floor(Math.random() * 40) + 1;
         luckyNumberEl.textContent = String(finalNum).padStart(2, '0');
+      }
 
-        const randomPrize = doorprizePool[Math.floor(Math.random() * doorprizePool.length)];
-        prizeNameEl.textContent = randomPrize.name;
-        prizeDescEl.textContent = randomPrize.desc;
+      const randomPrize = doorprizePool[Math.floor(Math.random() * doorprizePool.length)];
+      if (prizeNameEl) prizeNameEl.textContent = randomPrize.name;
+      if (prizeDescEl) prizeDescEl.textContent = randomPrize.desc;
 
-        isSpinning = false;
+      isSpinning = false;
+      if (btnSpinDoorprize) {
         btnSpinDoorprize.disabled = false;
         btnSpinDoorprize.textContent = '🎰 PUTAR NOMOR LAGI!';
+      }
 
-        SoundFx.playFanfare();
-        if (typeof confetti === 'function') {
-          confetti({
-            particleCount: 150,
-            spread: 90,
-            origin: { y: 0.6 }
-          });
-        }
-      }, 2400);
-    });
-  }
-
-  // ==========================================================================
-  // 9. GRAND CONFETTI (SLIDE 16)
-  // ==========================================================================
-  const btnGrandConfetti = document.getElementById('btn-grand-confetti');
-  if (btnGrandConfetti) {
-    btnGrandConfetti.addEventListener('click', () => {
       SoundFx.playFanfare();
       if (typeof confetti === 'function') {
-        const count = 250;
-        const defaults = { origin: { y: 0.7 } };
-
-        function fire(particleRatio, opts) {
-          confetti(Object.assign({}, defaults, opts, {
-            particleCount: Math.floor(count * particleRatio)
-          }));
-        }
-
-        fire(0.25, { spread: 26, startVelocity: 55 });
-        fire(0.2, { spread: 60 });
-        fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
-        fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
-        fire(0.1, { spread: 120, startVelocity: 45 });
+        confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
       }
-    });
+    }, 2400);
+  }
+
+  if (btnSpinDoorprize) {
+    btnSpinDoorprize.addEventListener('click', triggerDoorprizeSpin);
   }
 
   // ==========================================================================
-  // 10. SHORTCUTS MODAL & FULLSCREEN TOGGLE
+  // 9. GRAND CONFETTI (SLIDE 22)
+  // ==========================================================================
+  const btnGrandConfetti = document.getElementById('btn-grand-confetti');
+  function triggerGrandConfetti() {
+    SoundFx.playFanfare();
+    if (typeof confetti === 'function') {
+      const count = 250;
+      const defaults = { origin: { y: 0.7 } };
+
+      function fire(particleRatio, opts) {
+        confetti(Object.assign({}, defaults, opts, {
+          particleCount: Math.floor(count * particleRatio)
+        }));
+      }
+
+      fire(0.25, { spread: 26, startVelocity: 55 });
+      fire(0.2, { spread: 60 });
+      fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+      fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+      fire(0.1, { spread: 120, startVelocity: 45 });
+    }
+  }
+
+  if (btnGrandConfetti) {
+    btnGrandConfetti.addEventListener('click', triggerGrandConfetti);
+  }
+
+  // ==========================================================================
+  // 10. REAL-TIME BROADCAST CHANNEL & REMOTE CONTROL SYNC
+  // ==========================================================================
+  const SYNC_CHANNEL_NAME = 'regroup_happy_hour_sync';
+  const syncChannel = new BroadcastChannel(SYNC_CHANNEL_NAME);
+
+  function broadcastSync(type, payload = {}) {
+    syncChannel.postMessage({ type, payload, timestamp: Date.now() });
+  }
+
+  function handleRemoteCommand(data) {
+    if (!data || !data.type) return;
+
+    if (syncStatus) {
+      syncStatus.textContent = '⚡ Remote: Aktif';
+      syncStatus.classList.add('active');
+    }
+
+    switch (data.type) {
+      case 'REMOTE_NEXT':
+        advanceOrNext();
+        break;
+
+      case 'REMOTE_PREV':
+        prevSlide();
+        break;
+
+      case 'REMOTE_GOTO_SLIDE':
+        if (typeof data.payload.index === 'number') {
+          goToSlide(data.payload.index);
+        }
+        break;
+
+      case 'REMOTE_TIMER_TOGGLE':
+        if (currentSlideIndex === 7) {
+          toggleTimer(1);
+        } else if (currentSlideIndex === 10) {
+          toggleTimer(2);
+        }
+        break;
+
+      case 'REMOTE_TIMER_RESET':
+        if (currentSlideIndex === 7) {
+          resetTimer(1);
+        } else if (currentSlideIndex === 10) {
+          resetTimer(2);
+        }
+        break;
+
+      case 'REMOTE_SPIN_DOORPRIZE':
+        goToSlide(19); // Jump to Slide 20 (index 19)
+        setTimeout(() => triggerDoorprizeSpin(), 400);
+        break;
+
+      case 'REMOTE_CONFETTI':
+        triggerGrandConfetti();
+        break;
+
+      case 'SET_WINNER':
+        const cat = data.payload.category;
+        const name = data.payload.name;
+        const photo = data.payload.photoDataUrl;
+
+        goToSlide(18); // Jump to Slide 19 (Awarding)
+        setTimeout(() => {
+          if (cat === 'olympic') {
+            revealWinnerOnCard('award-olympic', name);
+          } else if (cat === 'costume') {
+            revealWinnerOnCard('award-costume', name);
+          } else if (cat === 'lunch') {
+            revealWinnerOnCard('award-lunch', name, photo);
+          } else if (cat === 'entertain') {
+            revealWinnerOnCard('award-entertain', name);
+          }
+        }, 400);
+        break;
+
+      case 'REQUEST_STATUS':
+        broadcastSync('CURRENT_SLIDE_STATUS', {
+          index: currentSlideIndex,
+          title: slides[currentSlideIndex] ? slides[currentSlideIndex].dataset.title : ''
+        });
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  syncChannel.onmessage = (event) => {
+    handleRemoteCommand(event.data);
+  };
+
+  // localStorage storage event dual-sync fallback
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'hh_last_broadcast' && e.newValue) {
+      try {
+        const data = JSON.parse(e.newValue);
+        handleRemoteCommand(data);
+      } catch (err) {}
+    }
+  });
+
+  // ==========================================================================
+  // 11. SHORTCUTS MODAL & FULLSCREEN TOGGLE
   // ==========================================================================
   const modal = document.getElementById('shortcuts-modal');
   const btnHelp = document.getElementById('btn-help');
@@ -727,10 +850,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 11. KEYBOARD SHORTCUTS ENGINE
+  // 12. KEYBOARD SHORTCUTS ENGINE
   // ==========================================================================
   window.addEventListener('keydown', (e) => {
-    // If typing inside an input field, do not trigger slide navigation
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
       return;
     }
@@ -750,10 +872,9 @@ document.addEventListener('DOMContentLoaded', () => {
       case 't':
       case 'T':
         e.preventDefault();
-        // If on slide 6 (inspection) or slide 7 (strategizing), toggle that timer
-        if (currentSlideIndex === 5) {
+        if (currentSlideIndex === 7) {
           toggleTimer(1);
-        } else if (currentSlideIndex === 6) {
+        } else if (currentSlideIndex === 10) {
           toggleTimer(2);
         }
         break;
@@ -761,9 +882,9 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'r':
       case 'R':
         e.preventDefault();
-        if (currentSlideIndex === 5) {
+        if (currentSlideIndex === 7) {
           resetTimer(1);
-        } else if (currentSlideIndex === 6) {
+        } else if (currentSlideIndex === 10) {
           resetTimer(2);
         }
         break;
