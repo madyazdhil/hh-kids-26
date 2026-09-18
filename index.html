@@ -2,13 +2,634 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=src/index.html">
-  <title>Regroup Happy Hour - Redirect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Regroup Happy Hour - Academic Kids Ruangguru</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Outfit:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- Three.js & Confetti CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
-<body>
-  <script>
-    window.location.replace("src/index.html" + window.location.search + window.location.hash);
-  </script>
-  <p>Mengarahkan ke <a href="src/index.html">Presentation Deck</a>...</p>
+<body class="theme-navy-black">
+  <!-- Three.js Dynamic WebGL Canvas Background -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Top Ambient Glows -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+  <div class="glow-orb orb-3"></div>
+
+  <!-- Header Info Bar (Discreet for MC/Operator) -->
+  <header class="top-nav">
+    <div class="brand">
+      <span class="pulse-dot"></span>
+      <span class="brand-text">ACADEMIC KIDS RUANGGURU</span>
+      <span class="brand-divider">/</span>
+      <span class="brand-badge">HQ MSIG • DA VINCI</span>
+    </div>
+    <div class="nav-controls">
+      <span id="sync-status" class="sync-badge" title="Status Remote Sync">⚡ Standby</span>
+      <span id="slide-counter" class="counter-badge">Slide 1 / 22</span>
+      <a href="admin.html" target="_blank" class="admin-link-btn" title="Buka Panel Admin (Remote & Scoring)">⚙ Admin</a>
+      <button id="btn-fullscreen" class="icon-btn" title="Toggle Fullscreen (F)">⛶</button>
+      <button id="btn-audio" class="icon-btn" title="Mute/Unmute Audio (M)">🔊</button>
+      <button id="btn-help" class="icon-btn" title="Keyboard Shortcuts (?)">⌨</button>
+    </div>
+  </header>
+
+  <!-- Main Slide Deck Container -->
+  <main id="slide-container">
+
+    <!-- SLIDE 1: PRE-SHOW LOUNGE -->
+    <section class="slide active" id="slide-1" data-title="Pre-Show Lounge">
+      <div class="slide-content text-center">
+        <div class="tag-pill">WAITING LOUNGE & COFFEE CHILL</div>
+        <h1 class="hero-glitch" data-text="REGROUP HAPPY HOUR">REGROUP HAPPY HOUR</h1>
+        <p class="subtitle">Drop kado putih di pintu luar Da Vinci & ambil posisi di kelompok masing-masing</p>
+
+        <div class="glass-card music-sandbox">
+          <div class="sandbox-header">
+            <span class="icon">🎵</span>
+            <span>Pre-Show Music Player (YouTube Sandbox)</span>
+          </div>
+          <div class="sandbox-inputs">
+            <input type="text" id="yt-search-input" placeholder="Masukkan URL YouTube atau Lagu BGM..." value="https://www.youtube.com/watch?v=lTRiuFIWV54">
+            <button id="btn-load-yt" class="btn btn-primary">Putar Musik</button>
+            <a id="btn-open-yt" href="https://www.youtube.com/watch?v=lTRiuFIWV54" target="_blank" class="btn btn-secondary" title="Putar di Tab Terpisah">↗ Tab Baru</a>
+          </div>
+          <div class="quick-presets">
+            <span class="preset-label">Pilihan Cepat:</span>
+            <button class="preset-pill active" data-url="https://www.youtube.com/watch?v=lTRiuFIWV54">☕ Lofi Beats</button>
+            <button class="preset-pill" data-url="https://www.youtube.com/watch?v=5yx6BWlEVcY">⚡ Chillhop Beats</button>
+            <button class="preset-pill" data-url="https://www.youtube.com/watch?v=WPni755-Krg">🎷 Coffee Jazz</button>
+          </div>
+          <div id="file-protocol-warning" class="file-warning hidden">
+            <span>⚠️ YouTube membatasi embed jika dibuka via <code>file://</code>. Buka lewat <strong>http://localhost:8765</strong> atau klik <strong>↗ Tab Baru</strong>.</span>
+          </div>
+          <div class="player-wrapper">
+            <iframe id="bgm-player" src="https://www.youtube.com/embed/lTRiuFIWV54?enablejsapi=1&autoplay=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+        </div>
+
+        <div class="hint-key">Tekan <kbd>Space</kbd> atau <kbd>→</kbd> untuk memulai pembukaan</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: HERO WELCOMING SCREEN (CLEAN, ZERO SPOILERS) -->
+    <section class="slide" id="slide-2" data-title="Welcome Screen">
+      <div class="slide-content text-center">
+        <div class="dresscode-badge">
+          <span class="dot navy"></span> DRESSCODE: NAVY & BLACK <span class="dot black"></span>
+        </div>
+        <h1 class="mega-title">WELCOME TO<br><span class="neon-cyan">OFFICE HAPPY HOUR</span></h1>
+        <h2 class="sub-mega">KIDS PRODUCT MSIG • RUANGGURU</h2>
+        <div class="accent-line"></div>
+        <p class="welcome-desc-large">Tinggalkan beban sprint dan Jira sejenak.<br>Saatnya rileks, kenal lebih dekat, dan have fun bareng seisi tim!</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: WARM UP GAME SELEKSI (PENCARIAN KORBAN) -->
+    <section class="slide" id="slide-3" data-title="Game Cari Korban Senam">
+      <div class="slide-content text-center">
+        <div class="tag-pill tag-yellow">WARM UP ENERGIZER</div>
+        <h1 class="title-bold">PENCARIAN INSTRUKTUR SENAM</h1>
+        <p class="subtitle">Kita butuh 1 orang berani untuk dinobatkan sebagai <strong>Chief Workout Officer</strong></p>
+
+        <div class="glass-card game-card">
+          <div class="game-badge">MINI GAME SELEKSI</div>
+          <h2 class="game-name">BATU • GUNTING • KERTAS TERBALIK</h2>
+          <div class="rules-box">
+            <div class="rule-step">
+              <span class="num">1</span>
+              <span>Semua peserta di ruangan <strong>WAJIB BERDIRI</strong> menghadap MC Yazid.</span>
+            </div>
+            <div class="rule-step">
+              <span class="num">2</span>
+              <span>Aturan Terbalik: Yang <strong>MENANG / SERI</strong> lawan Yazid silakan <strong>DUDUK (Selamat)</strong>!</span>
+            </div>
+            <div class="rule-step">
+              <span class="num">3</span>
+              <span>Yang <strong>KALAH</strong> tetap berdiri dan lanjut ke ronde eliminasi berikutnya!</span>
+            </div>
+          </div>
+          
+          <div class="interactive-stage mt-3">
+            <button id="btn-drumroll" class="btn btn-gold btn-lg">🥁 Mainkan Drum Roll Tensi</button>
+            <button id="btn-korban-found" class="btn btn-cyan btn-lg">👑 KORBAN DITEMUKAN!</button>
+          </div>
+          <div id="korban-banner" class="korban-banner hidden">
+            🎉 SELAMAT! MAJU KE DEPAN DAN PIMPIN REKAN KERJAMU! 🎉
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: SENAM INTERAKTIF (MR.MINIRA VIDEO) -->
+    <section class="slide" id="slide-4" data-title="Senam Arcade MR.MINIRA">
+      <div class="slide-content text-center">
+        <div class="tag-pill tag-cyan">ARCADE FITNESS EXPERIENCE</div>
+        <h1 class="title-bold">IMMERSIVE INTERACTIVE WARM UP</h1>
+        <p class="subtitle">Ikuti avatar game di layar! Instruktur di depan jadi player utama!</p>
+
+        <div class="video-container glass-card">
+          <div class="live-action-hud">
+            <span class="hud-pill hud-dodge">DODGE! 🏃‍♂️</span>
+            <span class="hud-pill hud-jump">JUMP! ⬆️</span>
+            <span class="hud-pill hud-duck">DUCK! ⬇️</span>
+            <span class="hud-pill hud-punch">PUNCH! 🥊</span>
+          </div>
+          <div class="embed-responsive">
+            <iframe id="senam-iframe" src="https://www.youtube.com/embed/01TdshgZGZo?enablejsapi=1&rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+          <div class="video-controls">
+            <button id="btn-play-senam" class="btn btn-primary">▶ Putar Senam</button>
+            <button id="btn-pause-senam" class="btn btn-secondary">⏸ Jeda</button>
+            <span class="yt-credit">Source: <a href="https://www.youtube.com/watch?v=01TdshgZGZo" target="_blank">MR.MINIRA on YouTube</a></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: BUMPER JUDUL POST-SENAM (COOLING DOWN) -->
+    <section class="slide bumper-slide" id="slide-5" data-title="Bumper: Cooling Down">
+      <div class="slide-content text-center">
+        <div class="tag-pill tag-cyan">REGROUP HAPPY HOUR</div>
+        <h1 class="mega-title neon-cyan">LUAR BIASA! 🔥</h1>
+        <h2 class="sub-mega">Beri tepuk tangan paling meriah untuk instruktur & kita semua!</h2>
+        <div class="accent-line"></div>
+        <p class="subtitle">Silakan atur napas dan kembali ke meja kelompok masing-masing...</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: TITLE SPLASH: OFFICE OLYMPICS (PURE TITLE ONLY) -->
+    <section class="slide bumper-slide" id="slide-6" data-title="Title: Office Olympics">
+      <div class="slide-content text-center">
+        <div class="olympic-rings">
+          <span class="ring blue"></span>
+          <span class="ring yellow"></span>
+          <span class="ring black"></span>
+          <span class="ring green"></span>
+          <span class="ring red"></span>
+        </div>
+        <h1 class="giant-title neon-gold">OFFICE OLYMPICS</h1>
+        <h2 class="sub-mega">THE ULTIMATE TEAM SHOWDOWN</h2>
+        <div class="accent-line gold"></div>
+        <p class="subtitle">Saatnya menguji kekompakan, kecepatan, dan ketahanan otak kelompokmu!</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: BRIEFING 4 LAPTOP (KETUA KELOMPOK SCOUTING) -->
+    <section class="slide" id="slide-7" data-title="Briefing: 4 Pos Laptop">
+      <div class="slide-content text-center">
+        <div class="tag-pill tag-cyan">FASE 1: RECONNAISSANCE</div>
+        <h1 class="title-bold">4 POS LAPTOP DI MEJA TENGAH</h1>
+        <p class="subtitle">Di meja panjang tengah ruangan, sudah disiapkan 4 laptop dengan 4 jenis misi rahasia berbeda!</p>
+
+        <div class="glass-card instruction-card glow-cyan">
+          <div class="icon-avatar">🕵️‍♂️</div>
+          <h3>MISI KHUSUS KETUA KELOMPOK</h3>
+          <div class="briefing-box">
+            <p>Hanya para <strong>Ketua Kelompok</strong> yang diizinkan maju ke meja tengah!</p>
+            <p>Intip dan baca instruksi di ke-4 laptop secara mandiri. <strong>JANGAN DI-SPOIL / DITERIAKKAN</strong> ke anggota lain!</p>
+            <p>Ingat-ingat jenis tantangannya untuk didiskusikan saat kembali ke tim.</p>
+          </div>
+          <div class="pos-chips mt-3">
+            <span class="chip">Pos 1: Kalananti</span>
+            <span class="chip">Pos 2: Mathchamps</span>
+            <span class="chip">Pos 3: Memory Academy</span>
+            <span class="chip">Pos 4: Spreadsheet</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: TIMER 1 MENIT KETUA KELOMPOK MENCARI -->
+    <section class="slide" id="slide-8" data-title="Timer: Ketua Kelompok Mencari">
+      <div class="slide-content text-center">
+        <div class="tag-pill tag-cyan">1-MINUTE COUNTDOWN</div>
+        <h1 class="title-bold">KETUA KELOMPOK MENCARI</h1>
+        <p class="subtitle">Waktu kalian hanya 1 menit untuk mengelilingi dan mengintip ke-4 pos laptop!</p>
+
+        <div class="glass-card timer-card glow-cyan">
+          <div class="timer-label">SISA WAKTU INSPEKSI POS</div>
+          <div id="timer-display-1" class="timer-digits">01:00</div>
+          
+          <div class="timer-controls">
+            <button class="btn btn-primary btn-lg btn-start-timer" data-timer="1">▶ START (T)</button>
+            <button class="btn btn-secondary btn-lg btn-reset-timer" data-timer="1">↺ RESET (R)</button>
+          </div>
+
+          <div class="timer-presets">
+            <span>Durasi:</span>
+            <button class="preset-btn active" data-timer="1" data-sec="60">1 Menit</button>
+            <button class="preset-btn" data-timer="1" data-sec="120">2 Menit</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: BUMPER JUDUL POST-SCOUTING -->
+    <section class="slide bumper-slide" id="slide-9" data-title="Bumper: Waktu Inspeksi Selesai">
+      <div class="slide-content text-center">
+        <div class="olympic-rings">
+          <span class="ring blue"></span>
+          <span class="ring yellow"></span>
+          <span class="ring black"></span>
+          <span class="ring green"></span>
+          <span class="ring red"></span>
+        </div>
+        <h1 class="giant-title neon-gold">OFFICE OLYMPICS</h1>
+        <h2 class="sub-mega">WAKTU INSPEKSI SELESAI!</h2>
+        <div class="accent-line gold"></div>
+        <p class="subtitle">Seluruh Ketua Kelompok silakan kembali ke meja kelompok masing-masing...</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: BRIEFING RULES & ATURAN BEL KAK BALQIS -->
+    <section class="slide" id="slide-10" data-title="Rules: Strategi & Bel Balqis">
+      <div class="slide-content text-center">
+        <div class="tag-pill tag-yellow">FASE 2: RULES & TACTICS</div>
+        <h1 class="title-bold">ATUR STRATEGI & KEJAR BEL!</h1>
+        <p class="subtitle">Ketua kelompok bertugas meng-assign: siapa jago koding, sempoa, memori, dan spreadsheet!</p>
+
+        <div class="olympic-gimmick-box glass-card glow-gold">
+          <div class="gimmick-title">⚡ ATURAN EMAS BEL KAK BALQIS ⚡</div>
+          <p>Jika kamu merasa tugas laptop posmu sudah selesai, <strong>JANGAN CUMA TERIAK!</strong></p>
+          <div class="gimmick-highlight">LARI & KEJAR KAK BALQIS UNTUK MENGETUK BEL! 🔔🏃‍♀️</div>
+          <div class="points-badge-row">
+            <span class="badge-pt">Percobaan 1 Benar = <strong>+5 Poin</strong></span>
+            <span class="badge-pt">Percobaan 2 Benar = <strong>+4 Poin</strong></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: TIMER 2 MENIT STRATEGIZE KELOMPOK -->
+    <section class="slide" id="slide-11" data-title="Timer: Rapat Strategi Tim">
+      <div class="slide-content text-center">
+        <div class="tag-pill tag-yellow">2-MINUTE COUNTDOWN</div>
+        <h1 class="title-bold">GROUP STRATEGIZING</h1>
+        <p class="subtitle">Diskusikan dan tentukan delegasi terbaik kelompokmu untuk 4 pos tantangan!</p>
+
+        <div class="glass-card timer-card glow-gold">
+          <div class="timer-label">SISA WAKTU RAPAT TAKTIK</div>
+          <div id="timer-display-2" class="timer-digits">02:00</div>
+          
+          <div class="timer-controls">
+            <button class="btn btn-gold btn-lg btn-start-timer" data-timer="2">▶ START (T)</button>
+            <button class="btn btn-secondary btn-lg btn-reset-timer" data-timer="2">↺ RESET (R)</button>
+          </div>
+
+          <div class="timer-presets">
+            <span>Durasi:</span>
+            <button class="preset-btn" data-timer="2" data-sec="60">1 Menit</button>
+            <button class="preset-btn active" data-timer="2" data-sec="120">2 Menit</button>
+            <button class="preset-btn" data-timer="2" data-sec="180">3 Menit</button>
+          </div>
+
+          <div class="strategy-checklist">
+            <div class="check-item">✓ 1 Player Pos 1 (Coding)</div>
+            <div class="check-item">✓ 1 Player Pos 2 (Math)</div>
+            <div class="check-item">✓ 1 Player Pos 3 (Memory)</div>
+            <div class="check-item">✓ 1 Player Pos 4 (Sheets)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12: BUMPER TRANSISI SEBELUM BATTLE -->
+    <section class="slide bumper-slide" id="slide-12" data-title="Bumper: Ready to Battle">
+      <div class="slide-content text-center">
+        <div class="tag-pill tag-gold">ARE YOU READY?</div>
+        <h1 class="giant-title neon-gold">LET THE GAMES BEGIN!</h1>
+        <h2 class="sub-mega">Semua delegasi siap di pos masing-masing!</h2>
+        <div class="accent-line gold"></div>
+        <p class="subtitle">Kak Balqis sudah standby dengan bel meja di tengah arena!</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 13: CHALLENGE 1 - KALANANTI -->
+    <section class="slide" id="slide-13" data-title="Challenge 1: Kalananti">
+      <div class="slide-content text-center">
+        <div class="product-badge kalananti">PRODUK 01 • KALANANTI</div>
+        <h1 class="title-bold neon-cyan">SCRATCH CODE DEBUGGING</h1>
+        <p class="subtitle">Perbaiki blok kode Scratch yang rusak sampai animasinya berjalan sempurna!</p>
+
+        <div class="challenge-box glass-card">
+          <div class="step-reveal step-1 active">
+            <div class="icon-avatar">🐱</div>
+            <h3>Misi Player</h3>
+            <p>Buka tab Scratch di laptop pos kelompokmu. Temukan 2-3 bug logika pada script sprite.</p>
+          </div>
+          <div class="step-reveal step-2">
+            <div class="bell-alert">
+              <span class="bell-icon">🔔</span>
+              <h4>UDAH BERES? KEJAR KAK BALQIS!</h4>
+              <p>Lari dan pencet bel meja sebelum tim lawan mendahuluimu!</p>
+            </div>
+          </div>
+          <div class="step-reveal step-3">
+            <div class="score-pill">Poin Pertama Benar: <strong>5 Poin</strong> | Kedua: <strong>4 Poin</strong></div>
+          </div>
+        </div>
+        <div class="step-controls">
+          <button class="btn btn-outline btn-step" data-target="#slide-13">Ungkap Detail (Spasi)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 14: CHALLENGE 2 - MATHCHAMPS -->
+    <section class="slide" id="slide-14" data-title="Challenge 2: Mathchamps">
+      <div class="slide-content text-center">
+        <div class="product-badge mathchamps">PRODUK 02 • MATHCHAMPS</div>
+        <h1 class="title-bold neon-gold">SPEED MATH SEMPOA</h1>
+        <p class="subtitle">Rangkaian hitungan matematika kilat di bawah tekanan waktu!</p>
+
+        <div class="challenge-box glass-card">
+          <div class="step-reveal step-1 active">
+            <div class="icon-avatar">🧮</div>
+            <h3>Misi Player</h3>
+            <p>5 Soal hitungan beruntun. Fokus, presisi, dan kecepatan jari adalah kuncinya.</p>
+          </div>
+          <div class="step-reveal step-2">
+            <div class="bell-alert">
+              <span class="bell-icon">🔔</span>
+              <h4>SELESAI HITUNG? CARI KAK BALQIS!</h4>
+              <p>Pencet bel meja panitia untuk mengunci jawabanmu!</p>
+            </div>
+          </div>
+          <div class="step-reveal step-3">
+            <div class="score-pill">Poin Pertama Benar: <strong>5 Poin</strong> | Kedua: <strong>4 Poin</strong></div>
+          </div>
+        </div>
+        <div class="step-controls">
+          <button class="btn btn-outline btn-step" data-target="#slide-14">Ungkap Detail (Spasi)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 15: CHALLENGE 3 - MEMORY ACADEMY -->
+    <section class="slide" id="slide-15" data-title="Challenge 3: Memory Academy">
+      <div class="slide-content text-center">
+        <div class="product-badge memory">PRODUK 03 • MEMORY ACADEMY</div>
+        <h1 class="title-bold neon-magenta">VISUAL MEMORY FLASH</h1>
+        <p class="subtitle">Gambar detail hanya muncul selama 3 detik, lalu lenyap!</p>
+
+        <div class="challenge-box glass-card">
+          <div class="step-reveal step-1 active">
+            <div class="icon-avatar">🧠</div>
+            <h3>Misi Player</h3>
+            <p>Perhatikan warna objek, jumlah item, dan letak posisi sebelum layar berubah blank.</p>
+          </div>
+          <div class="step-reveal step-2">
+            <div class="bell-alert">
+              <span class="bell-icon">🔔</span>
+              <h4>YAKIN DENGAN JAWABANMU?</h4>
+              <p>Sprint ke Kak Balqis dan bunyikan belnya sekarang juga!</p>
+            </div>
+          </div>
+          <div class="step-reveal step-3">
+            <div class="score-pill">Poin Pertama Benar: <strong>5 Poin</strong> | Kedua: <strong>4 Poin</strong></div>
+          </div>
+        </div>
+        <div class="step-controls">
+          <button class="btn btn-outline btn-step" data-target="#slide-15">Ungkap Detail (Spasi)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 16: CHALLENGE 4 - SPREADSHEET SPECIAL -->
+    <section class="slide" id="slide-16" data-title="Challenge 4: Spreadsheet">
+      <div class="slide-content text-center">
+        <div class="product-badge sheets">MAKANAN POKOK KITA SEMUA • SPECIAL</div>
+        <h1 class="title-bold neon-green">SPREADSHEET FORMULA FIXER</h1>
+        <p class="subtitle">Selamatkan lembar kerja dari kutukan #REF!, #VALUE!, dan formula ngaco!</p>
+
+        <div class="challenge-box glass-card glow-green">
+          <div class="step-reveal step-1 active">
+            <div class="icon-avatar">📊</div>
+            <h3>Misi Player</h3>
+            <p>Buka file Google Sheets error. Perbaiki rumus formula sampai semua total angka valid!</p>
+          </div>
+          <div class="step-reveal step-2">
+            <div class="bell-alert">
+              <span class="bell-icon">🔔</span>
+              <h4>BABAK PENENTU JUARA!</h4>
+              <p>Kejar Kak Balqis untuk memastikan tim kamu meraih tahta tertinggi!</p>
+            </div>
+          </div>
+          <div class="step-reveal step-3">
+            <div class="score-pill">Poin Pertama Benar: <strong>5 Poin</strong> | Kedua: <strong>4 Poin</strong></div>
+          </div>
+        </div>
+        <div class="step-controls">
+          <button class="btn btn-outline btn-step" data-target="#slide-16">Ungkap Detail (Spasi)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 17: BUMPER SESI SANTUY -->
+    <section class="slide bumper-slide" id="slide-17" data-title="Bumper: Sesi Santuy">
+      <div class="slide-content text-center">
+        <div class="tag-pill tag-yellow">EARLY DINNER & CHILL</div>
+        <h1 class="mega-title">KENYANG SORE,<br><span class="neon-gold">BONGKAR KEDOK!</span></h1>
+        <h2 class="sub-mega">Pertandingan selesai, saatnya santap sore dan santai bersama!</h2>
+        <div class="accent-line gold"></div>
+        <p class="subtitle">Ambil piring dan makananmu dengan tertib...</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 18: TEBAK GUARDIAN ANGEL -->
+    <section class="slide" id="slide-18" data-title="Tebak Guardian Angel">
+      <div class="slide-content text-center">
+        <div class="tag-pill tag-yellow">SECRET MISSION REVEAL</div>
+        <h1 class="mega-title neon-gold">SIAPA GUARDIAN ANGEL-MU?</h1>
+        <p class="subtitle">Kado putih misterius di depan akan dibagikan per kelompok 3 orang...</p>
+
+        <div class="angel-box glass-card mt-3">
+          <div class="angel-stealth-badge">🕵️‍♂️ REVEAL GUARDIAN ANGEL 🕵️‍♀️</div>
+          <div class="angel-quote">"Pegang kadomu, tatap sekeliling ruangan, dan sebutkan satu nama yang paling kamu curigai!"</div>
+          <button id="btn-angel-sfx" class="btn btn-gold btn-lg">✨ Sound Effect Misteri</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 19: GRAND AWARDING STAGE -->
+    <section class="slide" id="slide-19" data-title="Grand Awarding Stage">
+      <div class="slide-content text-center">
+        <div class="tag-pill tag-gold">HALL OF FAME</div>
+        <h1 class="mega-title neon-gold">GRAND AWARDING</h1>
+        <p class="subtitle">Penghargaan untuk para pejuang tertangguh, terlucu, dan terniat hari ini!</p>
+
+        <div class="awarding-grid">
+          <!-- Award 1: Office Olympic -->
+          <div class="award-card glass-card" id="award-olympic">
+            <div class="trophy-icon">🏆</div>
+            <h3>Absolute Winner Office Olympic</h3>
+            <div class="winner-reveal-box">
+              <span class="winner-placeholder">???</span>
+              <input type="text" class="winner-input" placeholder="Nama Tim Juara...">
+            </div>
+            <button class="btn btn-sm btn-cyan btn-reveal-winner">Reveal Juara 🎊</button>
+          </div>
+
+          <!-- Award 2: Best Costume -->
+          <div class="award-card glass-card" id="award-costume">
+            <div class="trophy-icon">👔</div>
+            <h3>Kostum Terbaik Hari Ini</h3>
+            <p class="sub-award">Interpretasi Navy & Black Paling Niat</p>
+            <div class="winner-reveal-box">
+              <span class="winner-placeholder">???</span>
+              <input type="text" class="winner-input" placeholder="Nama Pemenang...">
+            </div>
+            <button class="btn btn-sm btn-cyan btn-reveal-winner">Reveal Pemenang 🎊</button>
+          </div>
+
+          <!-- Award 3: Lunch Challenge (DEFAULT: Aulia & Nurul) -->
+          <div class="award-card glass-card" id="award-lunch">
+            <div class="trophy-icon">🍱</div>
+            <h3>Lunch Challenge Terbaik</h3>
+            <p class="sub-award">Pasangan Paling Effort & Kompak</p>
+            <div class="winner-reveal-box">
+              <span class="winner-placeholder revealed">Aulia & Nurul</span>
+              <input type="text" class="winner-input hidden" value="Aulia & Nurul">
+            </div>
+            <div class="photo-upload-slot">
+              <input type="file" id="lunch-photo-input" accept="image/*" class="hidden">
+              <button id="btn-upload-lunch" class="btn btn-xs btn-outline">📷 Ganti Foto Lunch</button>
+              <div id="lunch-preview" class="lunch-preview-box">
+                <img id="lunch-photo-img" src="" alt="Foto Aulia & Nurul" class="hidden">
+                <span id="lunch-photo-empty" class="photo-empty-text">📸 Foto Pemenang Siap Ditampilkan</span>
+              </div>
+            </div>
+            <button class="btn btn-sm btn-cyan btn-reveal-winner hidden">Reveal Pemenang 🎊</button>
+          </div>
+
+          <!-- Award 4: Most Entertaining -->
+          <div class="award-card glass-card" id="award-entertain">
+            <div class="trophy-icon">🎭</div>
+            <h3>Most Entertaining Person</h3>
+            <p class="sub-award">Paling Heboh & Menghibur Ruangan</p>
+            <div class="winner-reveal-box">
+              <span class="winner-placeholder">???</span>
+              <input type="text" class="winner-input" placeholder="Nama Pemenang...">
+            </div>
+            <button class="btn btn-sm btn-cyan btn-reveal-winner">Reveal Pemenang 🎊</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 20: DOORPRIZE NYELENEH LOTTERY -->
+    <section class="slide" id="slide-20" data-title="Doorprize Nyeleneh">
+      <div class="slide-content text-center">
+        <div class="tag-pill tag-yellow">LUCKY DRAW UNIK</div>
+        <h1 class="title-bold">DOORPRIZE EXTRAORDINARY</h1>
+        <p class="subtitle">Barang-barang esensial penunjang ketahanan fisik pekerja startup!</p>
+
+        <div class="glass-card doorprize-machine">
+          <div class="lottery-display">
+            <div class="number-wheel">
+              <span id="lucky-number" class="lucky-digit">--</span>
+            </div>
+            <div class="prize-showcase">
+              <div class="prize-tag">HADIAH YANG DIDAPAT:</div>
+              <div id="prize-name" class="prize-name-text">???</div>
+              <div id="prize-desc" class="prize-desc-text">Putar roda keberuntungan untuk menentukan pemenang!</div>
+            </div>
+          </div>
+
+          <div class="lottery-controls">
+            <button id="btn-spin-doorprize" class="btn btn-gold btn-lg">🎰 PUTAR NOMOR UNDIAN!</button>
+          </div>
+
+          <div class="prize-list-pills">
+            <span class="pill-item">🩴 Sendal Jepit Anti-Slip</span>
+            <span class="pill-item">🌿 Minyak Kayu Putih</span>
+            <span class="pill-item">🍵 Tolak Angin Sachet</span>
+            <span class="pill-item">🌶️ Sekantong Cabai Segar</span>
+            <span class="pill-item">🍫 Beng-Beng Sekotak</span>
+            <span class="pill-item">🩹 Hansaplast & Tisu</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 21: SPEECH KHIDMAT BU DEINA -->
+    <section class="slide" id="slide-21" data-title="Speech Queen Aldeina">
+      <div class="slide-content text-center">
+        <div class="crown-icon">👑</div>
+        <div class="tag-pill tag-cyan">EXECUTIVE ANNOUNCEMENT</div>
+        <h1 class="mega-title">PENGUMUMAN & ARAHAN</h1>
+        <h2 class="sub-mega neon-cyan">OLEH QUEEN ALDEINA</h2>
+        <div class="accent-line"></div>
+
+        <div class="glass-card solemn-card mt-3">
+          <div class="solemn-notice">
+            <span class="bell-icon">🔔</span>
+            <p>Mohon seluruh rekan Academic Kids mengatur posisi duduk tegak, tenang, dan mendengarkan dengan seksama.</p>
+          </div>
+          <div class="quote-deina">
+            "Terima kasih atas seluruh kerja keras dan dedikasi tim Academic Kids. Mari kita bersiap melangkah lebih kuat untuk pencapaian berikutnya!"
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 22: CLOSING & FOTO BERSAMA -->
+    <section class="slide" id="slide-22" data-title="Closing & Foto Bersama">
+      <div class="slide-content text-center">
+        <div class="celebrate-emoji">🎉 📸 🎊</div>
+        <h1 class="mega-title neon-gold">TERIMA KASIH!</h1>
+        <h2 class="sub-mega">HAPPY HOUR ACADEMIC KIDS 2026</h2>
+        <div class="accent-line gold"></div>
+        <p class="subtitle">Semua orang merapat ke panggung utama Da Vinci untuk sesi foto bersama!</p>
+
+        <div class="glass-card outro-card mt-3">
+          <h3>Sampai Jumpa di Happy Hour Berikutnya!</h3>
+          <p>Tetap kompak, tetap ceria, dan jaga stamina kalian. Hati-hati di jalan pulang!</p>
+          <button id="btn-grand-confetti" class="btn btn-gold btn-lg mt-2">🎆 LEDAKKAN CONFETTI! 🎆</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Interactive HUD for Operator/MC -->
+  <footer class="bottom-hud">
+    <button id="btn-prev" class="hud-nav-btn" title="Previous Slide (←)">◀ Prev</button>
+    
+    <div class="hud-center">
+      <div class="slide-dots" id="slide-dots"></div>
+      <div class="quick-jump">
+        <select id="slide-select" aria-label="Jump to Slide"></select>
+      </div>
+    </div>
+
+    <button id="btn-next" class="hud-nav-btn" title="Next Slide (→ / Space)">Next ▶</button>
+  </footer>
+
+  <!-- Shortcuts Modal -->
+  <div id="shortcuts-modal" class="modal hidden">
+    <div class="modal-content glass-card">
+      <div class="modal-header">
+        <h3>⌨ Pintasan Keyboard MC & Operator</h3>
+        <button id="btn-close-modal" class="close-btn">&times;</button>
+      </div>
+      <div class="shortcuts-grid">
+        <div><kbd>Space</kbd> / <kbd>→</kbd></div><div>Slide berikutnya / Ungkap reveal</div>
+        <div><kbd>←</kbd></div><div>Slide sebelumnya</div>
+        <div><kbd>T</kbd></div><div>Mulai / Pause Countdown Timer</div>
+        <div><kbd>R</kbd></div><div>Reset Countdown Timer</div>
+        <div><kbd>F</kbd></div><div>Layar Penuh (Toggle Fullscreen)</div>
+        <div><kbd>M</kbd></div><div>Mute / Unmute Audio Efek</div>
+        <div><kbd>?</kbd></div><div>Buka / Tutup panduan ini</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
