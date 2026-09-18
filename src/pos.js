@@ -52,6 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let isBattleUnlocked = false;
   let isMemoryObserving = false;
   let renderedBattleRound = -1;
+  // On separate laptops, the slide-change and countdown signals can arrive
+  // out of order. Keep the unlock signal until the matching battle slide is
+  // known locally instead of letting a late SLIDE_CHANGED reset it.
+  let pendingBattleUnlockRound = null;
 
   // Update Pos Assignment UI
   function updatePosIdentity(posNum) {
@@ -90,6 +94,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentSlideIndex === 16 || currentSlideIndex === 17) return 2; // Memory
     if (currentSlideIndex === 18 || currentSlideIndex === 19) return 3; // Spreadsheet
     return 0;
+  }
+
+  function getBattleSlideIndex(roundIdx) {
+    return [13, 15, 17, 19][roundIdx];
   }
 
   function evaluateScreenState() {
@@ -765,7 +773,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const idx = data.payload.index;
       if (typeof idx === 'number') {
         if (currentSlideIndex !== idx) {
-          isBattleUnlocked = false;
+          const incomingRound = [13, 15, 17, 19].indexOf(idx);
+          isBattleUnlocked = incomingRound >= 0 && pendingBattleUnlockRound === incomingRound;
           isMemoryObserving = false;
         }
         currentSlideIndex = idx;
@@ -797,17 +806,27 @@ document.addEventListener('DOMContentLoaded', () => {
               countdownHint.innerHTML = '👀 <strong>TATAP LAYAR PROYEKTOR DI DEPAN!</strong><br>Hafalkan 20 objek yang sedang di-flip MC bersama timmu!<br>Soal kuis 20 pertanyaan akan serentak terbuka di laptop ini begitu hafalan selesai!';
             }
             playBellChime();
-          } else {
-            countdownDisplay.textContent = 'MULAI!';
-            countdownDisplay.className = 'countdown-digits-big countdown-go';
-            if (countdownHint) countdownHint.innerHTML = '🔥 WAKTU BERJALAN! SELESAIKAN MISI SEKARANG!';
-            playBellChime();
-            setTimeout(() => {
-              isBattleUnlocked = true;
-              evaluateScreenState();
-            }, 700);
+        } else {
+          countdownDisplay.textContent = 'MULAI!';
+          countdownDisplay.className = 'countdown-digits-big countdown-go';
+          if (countdownHint) countdownHint.innerHTML = '🔥 WAKTU BERJALAN! SELESAIKAN MISI SEKARANG!';
+          playBellChime();
+          // Do not rely on the separate BATTLE_UNLOCKED message. On a
+          // different laptop it may arrive before SLIDE_CHANGED and then be
+          // cleared by the late slide event. Store the round and unlock once
+          // the matching battle slide is active.
+          const roundIdx = Number.isInteger(data.payload.round) ? data.payload.round - 1 : -1;
+          if (roundIdx >= 0 && roundIdx <= 3) {
+            pendingBattleUnlockRound = roundIdx;
+            if (currentSlideIndex === getBattleSlideIndex(roundIdx)) {
+              setTimeout(() => {
+                isBattleUnlocked = true;
+                evaluateScreenState();
+              }, 700);
+            }
           }
         }
+      }
       }
     } else if (data.type === 'MEMORY_OBSERVATION_START') {
       isMemoryObserving = true;
@@ -827,7 +846,9 @@ document.addEventListener('DOMContentLoaded', () => {
       isBattleUnlocked = true;
       evaluateScreenState();
     } else if (data.type === 'BATTLE_UNLOCKED') {
-      isBattleUnlocked = true;
+      const roundIdx = Number.isInteger(data.payload.round) ? data.payload.round - 1 : -1;
+      pendingBattleUnlockRound = roundIdx >= 0 && roundIdx <= 3 ? roundIdx : pendingBattleUnlockRound;
+      isBattleUnlocked = roundIdx < 0 || currentSlideIndex === getBattleSlideIndex(roundIdx);
       isMemoryObserving = false;
       evaluateScreenState();
     } else if (data.type === 'TIMER_TICK' || data.type === 'TIMER_UPDATE') {
@@ -861,4 +882,3 @@ document.addEventListener('DOMContentLoaded', () => {
     window.HHSync.send('REQUEST_STATUS');
   }
 });
-

@@ -1253,3 +1253,21 @@ ini kenapa di kartunya masi ada yang belum ada gambar hanya teks anjirr
 ```text
 bisa gak ini dia kan aku mau button selesai itu kalo udah bener semua dan sampe ujung danaku bukan mau bisa di buka ke luar page aku mau dia full screen di page ini jadi dia beneran bisaa full screen yah coba benerin 
 ```
+
+### User — 2026-09-18
+
+> /Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour
+>
+> in imasi err
+>
+> aku udah tes di laptop orang sebagai pos 1 tapi pas udha selesai countdown dia masi gabsia kebuka soalnyaa apayah ini
+
+Status: under investigation.
+
+### Assistant action — 2026-09-18
+
+- Inspected `pos.js`, `src/pos.js`, `sync-engine.js`, and the MC countdown flow in `app.js`.
+- Diagnostic finding: on separate laptops, `BATTLE_COUNTDOWN` / `BATTLE_UNLOCKED` can arrive before `SLIDE_CHANGED`; the later slide signal reset `isBattleUnlocked` to `false`, leaving Pos 1 locked even though the countdown had finished.
+- Implemented a pending unlock-by-round guard in `pos.js` and `src/pos.js`, so an unlock is retained until the matching battle slide is active.
+- Verification: `node --check pos.js` passed. `scripts/verify_countdown_flow.py` was attempted but Playwright Chromium failed to launch in the sandbox with a macOS MachPort permission error; no application assertion ran.
+- Status: implemented; awaiting real two-laptop retest.

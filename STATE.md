@@ -1,6 +1,6 @@
 # State: Regroup Happy Hour Interactive Web Deck
 
-- Status: 26 Slides & Challenge Countdown Split Complete & Verified
+- Status: Countdown unlock race condition fixed; ready for cross-laptop retest
 - Focus: Siap digunakan untuk gladi bersih / live event Da Vinci
 - Last-updated: 2026-09-18
 
@@ -59,3 +59,9 @@
 
 - Tidak ada blocker. Seluruh 4 babak tantangan (Scratch, Sempoa, Memory Academy, Google Sheets Emergency Room) telah terintegrasi 100% ke `pos.html`, bersih dari bocoran kunci jawaban dan popup layar menang, siap dimainkan live dengan sinkronisasi proyektor MC.
 
+
+
+## Latest Fix
+
+- Fixed a cross-device race where `BATTLE_COUNTDOWN` / `BATTLE_UNLOCKED` could arrive before `SLIDE_CHANGED`; a late slide signal then reset the Pos laptop back to locked. The Pos client now retains the pending unlock by round and applies it when the matching battle slide becomes active. Updated both `pos.js` and `src/pos.js`.
+- Verification: `node --check pos.js` passed. Playwright countdown verification could not launch Chromium in the sandbox because macOS MachPort permission was denied; it remains to be retested in the normal local browser environment.
