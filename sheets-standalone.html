@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spreadsheet Emergency Room - Office Olympics 2026</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Outfit:wght@400;600;700;800;900&family=Space+Grotesk:wght@500;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-deep: #030712;
+      --bg-navy: #0a192f;
+      --bg-card: rgba(10, 25, 47, 0.85);
+      --border-cyan: rgba(0, 240, 255, 0.35);
+      --neon-cyan: #00f0ff;
+      --neon-gold: #ffd700;
+      --neon-green: #00ff9d;
+      --neon-red: #ff4757;
+      
+      --sheets-green: #0f9d58;
+      --sheets-dark: #137333;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      
+      --font-display: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-body: 'Space Grotesk', sans-serif;
+      --font-sheets: 'Roboto', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 20%, rgba(15, 157, 88, 0.1) 0%, #030712 90%);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      overflow-x: hidden;
+    }
+
+    .arena-container {
+      width: 100%;
+      max-width: 960px;
+      height: 92vh;
+      max-height: 780px;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 2px solid rgba(0, 240, 255, 0.3);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 0 35px rgba(0, 240, 255, 0.15), 0 20px 40px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Top HUD */
+    .arena-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 18px;
+      background: rgba(3, 7, 18, 0.85);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--sheets-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 0 12px rgba(15, 157, 88, 0.5);
+    }
+
+    .brand-text h1 {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-text p {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .level-pills {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .case-pill {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 16px;
+      background: rgba(0, 240, 255, 0.15);
+      border: 1px solid var(--neon-cyan);
+      color: var(--neon-cyan);
+    }
+
+    /* GOOGLE SHEETS TOOLBAR */
+    .sheets-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: #ffffff;
+      border-bottom: 1px solid #dadce0;
+      color: #202124;
+      font-family: var(--font-sheets);
+      user-select: none;
+    }
+
+    .tool-btn {
+      background: none;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #3c4043;
+      font-size: 13px;
+      transition: background 0.12s;
+    }
+    .tool-btn:hover {
+      background: #f1f3f4;
+    }
+
+    .tool-pill-f4 {
+      background: #e8f0fe;
+      color: #1a73e8;
+      border: 1px solid #c2e7ff;
+      border-radius: 12px;
+      padding: 3px 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .tool-pill-f4:hover {
+      background: #d2e3fc;
+    }
+
+    .tool-sep {
+      width: 1px;
+      height: 18px;
+      background: #dadce0;
+      margin: 0 4px;
+    }
+
+    /* FORMULA BAR */
+    .formula-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px;
+      background: #ffffff;
+      border-bottom: 1px solid #dadce0;
+    }
+
+    .name-box {
+      width: 50px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: #3c4043;
+      padding: 3px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      background: #f8f9fa;
+    }
+
+    .fx-sym {
+      font-family: 'Times New Roman', serif;
+      font-style: italic;
+      font-weight: 700;
+      color: #5f6368;
+      font-size: 15px;
+    }
+
+    .formula-input-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      padding: 2px 6px;
+      background: #fff;
+    }
+    .formula-input-wrap:focus-within {
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+    }
+
+    .formula-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: #111;
+      padding: 3px;
+    }
+
+    .btn-check-formula {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 6px;
+      color: var(--sheets-dark);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    /* MAIN INTERACTIVE SPLIT BODY */
+    .arena-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Mission Sidebar */
+    .mission-sidebar {
+      width: 320px;
+      background: rgba(3, 7, 18, 0.7);
+      border-right: 1px solid var(--border-subtle);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+    }
+
+    .case-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--neon-gold);
+    }
+
+    .case-story {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+    .case-story code {
+      background: rgba(255, 71, 87, 0.2);
+      color: var(--neon-red);
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+
+    .mission-obj-box {
+      background: rgba(0, 240, 255, 0.1);
+      border-left: 3px solid var(--neon-cyan);
+      padding: 8px 12px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.8rem;
+      color: #e2e8f0;
+      line-height: 1.4;
+    }
+
+    .quick-action-area {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .quick-btn {
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+    }
+    .quick-btn:hover {
+      background: rgba(0, 240, 255, 0.2);
+      border-color: var(--neon-cyan);
+      transform: translateX(2px);
+    }
+    .quick-btn.primary {
+      background: rgba(0, 255, 157, 0.18);
+      border-color: var(--neon-green);
+      color: var(--neon-green);
+    }
+
+    .live-feedback-box {
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      line-height: 1.4;
+      background: rgba(255, 255, 255, 0.05);
+      color: #94a3b8;
+      border: 1px solid var(--border-subtle);
+      transition: all 0.2s ease;
+    }
+    .live-feedback-box.success {
+      background: rgba(0, 255, 157, 0.15);
+      border-color: var(--neon-green);
+      color: var(--neon-green);
+      font-weight: 700;
+    }
+    .live-feedback-box.error {
+      background: rgba(255, 71, 87, 0.15);
+      border-color: var(--neon-red);
+      color: var(--neon-red);
+    }
+
+    .btn-next-case {
+      margin-top: auto;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--neon-green) 0%, #059669 100%);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #030712;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 0 15px rgba(0, 255, 157, 0.4);
+      transition: all 0.15s ease;
+    }
+    .btn-next-case:disabled {
+      background: #334155;
+      color: #64748b;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    /* Spreadsheet Grid Viewport */
+    .sheets-viewport {
+      flex: 1;
+      background: #ffffff;
+      overflow: auto;
+      position: relative;
+    }
+
+    .sheets-table {
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-family: var(--font-sheets);
+      font-size: 12px;
+      color: #202124;
+      width: 100%;
+    }
+
+    .corner-th, .col-th, .row-td {
+      background: #f8f9fa;
+      border: 1px solid #dadce0;
+      text-align: center;
+      font-weight: 500;
+      color: #5f6368;
+      user-select: none;
+    }
+
+    .corner-th { width: 40px; height: 24px; position: sticky; top: 0; left: 0; z-index: 5; }
+    .col-th { height: 24px; position: sticky; top: 0; z-index: 4; }
+    .row-td { width: 40px; position: sticky; left: 0; z-index: 3; }
+
+    .grid-cell {
+      height: 26px;
+      padding: 3px 8px;
+      border: 1px solid #e0e0e0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: cell;
+      background: #fff;
+    }
+    .grid-cell.selected {
+      outline: 2px solid #1a73e8;
+      outline-offset: -2px;
+      background: #e8f0fe !important;
+    }
+    .grid-cell.align-right { text-align: right; }
+    .grid-cell.header-cell { background: #f1f3f4; font-weight: 700; }
+    .grid-cell.error-cell { color: #d93025; font-weight: 700; background: #fce8e6; }
+
+    /* Footer */
+    .arena-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 18px;
+      background: rgba(3, 7, 18, 0.9);
+      border-top: 1px solid var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="arena-container">
+    
+    <!-- Top HUD -->
+    <div class="arena-top-bar">
+      <div class="brand-box">
+        <div class="brand-icon">📊</div>
+        <div class="brand-text">
+          <h1>KLINIK SPREADSHEET DARURAT</h1>
+          <p>OFFICE OLYMPICS 2026 • GOOGLE WORKSPACE MASTER</p>
+        </div>
+      </div>
+      <div class="level-pills">
+        <span class="case-pill" id="caseLevelTag">KASUS 1 / 5</span>
+      </div>
+    </div>
+
+    <!-- Authentic Google Sheets Toolbar -->
+    <div class="sheets-toolbar">
+      <button class="tool-btn" id="undoBtn" title="Undo / Urungkan (Ctrl+Z)" onclick="handleQuickAction('undo')">
+        ↩ <b>Undo (Ctrl+Z)</b>
+      </button>
+      <div class="tool-sep"></div>
+      <button class="tool-pill-f4" id="f4Btn" title="Kunci Sel ($) / F4" onclick="handleQuickAction('f4')">
+        <b>[F4]</b> Kunci Sel ($)
+      </button>
+      <div class="tool-sep"></div>
+      <span style="font-size: 11px; color: #5f6368;">100% ▾</span>
+      <div class="tool-sep"></div>
+      <button class="tool-btn"><b>B</b></button>
+      <button class="tool-btn"><i>I</i></button>
+      <button class="tool-btn">Σ ▾</button>
+    </div>
+
+    <!-- Formula Bar -->
+    <div class="formula-bar">
+      <div class="name-box" id="nameBox">C2</div>
+      <span class="fx-sym">fx</span>
+      <div class="formula-input-wrap">
+        <input type="text" id="formulaInput" class="formula-input" spellcheck="false" autocomplete="off">
+        <button class="btn-check-formula" onclick="evaluateCurrentFormula()" title="Enter / Terapkan">✓</button>
+      </div>
+    </div>
+
+    <!-- Main Split Body -->
+    <div class="arena-body">
+      
+      <!-- Mission Sidebar -->
+      <div class="mission-sidebar">
+        <div class="case-title" id="caseTitle">-</div>
+        <p class="case-story" id="caseStory">-</p>
+        <div class="mission-obj-box" id="caseObjective">-</div>
+        
+        <div class="quick-action-area" id="quickActionArea">
+          <!-- Dynamic Action Buttons -->
+        </div>
+
+        <div class="live-feedback-box" id="liveFeedbackBox">
+          💡 Klik sel yang error atau edit langsung formula bar di atas.
+        </div>
+
+        <button class="btn-next-case" id="btnNextCase" disabled onclick="goToNextCase()">
+          <span>Lanjut ke Kasus Berikutnya</span> ➔
+        </button>
+      </div>
+
+      <!-- Real Sheets Grid Viewport -->
+      <div class="sheets-viewport">
+        <table class="sheets-table">
+          <thead id="sheetsThead"></thead>
+          <tbody id="sheetsTbody"></tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="arena-footer">
+      <span>Babak 4: Spreadsheet Special</span>
+      <span id="targetStatusText">Status: Standby</span>
+      <span>Shortcut: <strong>F4 & Ctrl+Z Active</strong></span>
+    </div>
+
+  </div>
+
+  <script>
+    // 5 CASIS DATA
+    const CASES = [
+      {
+        id: 1,
+        title: "Kasus 1: #REF! Bencana Anak Magang",
+        story: "Anak magang kepencet delete Kolom B (Harga)! Rumus total di kolom C hancur menjadi <code>=SUM(A2:#REF!)</code>.",
+        objective: "Gunakan tombol Undo (Ctrl+Z) di toolbar, atau perbaiki rumus di formula bar menjadi =SUM(A2:B2)!",
+        activeCell: "C2",
+        columns: ["A", "B", "C", "D"],
+        headers: ["Qty", "Harga (HILANG)", "Total Biaya", ""],
+        rows: [
+          { A: "10", B: "", C: "#REF!", D: "" },
+          { A: "5",  B: "", C: "#REF!", D: "" },
+          { A: "20", B: "", C: "#REF!", D: "" }
+        ],
+        formulas: { "C2": "=SUM(A2:#REF!)", "C3": "=SUM(A3:#REF!)", "C4": "=SUM(A4:#REF!)" },
+        actions: [
+          { text: "↩ Undo Delete Kolom (Ctrl+Z)", primary: true, act: "undo" },
+          { text: "✏️ Isi Rumus =SUM(A2:B2)", primary: false, act: "fix_ref" }
+        ],
+        validate: (val, state) => {
+          if (state.restored) return true;
+          const c = val.replace(/\s+/g, '').toUpperCase();
+          return c === '=SUM(A2:B2)' || c === '=A2*B2' || c === '=SUM(A2)';
+        }
+      },
+      {
+        id: 2,
+        title: "Kasus 2: Typo Koma vs Titik Koma",
+        story: "Komputer kantor format regional Indo/Eropa. Rumus VLOOKUP mogok keluar <code>#ERROR! Formula parse error</code> karena pemisah memakai koma.",
+        objective: "Ganti semua tanda koma (,) menjadi titik koma (;) pada rumus!",
+        activeCell: "B2",
+        columns: ["A", "B", "C", "D", "E", "F"],
+        headers: ["ID", "Nama Barang (VLOOKUP)", "", "", "Master ID", "Master Nama"],
+        rows: [
+          { A: "LAP-01", B: "#ERROR!", C: "", D: "", E: "LAP-01", F: "Laptop Dell XPS" },
+          { A: "MON-02", B: "#ERROR!", C: "", D: "", E: "MON-02", F: "Monitor LG 27 Inch" }
+        ],
+        formulas: { "B2": "=VLOOKUP(A2, E1:F3, 2, FALSE)" },
+        actions: [
+          { text: "🔄 Ganti Koma (,) ke Titik Koma (;)", primary: true, act: "fix_semi" }
+        ],
+        validate: (val) => {
+          return /^=VLOOKUP\(\s*A2\s*;\s*(E1:F3|E:F)\s*;\s*2\s*;\s*(FALSE|0)\s*\)$/i.test(val.trim());
+        }
+      },
+      {
+        id: 3,
+        title: "Kasus 3: Tanda Petik / Teks Hilang (#NAME?)",
+        story: "Rumus evaluasi IF di sel C2: <code>=IF(B2>75, LULUS, GAGAL)</code> menghasilkan #NAME? karena kata LULUS tidak bertanda kutip.",
+        objective: "Pasang tanda kutip dua (\"\") pada teks LULUS dan GAGAL!",
+        activeCell: "C2",
+        columns: ["A", "B", "C"],
+        headers: ["Karyawan", "Nilai", "Status"],
+        rows: [
+          { A: "Rian", B: "85", C: "#NAME?" },
+          { A: "Siti", B: "60", C: "#NAME?" }
+        ],
+        formulas: { "C2": "=IF(B2>75, LULUS, GAGAL)" },
+        actions: [
+          { text: "🔤 Bungkus Teks dengan Kutip Dua (\"\")", primary: true, act: "fix_quotes" }
+        ],
+        validate: (val) => {
+          return /^=IF\(\s*B2\s*>\s*75\s*[,;]\s*"LULUS"\s*[,;]\s*"GAGAL"\s*\)$/i.test(val.trim());
+        }
+      },
+      {
+        id: 4,
+        title: "Kasus 4: Siklus Kiamat (Circular Reference)",
+        story: "Di sel B5, rumus total pengeluaran malah memasukkan dirinya sendiri: <code>=SUM(B1:B5)</code>!",
+        objective: "Potong rentang rumus agar tidak menyertakan sel B5: ubah menjadi =SUM(B1:B4)!",
+        activeCell: "B5",
+        columns: ["A", "B"],
+        headers: ["Pos Pengeluaran", "Nominal (Rp)"],
+        rows: [
+          { A: "1. Sewa Kantor", B: "15.000.000" },
+          { A: "2. Internet Fiber", B: "3.500.000" },
+          { A: "3. Snack & Kopi", B: "1.200.000" },
+          { A: "4. Maintenance", B: "800.000" },
+          { A: "TOTAL BIAYA", B: "CIRCULAR!" }
+        ],
+        formulas: { "B5": "=SUM(B1:B5)" },
+        actions: [
+          { text: "✂️ Potong Rentang Rumus ke B4 (=SUM(B1:B4))", primary: true, act: "fix_circ" }
+        ],
+        validate: (val) => {
+          const c = val.replace(/\s+/g, '').toUpperCase();
+          return c === '=SUM(B1:B4)';
+        }
+      },
+      {
+        id: 5,
+        title: "Kasus 5: Missing Absolute ($)",
+        story: "Rumus di C2: <code>=B2*E1</code> ditarik ke bawah menghasilkan 0 karena sel tarif E1 tidak dikunci tanda $.",
+        objective: "Kunci sel referensi menjadi $E$1 (Tekan F4 atau klik tombol Kunci Sel di toolbar)!",
+        activeCell: "C2",
+        columns: ["A", "B", "C", "D", "E"],
+        headers: ["Proyek", "Nilai Kontrak", "PPN (11%)", "Tarif:", "11%"],
+        rows: [
+          { A: "Web Desain", B: "10.000.000", C: "1.100.000", D: "", E: "" },
+          { A: "Mobile App", B: "25.000.000", C: "0 (ZONK!)", D: "", E: "" },
+          { A: "Cloud Infra", B: "15.000.000", C: "#VALUE!", D: "", E: "" }
+        ],
+        formulas: { "C2": "=B2*E1", "C3": "=B3*E2" },
+        actions: [
+          { text: "🔒 Kunci Sel Referensi ($E$1)", primary: true, act: "f4" }
+        ],
+        validate: (val) => {
+          const c = val.replace(/\s+/g, '').toUpperCase();
+          return c === '=B2*$E$1' || c === '=$E$1*B2' || c === '=B2*E$1';
+        }
+      }
+    ];
+
+    let currentCaseIdx = 0;
+    let caseState = { restored: false };
+
+    const caseLevelTag = document.getElementById('caseLevelTag');
+    const caseTitle = document.getElementById('caseTitle');
+    const caseStory = document.getElementById('caseStory');
+    const caseObjective = document.getElementById('caseObjective');
+    const quickActionArea = document.getElementById('quickActionArea');
+    const liveFeedbackBox = document.getElementById('liveFeedbackBox');
+    const btnNextCase = document.getElementById('btnNextCase');
+    const formulaInput = document.getElementById('formulaInput');
+    const nameBox = document.getElementById('nameBox');
+    const sheetsThead = document.getElementById('sheetsThead');
+    const sheetsTbody = document.getElementById('sheetsTbody');
+    const targetStatusText = document.getElementById('targetStatusText');
+
+    function loadCase(idx) {
+      currentCaseIdx = idx;
+      caseState = { restored: false };
+      btnNextCase.disabled = true;
+
+      const c = CASES[idx];
+      caseLevelTag.textContent = `KASUS ${c.id} / ${CASES.length}`;
+      caseTitle.textContent = c.title;
+      caseStory.innerHTML = c.story;
+      caseObjective.innerHTML = `🎯 <strong>Target:</strong> ${c.objective}`;
+
+      liveFeedbackBox.className = 'live-feedback-box';
+      liveFeedbackBox.innerHTML = '💡 Klik sel yang error atau edit formula bar di atas.';
+      targetStatusText.textContent = `Kasus ${c.id} Sedang Berjalan`;
+
+      // Quick Actions
+      quickActionArea.innerHTML = '';
+      c.actions.forEach(a => {
+        const btn = document.createElement('button');
+        btn.className = `quick-btn ${a.primary ? 'primary' : ''}`;
+        btn.textContent = a.text;
+        btn.onclick = () => handleQuickAction(a.act);
+        quickActionArea.appendChild(btn);
+      });
+
+      renderGrid(c);
+      selectCell(c.activeCell);
+    }
+
+    function renderGrid(c) {
+      sheetsThead.innerHTML = '';
+      const trH = document.createElement('tr');
+      const thCorner = document.createElement('th');
+      thCorner.className = 'corner-th';
+      trH.appendChild(thCorner);
+
+      c.columns.forEach(col => {
+        const th = document.createElement('th');
+        th.className = 'col-th';
+        th.textContent = col;
+        trH.appendChild(th);
+      });
+      sheetsThead.appendChild(trH);
+
+      sheetsTbody.innerHTML = '';
+
+      // Row 1 (Headers)
+      const tr1 = document.createElement('tr');
+      const tdR1 = document.createElement('td');
+      tdR1.className = 'row-td';
+      tdR1.textContent = '1';
+      tr1.appendChild(tdR1);
+
+      c.columns.forEach((col, cIdx) => {
+        const td = document.createElement('td');
+        td.className = 'grid-cell header-cell';
+        td.dataset.cell = `${col}1`;
+        td.textContent = c.headers[cIdx] || '';
+        td.onclick = () => selectCell(`${col}1`);
+        tr1.appendChild(td);
+      });
+      sheetsTbody.appendChild(tr1);
+
+      // Data Rows
+      c.rows.forEach((r, rIdx) => {
+        const rowNum = rIdx + 2;
+        const tr = document.createElement('tr');
+        const tdR = document.createElement('td');
+        tdR.className = 'row-td';
+        tdR.textContent = rowNum;
+        tr.appendChild(tdR);
+
+        c.columns.forEach(col => {
+          const cellKey = `${col}${rowNum}`;
+          const td = document.createElement('td');
+          td.className = 'grid-cell';
+          td.dataset.cell = cellKey;
+          const val = r[col] || '';
+          td.textContent = val;
+
+          if (val.includes('#REF!') || val.includes('#ERROR!') || val.includes('#NAME?') || val.includes('CIRCULAR!') || val.includes('#VALUE!')) {
+            td.classList.add('error-cell');
+          }
+          if (/^[\d.,Rp]+$/.test(val)) td.classList.add('align-right');
+
+          td.onclick = () => selectCell(cellKey);
+          tr.appendChild(td);
+        });
+        sheetsTbody.appendChild(tr);
+      });
+    }
+
+    function selectCell(cellKey) {
+      nameBox.textContent = cellKey;
+      const all = sheetsTbody.querySelectorAll('.grid-cell.selected');
+      all.forEach(el => el.classList.remove('selected'));
+
+      const target = sheetsTbody.querySelector(`[data-cell="${cellKey}"]`);
+      if (target) target.classList.add('selected');
+
+      const c = CASES[currentCaseIdx];
+      if (c.formulas && c.formulas[cellKey]) {
+        formulaInput.value = c.formulas[cellKey];
+      } else if (target) {
+        formulaInput.value = target.textContent;
+      }
+    }
+
+    function handleQuickAction(act) {
+      const c = CASES[currentCaseIdx];
+      if (act === 'undo') {
+        caseState.restored = true;
+        const b1 = sheetsTbody.querySelector('[data-cell="B1"]');
+        if (b1) b1.textContent = "Harga Satuan (Rp)";
+        const b2 = sheetsTbody.querySelector('[data-cell="B2"]');
+        const b3 = sheetsTbody.querySelector('[data-cell="B3"]');
+        const b4 = sheetsTbody.querySelector('[data-cell="B4"]');
+        if (b2) { b2.textContent = "50.000"; b2.classList.add('align-right'); }
+        if (b3) { b3.textContent = "120.000"; b3.classList.add('align-right'); }
+        if (b4) { b4.textContent = "30.000"; b4.classList.add('align-right'); }
+
+        formulaInput.value = "=SUM(A2:B2)";
+        evaluateCurrentFormula();
+      } else if (act === 'fix_ref') {
+        formulaInput.value = "=SUM(A2:B2)";
+        evaluateCurrentFormula();
+      } else if (act === 'fix_semi') {
+        formulaInput.value = "=VLOOKUP(A2; E1:F3; 2; FALSE)";
+        evaluateCurrentFormula();
+      } else if (act === 'fix_quotes') {
+        formulaInput.value = '=IF(B2>75, "LULUS", "GAGAL")';
+        evaluateCurrentFormula();
+      } else if (act === 'fix_circ') {
+        formulaInput.value = "=SUM(B1:B4)";
+        evaluateCurrentFormula();
+      } else if (act === 'f4') {
+        cycleF4();
+        evaluateCurrentFormula();
+      }
+    }
+
+    function cycleF4() {
+      let val = formulaInput.value;
+      if (val.includes('$E$1')) val = val.replace(/\$E\$1/g, 'E$1');
+      else if (val.includes('E$1')) val = val.replace(/E\$1/g, '$E1');
+      else if (val.includes('$E1')) val = val.replace(/\$E1/g, 'E1');
+      else if (val.includes('E1')) val = val.replace(/E1/g, '$E$1');
+      else val = "=B2*$E$1";
+      formulaInput.value = val;
+    }
+
+    function evaluateCurrentFormula() {
+      const c = CASES[currentCaseIdx];
+      const val = formulaInput.value;
+      const ok = c.validate(val, caseState);
+
+      if (ok) {
+        liveFeedbackBox.className = 'live-feedback-box success';
+        liveFeedbackBox.innerHTML = '🎉 <strong>BERHASIL!</strong> Rumus terkoreksi dengan benar. Klik tombol hijau di bawah untuk lanjut!';
+        btnNextCase.disabled = false;
+        applyResolvedVisuals(c);
+      } else {
+        liveFeedbackBox.className = 'live-feedback-box error';
+        liveFeedbackBox.innerHTML = '❌ Rumus belum sesuai. Cek kembali petunjuk misi!';
+      }
+    }
+
+    function applyResolvedVisuals(c) {
+      if (c.id === 1) {
+        const c2 = sheetsTbody.querySelector('[data-cell="C2"]');
+        if (c2) { c2.textContent = "500.000"; c2.classList.remove('error-cell'); c2.classList.add('align-right'); }
+      } else if (c.id === 2) {
+        const b2 = sheetsTbody.querySelector('[data-cell="B2"]');
+        if (b2) { b2.textContent = "Laptop Dell XPS"; b2.classList.remove('error-cell'); }
+      } else if (c.id === 3) {
+        const c2 = sheetsTbody.querySelector('[data-cell="C2"]');
+        if (c2) { c2.textContent = "LULUS"; c2.classList.remove('error-cell'); c2.style.color = "#00ff9d"; c2.style.fontWeight = "800"; }
+      } else if (c.id === 4) {
+        const b5 = sheetsTbody.querySelector('[data-cell="B5"]');
+        if (b5) { b5.textContent = "20.500.000"; b5.classList.remove('error-cell'); b5.classList.add('align-right'); b5.style.color = "#00ff9d"; }
+      } else if (c.id === 5) {
+        const c2 = sheetsTbody.querySelector('[data-cell="C2"]');
+        const c3 = sheetsTbody.querySelector('[data-cell="C3"]');
+        if (c2) { c2.textContent = "1.100.000"; c2.classList.remove('error-cell'); c2.classList.add('align-right'); }
+        if (c3) { c3.textContent = "2.750.000"; c3.classList.remove('error-cell'); c3.classList.add('align-right'); }
+      }
+    }
+
+    function goToNextCase() {
+      if (currentCaseIdx < CASES.length - 1) {
+        loadCase(currentCaseIdx + 1);
+      } else {
+        // Complete! Notify parent window
+        liveFeedbackBox.className = 'live-feedback-box success';
+        liveFeedbackBox.innerHTML = '🏆 <strong>LUAR BIASA! SEMUA KASUS BERES!</strong> Segera tekan bel sprint!';
+        btnNextCase.textContent = "SEMUA KASUS SELESAI!";
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({
+            type: 'CHALLENGE_COMPLETED',
+            game: 'sheets'
+          }, '*');
+        }
+      }
+    }
+
+    // Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        evaluateCurrentFormula();
+      } else if (e.key === 'F4') {
+        e.preventDefault();
+        cycleF4();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        if (currentCaseIdx === 0) {
+          e.preventDefault();
+          handleQuickAction('undo');
+        }
+      }
+    });
+
+    formulaInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        evaluateCurrentFormula();
+      }
+    });
+
+    // Boot
+    loadCase(0);
+  </script>
+</body>
+</html>
