@@ -573,7 +573,6 @@
             <div class="option-img-box">
               <img id="optionImgA" src="" alt="Opsi A">
             </div>
-            <span class="option-title" id="optionTitleA">-</span>
             <div class="keyboard-badge">[ A ] atau [ 1 ] atau [ ← ]</div>
           </button>
 
@@ -582,7 +581,6 @@
             <div class="option-img-box">
               <img id="optionImgB" src="" alt="Opsi B">
             </div>
-            <span class="option-title" id="optionTitleB">-</span>
             <div class="keyboard-badge">[ B ] atau [ 2 ] atau [ → ]</div>
           </button>
         </div>
@@ -819,8 +817,7 @@
     const optionBtnB = document.getElementById('optionBtnB');
     const optionImgA = document.getElementById('optionImgA');
     const optionImgB = document.getElementById('optionImgB');
-    const optionTitleA = document.getElementById('optionTitleA');
-    const optionTitleB = document.getElementById('optionTitleB');
+    // optionTitle elements removed — names were leaking correct answers
     const quizFeedbackToast = document.getElementById('quizFeedbackToast');
 
     const finalScoreNum = document.getElementById('finalScoreNum');
@@ -930,14 +927,14 @@
 
       if (isTargetA) {
         optionImgA.src = item.target;
-        optionTitleA.textContent = item.name;
+        optionImgA.alt = '?';
         optionImgB.src = item.distractor;
-        optionTitleB.textContent = item.distractorName;
+        optionImgB.alt = '?';
       } else {
         optionImgA.src = item.distractor;
-        optionTitleA.textContent = item.distractorName;
+        optionImgA.alt = '?';
         optionImgB.src = item.target;
-        optionTitleB.textContent = item.name;
+        optionImgB.alt = '?';
       }
 
       // Progress 50% - 100%
