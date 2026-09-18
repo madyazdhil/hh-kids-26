@@ -993,5 +993,26 @@ Menyelesaikan penyelarasan akhir (final polish) untuk integrasi Spectator Arena 
    - `scripts/verify_spectator_arena.py`: Verifikasi overlay spectator 4 layar, tombol broadcast 1-klik di laptop pos, dan shortcut remote `V` lulus sempurna.
    - `scripts/verify_countdown_flow.py`: Verifikasi countdown 3-2-1 dan jump Slide 23 (Awarding) / Slide 24 (Doorprize) dari HP Aldeina lulus 100% dengan 0 console error.
 4. **Git Checkpoint & Push:**
-   - Seluruh perubahan di-commit dan di-push ke GitHub: `git@github.com-personal:madyazdhil/hh-kids-26.git`.
+### User — 2026-09-18T11:22:25+07:00
 
+eh ini harusnya dia menampilkan pos nya kan setiap pos hnaya beda kalo pas lagi ini aja kan apas sedang ketua kelompoknya keliling tapi kalo sudah maun count down baru dai setipa pos sama semua kan buak scratch dll nya kan yah ?
+
+### Assistant — 2026-09-18T11:25:30+07:00
+
+Mengonfirmasi bahwa pemahaman pengguna 100% benar mengenai pemisahan alur antara Sesi Inspeksi Keliling vs Sesi Pertandingan Serentak (Battle Arena):
+1. **Sesi 1: Inspeksi Clue Ketua Kelompok (Slide 8 - Timer 1 Menit):**
+   - Ke-4 laptop meja memang menampilkan materi produk yang berbeda (Pos 1 Kalananti Scratch, Pos 2 Mathchamps, Pos 3 Memory Academy, Pos 4 Spreadsheet Special).
+   - Di sesi ini, ketua kelompok berkeliling antar meja membawa kertas catatan untuk mengumpulkan clue rahasia sebelum rapat strategi tim 2 menit.
+2. **Sesi 2: Babak Pertandingan Serentak (Slide 13 s.d. 20 - Babak 1 s.d. 4):**
+   - Seluruh meja (Meja 1, Meja 2, Meja 3, Meja 4) **bertanding serentak memainkan game tantangan yang SAMA**:
+     - Babak 1 (Slide 13–14): Keempat meja serentak membuka Kalananti Scratch Debugging.
+     - Babak 2 (Slide 15–16): Keempat meja serentak membuka Mathchamps Speed Math.
+     - Babak 3 (Slide 17–18): Keempat meja serentak membuka Memory Academy Flash.
+     - Babak 4 (Slide 19–20): Keempat meja serentak membuka Spreadsheet Emergency Room (#REF!).
+3. **Penyempurnaan Teks & Label Identitas Laptop (`pos.js` & `src/pos.js`):**
+   - Mengubah badge babak yang sebelumnya sempat tertulis statis `POS 1..4` menjadi label meja dinamis: `BABAK X DARI 4 • MEJA [1/2/3/4]`.
+   - Mengubah Top HUD badge saat battle menjadi: `MEJA [N] • BABAK [X]: [NAMA GAME] (SEMUA MEJA SERENTAK)`.
+   - Menambahkan teks penegas di banner standby: *"Semua Meja (1, 2, 3, 4) tanding serentak di babak ini!"*.
+4. **Verifikasi & Git Push:**
+   - Menjalankan verifikasi otomatis Playwright `scripts/verify_countdown_flow.py` dan lulus 100% dengan 0 error.
+   - Perubahan telah di-commit dan di-push ke GitHub: `git@github.com-personal:madyazdhil/hh-kids-26.git` (commit `a0a1e7e`).
