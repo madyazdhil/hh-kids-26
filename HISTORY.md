@@ -912,3 +912,25 @@ Menganalisis kemungkinan teknis dan operasional untuk **Spectator Mode (Live Scr
      Laptop pos membuka link push broadcast, lalu di `index.html` ditampilkan grid 4 iframe video stream.
 3. **Rekomendasi Terbaik untuk Jam 15:00 Hari Ini:**
    Menyarankan kombinasi Opsi A (atau tombol pop-up GMeet di deck MC) karena acara akan segera dimulai siang ini, sehingga menghindari risiko throttling jaringan Wi-Fi lokal atau laptop lag saat menjalankan browser sambil me-render Scratch dan streaming WebRTC internal.
+
+### User — 2026-09-18T10:49:48+07:00
+
+jadi yang paling oke opsi 3 yah ?
+
+### Assistant — 2026-09-18T10:50:30+07:00
+
+Menjelaskan perbandingan mendalam antara **Opsi 3 (VDO.ninja)** vs **Opsi 1 (Google Meet)**:
+
+1. **Kenapa Opsi 3 (VDO.ninja) Paling Keren & Estetik:**
+   - **Bisa Nempel Langsung di Dalam Slide MC (Zero Alt-Tab):** Kita bisa sematkan langsung ke dalam `index.html` berupa modal popup atau grid 4 kamera live di slide 13–16. MC Yazid tidak perlu bolak-balik alt-tab keluar dari presentasi.
+   - **Latensi Ultra-Rendah (<100ms):** Karena menggunakan WebRTC Peer-to-Peer lokal, gerakan mouse dan ketikan rumus peserta terlihat real-time instan tanpa delay.
+   - **100% Gratis & Tanpa Login:** Tidak perlu akun Google atau login apa pun di 4 laptop pos.
+
+2. **Perbedaan dengan Opsi 1 (Google Meet):**
+   - Opsi 1 (Google Meet) unggul dalam hal **familiaritas panitia** (Balqis/Aldeina sudah pasti bisa operasikan tanpa instruksi khusus), namun kekurangannya harus membuka window browser terpisah di luar slide presentasi.
+
+3. **Solusi Terbaik (Best of Both Worlds):**
+   - Kita pasang **Opsi 3 (VDO.ninja Grid)** langsung di dalam Slide MC proyektor (`index.html`), lengkap dengan tombol maximize/pin per pos.
+   - Di 4 laptop pos (`pos.html`), kita tambahkan 1 tombol praktis: `[ 📡 Mulai Share Screen ke Proyektor ]` yang otomatis membuka link VDO.ninja share screen dalam 1 klik!
+   - Tetap sediakan tombol darurat `[ ↗ Fallback Google Meet ]` di pojok grid jika sewaktu-waktu Wi-Fi lokal bermasalah.
+
