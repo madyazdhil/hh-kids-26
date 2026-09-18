@@ -30,3 +30,10 @@
    - **Slide 14, 16, 18, 20 (Arena Tanding & Countdown 3-2-1):** MC menekan tombol *"MULAI COUNTDOWN 3-2-1!"* (atau tombol spasi). Hitungan mundur 3... 2... 1... MULAI! berputar di proyektor, dan tepat saat hitungan habis, layar pos laptop otomatis membuka workspace soal lengkap dengan tombol raksasa: `"🔔 KELAR! SPRINT KEJAR KAK BALQIS!"`.
 6. **Slide 21 s.d. 26 (Sesi Santuy, Tebak Angel, Awarding, Doorprize, Closing):** Keempat laptop kembali ke Logo Office Olympics / Grand Celebration.
 
+
+## Verifikasi pemulihan sinkronisasi
+
+- [Rencana Pos terbaru](planning/03-implementation-plan-player-table-sync.md)
+- [Regresi empat Pos, empat babak, late join](scripts/verify_recovery_flow.py)
+- [Uji PeerJS data dan video saat relay gagal](scripts/verify_direct_peer.py)
+- Kode utama dan salinan `src/`: `app.js`, `pos.js`, `sync-engine.js`.

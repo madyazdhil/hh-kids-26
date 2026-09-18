@@ -1539,3 +1539,25 @@ Scouting sudah lolos: empat Pos menampilkan instruksi masing-masing tanpa game, 
 - Four full Scratch editor loads made the synchronization regression unnecessarily heavy. Restricted nested editor content at the test boundary; the real Pos/Scratch wrapper and all state code remain unchanged.
 - First real PeerJS test timed out forming data connections. Signaling OFFER/ANSWER/CANDIDATE reached the correct peers. Found watchdog retry could close a still-negotiating data connection every 5 seconds; extended negotiation grace to 25 seconds. Test also disables mDNS host obfuscation to keep controlled same-machine ICE deterministic.
 - Cleanup retry reported no such process because the earlier test processes had already exited.
+
+### Verification progress / Failed Attempt
+
+- verify_recovery_flow.py PASSED: 4 isolated contexts, each scouting instruction, no early game iframe, reset/expiry lock, all 4 rounds, reverse-order snapshots, Memory observation then quiz, late-join restore, countdown cancellation, camera-only lifecycle, actual fallback receiver ID; no page errors.
+- Real WebRTC test with host-only ICE passed scouting despite HTTP 429 relay responses. Reload hit a Playwright WebSocketRoute on_close bug (`KeyError: code`), not an application exception. Removed unused test-only on_close callback before rerun.
+- Concurrent workspace activity committed and pushed changes while testing (HEAD moved to 6d88d59). Preserved these changes; own verification and current files are being reconciled rather than reverting shared work.
+
+### Assistant commentary
+
+Keempat babak sudah lolos tes alur: Scratch, Mathchamps, Memory, dan Spreadsheet terbuka di semua Pos setelah aba-aba; Pos yang di-refresh juga kembali ke babak aktif. Memory tetap menunggu hafalan di proyektor sebelum membuka kuis. Tes ini juga memastikan countdown yang dibatalkan tidak membuka soal belakangan.
+
+### Assistant commentary
+
+Tes WebRTC juga sudah lolos: saat relay dibuat gagal, empat Pos tetap menerima status dan membuka soal melalui koneksi data langsung. Video kamera uji benar-benar diterima dan diputar di proyektor, termasuk ketika berbagi layar dibatalkan. Aku sedang menyimpan hasil tes dan menyelesaikan checkpoint Git; pengujian ini belum mencakup jaringan serta kamera fisik di lokasi acara.
+
+### Verified
+
+- `python3 -u scripts/verify_direct_peer.py` exit 0: real PeerJS data channels, four isolated browser contexts, relay HTTP 429, scouting, all four Scratch unlocks, reload recovery, actual WebRTC camera stream decoded on MC and receipt acknowledgment.
+- Test uses controlled signaling and host-only ICE, canvas video instead of physical hardware. Public STUN/relay and venue devices remain unverified.
+- `verify_recovery_flow.py` exit 0 covers all four rounds and unordered snapshots. Camera/frame source uses controlled test doubles in that suite.
+- `node --check` app.js, pos.js, sync-engine.js and `git diff --check` passed. Root/src parity passed for scripts and entry HTML.
+- Visually inspected output/direct-peer-camera.png: camera video visible in Pos 1 PiP, camera-only status rendered correctly.

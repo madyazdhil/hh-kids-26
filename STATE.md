@@ -1,6 +1,6 @@
 # State: Regroup Happy Hour Interactive Web Deck
 
-- Status: Countdown unlock race condition fixed; ready for cross-laptop retest
+- Status: Perbaikan snapshot dan PeerJS terverifikasi pada browser terisolasi; siap retest perangkat fisik
 - Focus: Siap digunakan untuk gladi bersih / live event Da Vinci
 - Last-updated: 2026-09-18
 
@@ -57,7 +57,7 @@
 
 ## Blockers and Open Questions
 
-- Tidak ada blocker. Seluruh 4 babak tantangan (Scratch, Sempoa, Memory Academy, Google Sheets Emergency Room) telah terintegrasi 100% ke `pos.html`, bersih dari bocoran kunci jawaban dan popup layar menang, siap dimainkan live dengan sinkronisasi proyektor MC.
+- Tes otomatis empat sesi browser terisolasi lulus. Jaringan venue dan kamera fisik lintas laptop belum diverifikasi; tes lokal bukan bukti bahwa STUN/relay publik dapat diakses dari semua jaringan.
 
 
 
@@ -65,3 +65,15 @@
 
 - Fixed a cross-device race where `BATTLE_COUNTDOWN` / `BATTLE_UNLOCKED` could arrive before `SLIDE_CHANGED`; a late slide signal then reset the Pos laptop back to locked. The Pos client now retains the pending unlock by round and applies it when the matching battle slide becomes active. Updated both `pos.js` and `src/pos.js`.
 - Verification: `node --check pos.js` passed. Playwright countdown verification could not launch Chromium in the sandbox because macOS MachPort permission was denied; it remains to be retested in the normal local browser environment.
+
+## Checkpoint perbaikan 2026-09-18
+
+- MC mengirim snapshot lengkap berversi (slide, timer scouting, fase countdown/observasi/aktif), sehingga refresh dan pesan terlambat tidak mengunci ulang babak yang aktif.
+- PeerJS data channel menghubungkan Pos langsung ke receiver MC; REQUEST_STATUS dan heartbeat memulihkan status tanpa bergantung pada relay notifikasi. Relay HTTP failures tidak lagi ditelan tanpa event diagnostik; polling tidak overlap.
+- Scouting hanya membuka instruksi selama timer aktif; tidak memuat game saat inisialisasi Pos.
+- Countdown dibatalkan ketika keluar slide; replay command lama tidak menggeser MC baru.
+- Spectator menyiarkan Peer ID aktual. Kamera dapat disiarkan tanpa screen share, status diterima menunggu acknowledgment MC, dan call lama dibersihkan.
+- `scripts/verify_recovery_flow.py`: lulus semua empat babak, empat konteks terisolasi, expiry, refresh, out-of-order, Memory observation dan kamera lifecycle. Relay/Peer signaling pada tes ini terkontrol.
+- Root dan src diselaraskan; query versi asset ditambahkan untuk membantu pemuatan JS terbaru.
+
+- `scripts/verify_direct_peer.py`: LULUS dengan PeerJS asli, WebRTC data/media asli, signaling terkontrol dan ICE host-only. Relay sengaja HTTP 429; scouting, unlock 4 Pos, reload, dan video kamera canvas yang didekode MC lulus. Screenshot: `output/direct-peer-camera.png`.

@@ -18,16 +18,13 @@ def run():
         def signaling(ws):
             peer_id = parse_qs(urlparse(ws.url).query)['id'][0]
             sockets[peer_id] = ws
-            print('SIGNAL CONNECT', peer_id, flush=True)
             def message(raw):
                 packet = json.loads(raw)
                 target = sockets.get(packet.get('dst'))
-                if packet.get('type') != 'HEARTBEAT': print('SIGNAL', packet.get('type'), bool(target), flush=True)
                 if target:
                     packet['src'] = peer_id
                     target.send(json.dumps(packet))
             ws.on_message(message)
-            ws.on_close(lambda _: sockets.pop(peer_id, None))
             ws.send(json.dumps({'type':'OPEN'}))
         def route(req):
             url = urlparse(req.request.url)
@@ -49,9 +46,15 @@ def run():
             ctx = browser.new_context(viewport={'width':1280,'height':900})
             ctx.route('**/*', route)
             ctx.route_web_socket('**/*', signaling)
-            ctx.add_init_script("window.EventSource = class { close() {} }; ")
+            ctx.add_init_script('''
+              window.EventSource = class { close() {} };
+              // Controlled same-machine signaling needs host candidates only.
+              const NativeRTC = window.RTCPeerConnection;
+              window.RTCPeerConnection = class extends NativeRTC {
+                constructor(config) { super({...config, iceServers: []}); }
+              };
+            ''')
             pg = ctx.new_page()
-            pg.on('console', lambda msg: print('BROWSER', msg.text, flush=True) if 'Peer' in msg.text or 'WebRTC' in msg.text or 'Koneksi' in msg.text else None)
             pg.on('pageerror', lambda err: errors.append(str(err)))
             pg.goto(ORIGIN+path, wait_until='domcontentloaded')
             pg.add_style_tag(content='* { animation:none !important; backdrop-filter:none !important; box-shadow:none !important; filter:none !important; }')
@@ -59,7 +62,11 @@ def run():
         mc = page('/index.html')
         pos = [page(f'/pos.html?pos={n}') for n in range(1,5)]
         mc.evaluate('goToSlide(7); toggleTimer(1)')
-        for pg in pos: pg.wait_for_selector('#state-scouting.active', timeout=20000)
+        for pg in pos:
+            try: pg.wait_for_selector('#state-scouting.active', timeout=20000)
+            except Exception:
+                print('DIAGNOSTIC', pg.locator('#pos-sync-status').inner_text(), errors, flush=True)
+                raise
         print('PASS: real PeerJS data channels deliver scouting with cloud relay returning HTTP 429', flush=True)
         mc.evaluate('resetTimer(1); goToSlide(13)')
         for pg in pos: pg.wait_for_selector('#battle-locked-overlay:not(.hidden)')

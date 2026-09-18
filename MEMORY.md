@@ -22,3 +22,10 @@
 ## Doorprize Nyeleneh Items
 
 Sendal jepit, minyak kayu putih, hansaplast, tolak angin, tisu, beng-beng sekotak, cabai segar.
+
+## Sinkronisasi Pos (perbaikan 2026-09-18)
+
+- Status game harus berupa snapshot lengkap berversi, bukan mengandalkan event unlock sesaat. REQUEST_STATUS harus memulihkan timer dan fase battle sekaligus.
+- Tes banyak tab dalam satu context dapat menyamarkan kegagalan jaringan lewat BroadcastChannel. Gunakan konteks browser terisolasi dan uji relay gagal.
+- Kamera menyala belum membuktikan proyektor menerima video. Status penerimaan hanya setelah stream diterima receiver; izin screen share yang ditolak tidak boleh membuang kamera.
+- Negosiasi ICE perlu waktu; watchdog tidak boleh menutup koneksi yang masih bernegosiasi setiap 5 detik.
