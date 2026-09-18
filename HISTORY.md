@@ -893,3 +893,22 @@ Menjelaskan dan menyelesaikan masalah sinkronisasi multi-device & multi-screen a
 
 6. **Git Commit & Push:**
    - Seluruh perubahan telah di-commit (`02f8c8b`) dan di-push ke branch `main` repositori personal `madyazdhil/hh-kids-26`.
+
+### User — 2026-09-18T09:27:33+07:00
+
+(Voice Note: Eksplorasi & pertanyaan kemungkinan fitur **Spectator Mode di Slide MC Proyektor**:
+*"Ini lebih ke pertanyaan sih. Menurutmu bisa gak ya di bagian pos-pos itu kan mereka masing-masing ngerjain Scratch-nya. Nah kalau misalnya mereka setiap kelompok progresnya beda-beda, aku tuh mau di MC (kan MC terhubung ke proyektor) ada Spectator Mode. Jadi kita bisa ngelihat mereka lagi ngerjain apa, kayak share screen di Google Meet atau Zoom meeting gitu. Jadi aku bisa ngelihat mereka lagi ngerjain apa. Itu apakah possible ya di setiap pos-pos laptop itu, jadi kayak ada spectator mode-nya di slide MC?"*)
+
+### Assistant — 2026-09-18T09:28:30+07:00
+
+Menganalisis kemungkinan teknis dan operasional untuk **Spectator Mode (Live Screen Mirroring ala E-Sports / Google Meet)** dari 4 Laptop Pos ke Proyektor MC:
+1. **Kesimpulan Teknis:** Sangat possible (100% bisa diwujudkan).
+2. **3 Pendekatan Implementasi:**
+   - **Opsi A (Paling Aman, Zero Risk & Gratis di Hari-H): 1 Room Google Meet khusus 4 Laptop Meja.**
+     Keempat laptop pos join ke 1 link GMeet yang sama, mute suara & kamera, lalu klik "Share Entire Screen / Tab Scratch". Di laptop MC proyektor, MC tinggal split screen atau buka tab GMeet dengan Tiled Layout (4 layar langsung terlihat live bersamaan) dan bisa pin layar meja tertentu saat suasana memanas. Beban bandwidth dan kompresi video ditangani penuh oleh cloud Google.
+   - **Opsi B (Native Browser WebRTC di dalam Deck `pos.html` -> `index.html`):**
+     Menambahkan API `navigator.mediaDevices.getDisplayMedia()` di `pos.html` dan player WebRTC P2P (misal via PeerJS) di `index.html`. Kelebihannya tampilan menyatu dengan tema Navy & Black glassmorphism, namun membutuhkan kestabilan bandwidth upload Wi-Fi lokal Da Vinci untuk streaming 4 video stream sekaligus.
+   - **Opsi C (Tool Streamer Ringan VDO.ninja):**
+     Laptop pos membuka link push broadcast, lalu di `index.html` ditampilkan grid 4 iframe video stream.
+3. **Rekomendasi Terbaik untuk Jam 15:00 Hari Ini:**
+   Menyarankan kombinasi Opsi A (atau tombol pop-up GMeet di deck MC) karena acara akan segera dimulai siang ini, sehingga menghindari risiko throttling jaringan Wi-Fi lokal atau laptop lag saat menjalankan browser sambil me-render Scratch dan streaming WebRTC internal.
