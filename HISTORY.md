@@ -833,9 +833,27 @@ Mengubah total tampilan `admin.html`, `admin.css`, dan `admin.js` menjadi **Mobi
    - Screenshot hasil uji tersimpan di `output/mobile_admin_tab1_remote.png`, `output/mobile_admin_tab2_scoring.png`, `output/mobile_admin_tab2_pos1_filter.png`, dan `output/mobile_admin_tab3_awarding.png`.
    - Kode telah di-commit (`f115bcc`) dan langsung di-push ke GitHub Pages `main`.
 
-### User — 2026-09-18T09:01:01+07:00
+### User — 2026-09-18T08:53:47+07:00
 
-ini ko dia ga kehubung ke proyektor yah ini yang slide mc jkan yang harus bergerak anjir
+(Approval on implementation plan `03-implementation-plan-player-table-sync.md`)
 
-gimana kalo ada 4 tab / laptop yang buka link slide mc  harusnya semuanya berubah dong ngikut aneh
+### Assistant — 2026-09-18T09:03:00+07:00
+
+Membangun dan menguji sistem **4 Pos Laptop Meja Tengah (`src/pos.html`)** yang tersinkronisasi otomatis dengan Slide MC di proyektor dan Admin HP Aldeina (`src/admin.html`):
+
+1. **Identifikasi Otomatis 4 Pos:**
+   - Cukup buka URL: `pos.html?pos=1` (Scratch), `pos.html?pos=2` (Mathchamps), `pos.html?pos=3` (Memory), `pos.html?pos=4` (Spreadsheet).
+   - Atau klik pill switcher di layar: `[ 💻 Pos 1 ] [ 💻 Pos 2 ] [ 💻 Pos 3 ] [ 💻 Pos 4 ]` yang otomatis tersimpan permanen di `localStorage`.
+2. **Alur Sinkronisasi Penuh Sesuai Arahan Voice Note:**
+   - **Slide 1–5 (Pre-Show s.d. Post-Senam):** Keempat laptop menampilkan Judul Bersih Grand Template (zero spoiler).
+   - **Slide 6 & 7 (Office Olympics Splash & Briefing):** Keempat laptop menampilkan Logo & Cincin Neon Office Olympics.
+   - **Slide 8 (Timer 1 Menit Scouting):** Awalnya logo Office Olympics -> Begitu tombol **START TIMER** ditekan: Keempat laptop membuka 4 tantangan yang berbeda-beda secara rahasia. Begitu timer habis (00:00) atau MC melangkah ke Slide 9: Keempat laptop langsung otomatis mengunci kembali ke Logo Office Olympics (anti-curi pandang!).
+   - **Slide 10–12 (Rules Bel, Timer 2 Menit Rapat Kelompok, Ready):** Tetap berada di tampilan Logo Office Olympics.
+   - **Slide 13–16 (Babak Tanding Challenge 1 s.d. 4):** Keempat laptop **SERENTAK** membuka tantangan yang sedang bertanding (Slide 13 Scratch, Slide 14 Math, Slide 15 Memory, Slide 16 Spreadsheet) dengan aba-aba 3-2-1 Mulai, Black Box container untuk konten Yazid, dan tombol lonceng sprint raksasa *"🔔 KELAR! SPRINT KEJAR KAK BALQIS!"*.
+   - **Slide 17+ (Sesi Santuy, Awarding, Closing):** Keempat laptop kembali ke Logo Office Olympics / Celebration.
+3. **Verifikasi Playwright Multi-Device (`scripts/verify_pos_sync.py`):**
+   - Menguji interkoneksi serentak antara MC Deck, Mobile Admin (iPhone 14), dan 4 Pos Laptop.
+   - Hasil: 100% lolos uji dengan **0 console errors**. Screenshots tersimpan di `output/pos_*.png` dan `output/admin_mobile_view.png`.
+4. **Git Checkpoint & Push:**
+   - Seluruh perubahan kode telah di-commit (`bfdaf9c`) dan di-push ke GitHub pribadi `madyazdhil/hh-kids-26`.
 
