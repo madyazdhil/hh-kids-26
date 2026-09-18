@@ -111,11 +111,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Slide 8 (index 7): Scouting Sesi 1 Menit
     else if (currentSlideIndex === 7) {
-      if (isTimerRunning && timerCurrentSec > 0) {
-        showPanel(stateScouting);
-      } else {
-        // ZERO LEAK: If timer is paused, ended, or not started, lock back to standby!
+      if (timerCurrentSec === 0) {
+        // Once the inspection timer has actually expired, hide the clues.
         showPanel(stateOlympicIdle);
+      } else {
+        // Show each Pos' instructions as soon as Slide 8 is active. The
+        // timer may not have started yet, but the leader still needs to read
+        // the correct game briefing on their assigned laptop.
+        showPanel(stateScouting);
       }
     }
     // Slide 9 - 12 (indices 8 - 11): Office Olympic Standby / Strategy Rules
@@ -851,7 +854,8 @@ document.addEventListener('DOMContentLoaded', () => {
       isBattleUnlocked = roundIdx < 0 || currentSlideIndex === getBattleSlideIndex(roundIdx);
       isMemoryObserving = false;
       evaluateScreenState();
-    } else if (data.type === 'TIMER_TICK' || data.type === 'TIMER_UPDATE') {
+    } else if ((data.type === 'TIMER_TICK' || data.type === 'TIMER_UPDATE')
+      && (!data.payload.timerId || data.payload.timerId === 1)) {
       isTimerRunning = data.payload.isRunning;
       timerCurrentSec = data.payload.currentSec;
       const mins = Math.floor(timerCurrentSec / 60);

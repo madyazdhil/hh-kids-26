@@ -117,14 +117,29 @@
           if (data) {
             if (isInitialPoll) {
               isInitialPoll = false;
-              // On initial poll, seed seenMessageIds with existing historical messages so they don't replay
-              if (Array.isArray(data.signals)) {
-                data.signals.forEach(sig => {
-                  if (sig && sig.msgId) seenMessageIds.add(sig.msgId);
-                });
-              }
-              // If lastSignal is a current slide status, apply it to sync initial position
-              if (data.lastSignal && (data.lastSignal.type === 'SLIDE_CHANGED' || data.lastSignal.type === 'CURRENT_SLIDE_STATUS')) {
+              // Rehydrate the current phase for a laptop that joins late.
+              // Previously every historical signal was marked as seen and
+              // only a slide status was replayed. If the last signal was
+              // BATTLE_UNLOCKED or a timer tick, the new Pos laptop missed
+              // the active state entirely.
+              const signals = Array.isArray(data.signals) ? data.signals : [];
+              const latestSlideIndex = signals.reduce((found, sig, index) => (
+                sig && (sig.type === 'SLIDE_CHANGED' || sig.type === 'CURRENT_SLIDE_STATUS')
+                  ? index
+                  : found
+              ), -1);
+              const replayStart = latestSlideIndex >= 0 ? latestSlideIndex : Math.max(0, signals.length - 1);
+
+              signals.forEach((sig, index) => {
+                if (index < replayStart && sig && sig.msgId) {
+                  seenMessageIds.add(sig.msgId);
+                }
+              });
+              signals.slice(replayStart).forEach(sig => dispatchMessage(sig));
+
+              // Covers a relay response where lastSignal is not present in
+              // the bounded signals array.
+              if (data.lastSignal && !signals.some(sig => sig && sig.msgId === data.lastSignal.msgId)) {
                 dispatchMessage(data.lastSignal);
               }
               return;
