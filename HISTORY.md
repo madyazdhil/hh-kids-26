@@ -701,6 +701,29 @@ ini yang lunckh ck=hallenge pemenangnya adalah Aulia dan Nurul ini fotonya masuk
 
 (Voice Note: Koreksi alur presentasi deck: slide harus dipecah-pecah atomik dan ada slide bumper judul di antara segmen agar tidak ada spoiler. Alur: 1. Judul welcome bersih tanpa spoiler Office Olympic; 2. Game cari korban senam; 3. Nonton video senam; 4. Bumper judul; 5. Judul Office Olympic saja tanpa rules; 6. Briefing 4 laptop di depan meja tengah; 7. Timer 1 menit scouting ketua kelompok; 8. Bumper judul; 9. Briefing rules bel & strategi; 10. Timer 2 menit rapat tim; 11. Bumper judul; 12. Masuk ke masing-masing challenge; dll. Jangan digabung dalam 1 slide!).
 
+### Assistant — 2026-09-18T08:35:00+07:00
+
+Koreksi alur presentasi deck telah diterapkan 100% secara atomik dan zero spoiler:
+1. **22 Slide Atomik & Zero Spoiler:**
+   - Slide 2: Welcome Screen murni tanpa bocoran Office Olympics / 4 game.
+   - Slide 5: Bumper Cooling Down setelah senam.
+   - Slide 6: Title Splash murni Office Olympics (cincin neon, tanpa rules).
+   - Slide 7: Briefing 4 Pos Laptop Meja Tengah (aturan mandiri ketua kelompok tanpa shouting).
+   - Slide 8: Timer 1 Menit Scouting Ketua Kelompok.
+   - Slide 9: Bumper Post-Scouting (Waktu inspeksi selesai, backdrop bersih untuk MC).
+   - Slide 10: Briefing Rules & Aturan Bel Kak Balqis (+5 / +4 pt).
+   - Slide 11: Timer 2 Menit Rapat Strategi Tim.
+   - Slide 12: Bumper Ready to Battle!
+   - Slide 13-16: 4 Challenge terpisah (Kalananti, Mathchamps, Memory Academy, Spreadsheet).
+   - Slide 17: Bumper Sesi Santuy.
+   - Slide 18-22: Tebak Angel, Awarding Stage, Doorprize Nyeleneh, Speech Bu Deina, Foto Bersama.
+2. **Admin Station & Remote Control (`src/admin.html`):**
+   - Live Scorekeeper 6 kelompok dengan attempt logic (+5 percobaan 1, "Salah" -> percobaan 2 skor 4, +4 percobaan 2).
+   - Dispatcher pemenang dengan default Lunch Challenge: Aulia & Nurul beserta display foto.
+   - Dual-screen remote slide switcher, timer toggle/reset, dan confetti trigger.
+3. **Commit & Push GitHub:** Seluruh pembaruan di-push ke personal GitHub `git@github.com-personal:madyazdhil/hh-kids-26.git`.
+
+
 
 
 
