@@ -1366,3 +1366,14 @@ Status: live production sync bug investigation.
 - Restricted `/api/sync` polling and POST to localhost/LAN hosts only, eliminating invalid GitHub Pages requests.
 - Updated both `sync-engine.js` and `src/sync-engine.js`; syntax checks passed with `node --check`.
 - Status: implemented locally; ready to push and retest on the supplied live links.
+
+### Assistant — 2026-09-18
+
+Ketemu masalah production yang sebenarnya. Link GitHub Pages terus mencoba `/api/sync` ke host GitHub yang tidak punya endpoint itu, sehingga request 404/405. Jalur SSE ntfy juga bisa tersambung tetapi tidak mengantarkan event pada jaringan tertentu.
+
+Sudah diperbaiki dan dipush di commit `03f193b`:
+- Tambah fallback polling ntfy setiap 1,5 detik untuk link GitHub Pages.
+- Matikan polling `/api/sync` jika halaman dibuka dari GitHub Pages.
+- SSE tetap dipakai sebagai jalur utama.
+
+Deployment GitHub Pages sudah diverifikasi memakai endpoint polling ntfy terbaru. Hard refresh semua laptop (`Cmd/Ctrl + Shift + R`), buka ulang link Pos, lalu tunggu 1–2 detik sampai status terhubung.
