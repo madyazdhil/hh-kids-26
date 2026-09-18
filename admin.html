@@ -2,365 +2,264 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#030712">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Admin & Remote Control - Regroup Happy Hour</title>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Outfit:wght@400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      overflow-y: auto !important;
-      user-select: auto !important;
-      padding-bottom: 3rem;
-    }
-    .admin-container {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 70px 1.5rem 2rem 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-      position: relative;
-      z-index: 10;
-    }
-    .admin-header-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      padding: 1.25rem 1.75rem;
-      background: rgba(10, 25, 47, 0.85);
-      border-radius: 16px;
-      border: 1px solid rgba(0, 240, 255, 0.25);
-    }
-    .admin-title-group h1 {
-      font-size: 1.5rem;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .admin-grid-2 {
-      display: grid;
-      grid-template-columns: 360px 1fr;
-      gap: 1.5rem;
-    }
-    @media (max-width: 992px) {
-      .admin-grid-2 {
-        grid-template-columns: 1fr;
-      }
-    }
-    .remote-card {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-      background: rgba(10, 25, 47, 0.8);
-    }
-    .remote-screen-status {
-      background: rgba(3, 7, 18, 0.7);
-      border: 1px solid rgba(0, 240, 255, 0.2);
-      border-radius: 12px;
-      padding: 1rem;
-      text-align: center;
-    }
-    .remote-screen-status .label {
-      font-size: 0.75rem;
-      color: var(--neon-cyan);
-      font-family: var(--font-mono);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-    .remote-screen-status .current-slide-name {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: #fff;
-      margin-top: 0.25rem;
-    }
-    .remote-nav-buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-    }
-    .btn-remote {
-      padding: 0.85rem;
-      font-size: 1rem;
-      font-weight: 700;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      transition: all var(--transition-fast);
-    }
-    .btn-remote-next {
-      background: var(--neon-cyan);
-      color: #030712;
-      grid-column: span 2;
-      font-size: 1.1rem;
-    }
-    .btn-remote-next:hover {
-      background: #38f4ff;
-      box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
-    }
-    .score-matrix-card {
-      background: rgba(10, 25, 47, 0.8);
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-    .teams-table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0 0.5rem;
-      text-align: left;
-    }
-    .teams-table th {
-      padding: 0.6rem 0.75rem;
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .teams-table tr.team-row {
-      background: rgba(3, 7, 18, 0.6);
-      transition: background var(--transition-fast);
-    }
-    .teams-table tr.team-row:hover {
-      background: rgba(15, 39, 74, 0.7);
-    }
-    .teams-table td {
-      padding: 0.75rem;
-      vertical-align: middle;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    .teams-table td:first-child {
-      border-left: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 10px 0 0 10px;
-    }
-    .teams-table td:last-child {
-      border-right: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 0 10px 10px 0;
-    }
-    .team-name-cell strong {
-      display: block;
-      font-size: 0.95rem;
-      color: #fff;
-    }
-    .score-badge {
-      font-family: var(--font-mono);
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: var(--neon-gold);
-      background: rgba(255, 215, 0, 0.12);
-      padding: 4px 10px;
-      border-radius: 6px;
-      border: 1px solid rgba(255, 215, 0, 0.3);
-      display: inline-block;
-    }
-    .attempt-btn-group {
-      display: flex;
-      gap: 4px;
-    }
-    .btn-attempt {
-      font-size: 0.75rem;
-      padding: 4px 8px;
-      border-radius: 6px;
-      border: 1px solid;
-      cursor: pointer;
-      font-family: var(--font-mono);
-      font-weight: 700;
-      transition: all var(--transition-fast);
-    }
-    .btn-attempt-5 {
-      background: rgba(0, 255, 157, 0.15);
-      color: #00ff9d;
-      border-color: rgba(0, 255, 157, 0.35);
-    }
-    .btn-attempt-5:hover, .btn-attempt-5.active {
-      background: #00ff9d;
-      color: #030712;
-    }
-    .btn-attempt-fail {
-      background: rgba(239, 68, 68, 0.15);
-      color: #ef4444;
-      border-color: rgba(239, 68, 68, 0.35);
-    }
-    .btn-attempt-fail:hover, .btn-attempt-fail.active {
-      background: #ef4444;
-      color: #fff;
-    }
-    .btn-attempt-4 {
-      background: rgba(255, 215, 0, 0.15);
-      color: #ffd700;
-      border-color: rgba(255, 215, 0, 0.35);
-    }
-    .btn-attempt-4:hover, .btn-attempt-4.active {
-      background: #ffd700;
-      color: #030712;
-    }
-    .awarding-admin-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    @media (max-width: 900px) {
-      .awarding-admin-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-    .award-admin-box {
-      background: rgba(3, 7, 18, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-    .award-admin-box h4 {
-      font-size: 0.95rem;
-      color: var(--neon-gold);
-    }
-  </style>
+  <link rel="stylesheet" href="admin.css">
 </head>
-<body class="theme-navy-black">
+<body class="theme-navy-black admin-mobile-body">
   <canvas id="bg-canvas"></canvas>
 
-  <!-- Top Nav for Admin -->
-  <header class="top-nav">
-    <div class="brand">
+  <!-- Sticky Top Header (Mobile & Desktop) -->
+  <header class="admin-mobile-header">
+    <div class="header-left">
       <span class="pulse-dot"></span>
-      <span class="brand-text">HAPPY HOUR CONTROL STATION</span>
-      <span class="brand-divider">/</span>
-      <span class="brand-badge">ADMIN & OPERATOR PANEL</span>
+      <div class="header-titles">
+        <span class="header-brand">HH CONTROL</span>
+        <span id="remote-conn-status" class="header-substatus">🟢 Proyektor Online</span>
+      </div>
     </div>
-    <div class="nav-controls">
-      <span id="remote-conn-status" class="sync-badge">⚡ Sinkronisasi Proyektor: Terhubung</span>
-      <a href="index.html" target="_blank" class="btn btn-xs btn-outline">🖥 Buka Slide MC</a>
+    <div class="header-right">
+      <button id="btn-broadcast-confetti" class="btn-icon-action" title="Tembakkan Confetti">
+        <span>🎆</span>
+        <span class="btn-label-mobile">Confetti</span>
+      </button>
+      <a href="index.html" target="_blank" class="btn-icon-action btn-link-deck" title="Buka Slide MC">
+        <span>🖥</span>
+        <span class="btn-label-mobile">Slide</span>
+      </a>
     </div>
   </header>
 
-  <div class="admin-container">
-    <div class="admin-header-bar">
-      <div class="admin-title-group">
-        <h1>⚙ Panel Kontrol Panitia & Operator</h1>
-        <p class="subtitle" style="margin: 0; font-size: 0.85rem;">Kendali real-time untuk Aldeina, Balqis & Operator Da Vinci</p>
-      </div>
-      <div class="header-actions">
-        <button id="btn-broadcast-confetti" class="btn btn-gold btn-sm">🎆 Tembakkan Confetti Proyektor</button>
-      </div>
-    </div>
+  <!-- Segmented Tab Navigation -->
+  <nav class="admin-tab-nav" id="admin-tab-nav">
+    <button class="tab-pill active" data-tab="remote">
+      <span class="tab-icon">🎛</span>
+      <span class="tab-label">Remote</span>
+    </button>
+    <button class="tab-pill" data-tab="scoring">
+      <span class="tab-icon">🏆</span>
+      <span class="tab-label">Olympic Score</span>
+    </button>
+    <button class="tab-pill" data-tab="awarding">
+      <span class="tab-icon">🎁</span>
+      <span class="tab-label">Awarding</span>
+    </button>
+  </nav>
 
-    <div class="admin-grid-2">
-      <!-- LEFT COLUMN: REMOTE CONTROL SLIDE MC -->
-      <div class="glass-card remote-card">
-        <div class="remote-screen-status">
-          <div class="label">Status Layar Proyektor Saat Ini</div>
-          <div id="active-slide-label" class="current-slide-name">Slide 1: Pre-Show Lounge</div>
-          <div id="active-slide-num" class="counter-badge mt-2" style="display: inline-block;">1 / 22</div>
+  <!-- Main Container -->
+  <main class="admin-mobile-container">
+    
+    <!-- ====================================================================
+         TAB 1: REMOTE CONTROL (SLIDE & TIMER)
+         ==================================================================== -->
+    <section id="pane-remote" class="admin-tab-pane active">
+      
+      <!-- Current Slide Monitor -->
+      <div class="glass-card monitor-card">
+        <div class="monitor-header">
+          <span class="monitor-label">STATUS PROYEKTOR SAAT INI</span>
+          <span id="active-slide-num" class="slide-badge">1 / 22</span>
         </div>
-
-        <div class="remote-nav-buttons">
-          <button id="remote-btn-next" class="btn-remote btn-remote-next">Next Step / Slide ▶ (Spasi)</button>
-          <button id="remote-btn-prev" class="btn btn-secondary">◀ Previous</button>
-          <button id="remote-btn-jump" class="btn btn-outline">Lompat Ke...</button>
-        </div>
-
-        <div class="quick-jump mt-2">
-          <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Pilih Slide Langsung:</label>
-          <select id="remote-slide-select" style="width: 100%; padding: 8px; border-radius: 8px; background: rgba(3,7,18,0.9); color: #fff; border: 1px solid rgba(255,255,255,0.2);"></select>
-        </div>
-
-        <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 0.5rem 0;">
-
-        <!-- Timer Controls from Distance -->
-        <div>
-          <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--neon-cyan);">⏱ Kontrol Remote Timer (Slide 8 & 11)</div>
-          <div style="display: flex; gap: 0.5rem;">
-            <button id="remote-timer-toggle" class="btn btn-cyan btn-sm" style="flex: 1;">▶ Start / Pause (T)</button>
-            <button id="remote-timer-reset" class="btn btn-secondary btn-sm">↺ Reset (R)</button>
+        <div id="active-slide-label" class="monitor-slide-title">Slide 1: Pre-Show Lounge</div>
+        
+        <div class="quick-jump-box">
+          <label for="remote-slide-select">Lompat Cepat ke Slide:</label>
+          <div class="select-wrapper">
+            <select id="remote-slide-select" class="admin-select"></select>
+            <button id="remote-btn-jump" class="btn btn-sm btn-cyan">Go</button>
           </div>
         </div>
+      </div>
 
-        <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 0.5rem 0;">
-
-        <!-- Doorprize Remote -->
-        <div>
-          <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--neon-gold);">🎰 Remote Doorprize (Slide 20)</div>
-          <button id="remote-spin-doorprize" class="btn btn-gold btn-sm" style="width: 100%;">🎰 Putar Roda Doorprize dari Jauh</button>
+      <!-- Giant Thumb Next Button -->
+      <div class="remote-action-cluster">
+        <button id="remote-btn-next" class="btn-giant-next" aria-label="Next Step atau Slide">
+          <span class="giant-icon">▶</span>
+          <span class="giant-text">NEXT STEP / SLIDE</span>
+          <span class="giant-hint">Tekan Spasi di Laptop atau Tap di HP</span>
+        </button>
+        
+        <div class="remote-secondary-row">
+          <button id="remote-btn-prev" class="btn btn-secondary btn-lg btn-prev">
+            <span>◀</span> PREVIOUS
+          </button>
         </div>
       </div>
 
-      <!-- RIGHT COLUMN: OLYMPIC LIVE SCORING & WINNER DISPATCHER -->
-      <div class="glass-card score-matrix-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+      <!-- Remote Timer Card (Slide 8 & 11) -->
+      <div class="glass-card timer-remote-card">
+        <div class="card-section-title">⏱ Kontrol Remote Timer</div>
+        <p class="section-desc">Sinkron dengan timer 1 menit (Slide 8) & 2 menit (Slide 11).</p>
+        <div class="timer-controls-grid">
+          <button id="remote-timer-toggle" class="btn btn-cyan btn-lg">
+            <span>▶</span> START / PAUSE
+          </button>
+          <button id="remote-timer-reset" class="btn btn-secondary btn-lg">
+            <span>↺</span> RESET
+          </button>
+        </div>
+      </div>
+
+      <!-- Doorprize Remote Card (Slide 20) -->
+      <div class="glass-card doorprize-remote-card">
+        <div class="card-section-title">🎰 Remote Doorprize Nyeleneh</div>
+        <p class="section-desc">Putar nomor doorprize di Slide 20 dari jauh via HP.</p>
+        <button id="remote-spin-doorprize" class="btn btn-gold btn-lg btn-block">
+          <span>🎰</span> PUTAR RODA DOORPRIZE
+        </button>
+      </div>
+
+    </section>
+
+    <!-- ====================================================================
+         TAB 2: OLYMPIC LIVE SCOREKEEPER
+         ==================================================================== -->
+    <section id="pane-scoring" class="admin-tab-pane">
+      
+      <!-- Top Action Bar for Scoring -->
+      <div class="scoring-top-bar glass-card">
+        <div class="scoring-top-header">
           <div>
-            <h2 style="font-size: 1.25rem; color: #fff;">🏆 Olympic Live Scorekeeper</h2>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Percobaan 1: +5 Poin | Gagal 1st -> Turun ke 4 Poin | Percobaan 2: +4 Poin</p>
+            <h2 class="scoring-title">🏆 Olympic Live Scoring</h2>
+            <p class="scoring-subtitle">6 Kelompok × 4 Pos (Scratch, Math, Memory, Sheets)</p>
           </div>
-          <button id="btn-sync-olympic-winner" class="btn btn-gold btn-sm">👑 Kirim Juara Olympic ke Proyektor</button>
+          <button id="btn-sync-olympic-winner" class="btn btn-gold btn-sm btn-dispatch-winner">
+            👑 Kirim Juara 1 ke Slide 19
+          </button>
         </div>
 
-        <div style="overflow-x: auto;">
-          <table class="teams-table" id="teams-scoring-table">
-            <thead>
-              <tr>
-                <th>Kelompok</th>
-                <th>Pos 1 (Scratch)</th>
-                <th>Pos 2 (Math)</th>
-                <th>Pos 3 (Memory)</th>
-                <th>Pos 4 (Sheets)</th>
-                <th>Total Skor</th>
-                <th>Aksi Cepat</th>
-              </tr>
-            </thead>
-            <tbody id="teams-table-body">
-              <!-- Rendered via JS for 6 Groups -->
-            </tbody>
-          </table>
+        <!-- Pos Filter Pills -->
+        <div class="pos-filter-container">
+          <span class="filter-label">Fokus Pos:</span>
+          <div class="pos-filter-scroll" id="pos-filter-buttons">
+            <button class="pos-filter-btn active" data-pos="all">Semua Pos</button>
+            <button class="pos-filter-btn" data-pos="0">Pos 1: Scratch</button>
+            <button class="pos-filter-btn" data-pos="1">Pos 2: Math</button>
+            <button class="pos-filter-btn" data-pos="2">Pos 3: Memory</button>
+            <button class="pos-filter-btn" data-pos="3">Pos 4: Sheets</button>
+          </div>
         </div>
+      </div>
 
-        <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 0.5rem 0;">
+      <!-- Team Score Cards (Rendered by JS for Kelompok 1 - 6) -->
+      <div class="teams-cards-list" id="teams-cards-container">
+        <!-- Rendered via renderTeamCards() in admin.js -->
+      </div>
 
-        <!-- AWARDING DISPATCHER SECTION -->
-        <div>
-          <h2 style="font-size: 1.25rem; color: var(--neon-gold); margin-bottom: 0.25rem;">🎁 Input & Dispatcher Pemenang Awarding</h2>
-          <p style="font-size: 0.8rem; color: var(--text-muted);">Masukkan nama pemenang lalu klik tombol kirim untuk memunculkannya di Slide 19 proyektor.</p>
+    </section>
 
-          <div class="awarding-admin-grid">
-            <!-- Best Costume -->
-            <div class="award-admin-box">
-              <h4>👔 Kostum Terbaik (Navy & Black)</h4>
-              <input type="text" id="admin-input-costume" class="winner-input" style="width: 100%; text-align: left;" placeholder="Nama Pemenang Kostum...">
-              <button id="btn-send-costume" class="btn btn-cyan btn-xs">Kirim ke Proyektor 🚀</button>
-            </div>
+    <!-- ====================================================================
+         TAB 3: AWARDING WINNERS DISPATCHER
+         ==================================================================== -->
+    <section id="pane-awarding" class="admin-tab-pane">
+      
+      <div class="glass-card mb-3">
+        <h2 class="scoring-title">🎁 Dispatcher Pemenang Awarding</h2>
+        <p class="scoring-subtitle">Kirim nama & foto pemenang langsung ke Slide 19 proyektor secara real-time.</p>
+      </div>
 
-            <!-- Lunch Challenge (Aulia & Nurul) -->
-            <div class="award-admin-box">
-              <h4>🍱 Lunch Challenge Terbaik</h4>
-              <input type="text" id="admin-input-lunch" class="winner-input" style="width: 100%; text-align: left;" value="Aulia & Nurul" placeholder="Nama Pasangan...">
-              <input type="file" id="admin-file-lunch" accept="image/*" style="font-size: 0.75rem; color: var(--text-muted);">
-              <button id="btn-send-lunch" class="btn btn-cyan btn-xs">Kirim Foto & Nama 🚀</button>
-            </div>
-
-            <!-- Most Entertaining -->
-            <div class="award-admin-box">
-              <h4>🎭 Most Entertaining Person</h4>
-              <input type="text" id="admin-input-entertain" class="winner-input" style="width: 100%; text-align: left;" placeholder="Nama Paling Heboh...">
-              <button id="btn-send-entertain" class="btn btn-cyan btn-xs">Kirim ke Proyektor 🚀</button>
+      <div class="awarding-cards-stack">
+        
+        <!-- Lunch Challenge Winner (Aulia & Nurul) -->
+        <div class="glass-card award-item-card featured-award">
+          <div class="award-header">
+            <span class="award-icon">🍱</span>
+            <div class="award-meta">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <h3>Lunch Challenge Terbaik</h3>
+                <span class="award-badge-top" style="position: static;">⭐ TERKONFIRMASI</span>
+              </div>
+              <p>Pasangan lunch paling niat & seru</p>
             </div>
           </div>
+          
+          <div class="award-form-group">
+            <label>Nama Pemenang:</label>
+            <input type="text" id="admin-input-lunch" class="admin-input" value="Aulia & Nurul" placeholder="Nama Pasangan...">
+          </div>
+
+          <div class="award-form-group">
+            <label>Upload Foto Keseruan (Opsional):</label>
+            <input type="file" id="admin-file-lunch" class="admin-file-input" accept="image/*">
+            <div id="lunch-photo-preview" class="photo-preview-slot" style="display: none;">
+              <img id="lunch-preview-img" src="" alt="Preview">
+            </div>
+          </div>
+
+          <button id="btn-send-lunch" class="btn btn-cyan btn-lg btn-block mt-2">
+            🚀 Kirim Foto & Nama ke Proyektor
+          </button>
+        </div>
+
+        <!-- Best Costume Winner -->
+        <div class="glass-card award-item-card">
+          <div class="award-header">
+            <span class="award-icon">👔</span>
+            <div class="award-meta">
+              <h3>Kostum Terbaik</h3>
+              <p>Tema Navy & Black Paling On-Point</p>
+            </div>
+          </div>
+          
+          <div class="award-form-group">
+            <label>Nama Pemenang:</label>
+            <input type="text" id="admin-input-costume" class="admin-input" placeholder="Masukkan nama pemenang...">
+          </div>
+
+          <button id="btn-send-costume" class="btn btn-cyan btn-lg btn-block mt-2">
+            🚀 Kirim ke Slide 19 Proyektor
+          </button>
+        </div>
+
+        <!-- Most Entertaining Person -->
+        <div class="glass-card award-item-card">
+          <div class="award-header">
+            <span class="award-icon">🎭</span>
+            <div class="award-meta">
+              <h3>Most Entertaining Person</h3>
+              <p>Peserta paling heboh, ceria & bikin suasana hidup</p>
+            </div>
+          </div>
+          
+          <div class="award-form-group">
+            <label>Nama Pemenang:</label>
+            <input type="text" id="admin-input-entertain" class="admin-input" placeholder="Masukkan nama pemenang...">
+          </div>
+
+          <button id="btn-send-entertain" class="btn btn-cyan btn-lg btn-block mt-2">
+            🚀 Kirim ke Slide 19 Proyektor
+          </button>
         </div>
 
       </div>
-    </div>
-  </div>
+
+    </section>
+
+  </main>
+
+  <!-- Sticky Bottom Navigation Bar for Mobile -->
+  <nav class="admin-bottom-bar" id="admin-bottom-bar">
+    <button class="bottom-tab-btn active" data-tab="remote">
+      <span class="b-icon">🎛</span>
+      <span class="b-text">Remote</span>
+    </button>
+    <button class="bottom-tab-btn" data-tab="scoring">
+      <span class="b-icon">🏆</span>
+      <span class="b-text">Scoring</span>
+    </button>
+    <button class="bottom-tab-btn" data-tab="awarding">
+      <span class="b-icon">🎁</span>
+      <span class="b-text">Awarding</span>
+    </button>
+  </nav>
 
   <script src="admin.js"></script>
 </body>

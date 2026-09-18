@@ -1,6 +1,6 @@
 /**
- * Admin & Remote Control Logic for Regroup Happy Hour
- * Syncs with index.html via BroadcastChannel and localStorage
+ * Admin & Mobile Remote Control Logic for Regroup Happy Hour
+ * Specifically tuned for smartphone ergonomics (Aldeina) & desktop.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -16,7 +16,42 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 1. SLIDE REMOTE CONTROL
+  // 1. MOBILE TAB SWITCHER
+  // ==========================================================================
+  const tabPills = document.querySelectorAll('.tab-pill');
+  const bottomTabs = document.querySelectorAll('.bottom-tab-btn');
+  const tabPanes = document.querySelectorAll('.admin-tab-pane');
+
+  function switchTab(tabName) {
+    // Update top pills
+    tabPills.forEach(pill => {
+      pill.classList.toggle('active', pill.dataset.tab === tabName);
+    });
+
+    // Update bottom tabs
+    bottomTabs.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === tabName);
+    });
+
+    // Update panes
+    tabPanes.forEach(pane => {
+      pane.classList.toggle('active', pane.id === `pane-${tabName}`);
+    });
+
+    // Scroll smoothly to top of pane
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  tabPills.forEach(pill => {
+    pill.addEventListener('click', () => switchTab(pill.dataset.tab));
+  });
+
+  bottomTabs.forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+
+  // ==========================================================================
+  // 2. SLIDE REMOTE CONTROL
   // ==========================================================================
   const activeSlideLabel = document.getElementById('active-slide-label');
   const activeSlideNum = document.getElementById('active-slide-num');
@@ -28,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const remoteTimerReset = document.getElementById('remote-timer-reset');
   const remoteSpinDoorprize = document.getElementById('remote-spin-doorprize');
   const btnBroadcastConfetti = document.getElementById('btn-broadcast-confetti');
+  const remoteConnStatus = document.getElementById('remote-conn-status');
 
   const slideTitles = [
     "1. Pre-Show Lounge",
@@ -104,6 +140,9 @@ document.addEventListener('DOMContentLoaded', () => {
       activeSlideLabel.textContent = `Slide ${idx + 1}: ${title}`;
       activeSlideNum.textContent = `${idx + 1} / 22`;
       remoteSlideSelect.value = idx;
+      if (remoteConnStatus) {
+        remoteConnStatus.textContent = `🟢 Slide ${idx + 1}/22 Online`;
+      }
     }
   };
 
@@ -111,8 +150,15 @@ document.addEventListener('DOMContentLoaded', () => {
   broadcast('REQUEST_STATUS');
 
   // ==========================================================================
-  // 2. OLYMPIC SCORE TRACKER (KELOMPOK 1 - 6)
+  // 3. OLYMPIC LIVE SCOREKEEPER (MOBILE-OPTIMIZED CARDS)
   // ==========================================================================
+  const gameDefinitions = [
+    { id: 0, pos: 'Pos 1', title: 'Scratch Debugging', icon: '🐱' },
+    { id: 1, pos: 'Pos 2', title: 'Mathchamps Speed Math', icon: '🧮' },
+    { id: 2, pos: 'Pos 3', title: 'Memory Academy Flash', icon: '🧠' },
+    { id: 3, pos: 'Pos 4', title: 'Spreadsheet #REF!', icon: '📊' }
+  ];
+
   const defaultTeams = [
     { id: 1, name: 'Kelompok 1', scores: [0, 0, 0, 0], attempts: ['none', 'none', 'none', 'none'] },
     { id: 2, name: 'Kelompok 2', scores: [0, 0, 0, 0], attempts: ['none', 'none', 'none', 'none'] },
@@ -123,9 +169,11 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   let teams = JSON.parse(localStorage.getItem('hh_teams_score')) || defaultTeams;
+  let currentPosFilter = 'all';
 
-  const tableBody = document.getElementById('teams-table-body');
+  const teamsCardsContainer = document.getElementById('teams-cards-container');
   const btnSyncOlympicWinner = document.getElementById('btn-sync-olympic-winner');
+  const posFilterButtons = document.querySelectorAll('.pos-filter-btn');
 
   function saveTeams() {
     localStorage.setItem('hh_teams_score', JSON.stringify(teams));
@@ -135,51 +183,82 @@ document.addEventListener('DOMContentLoaded', () => {
     return team.scores.reduce((a, b) => a + b, 0);
   }
 
-  function renderScoringTable() {
-    tableBody.innerHTML = '';
+  // Handle Pos Filter
+  posFilterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      posFilterButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentPosFilter = btn.dataset.pos;
+      renderTeamCards();
+    });
+  });
 
-    // Sort by total descending for leaderboard view
+  function renderTeamCards() {
+    teamsCardsContainer.innerHTML = '';
+
+    // Sort by total descending
     const sortedTeams = [...teams].sort((a, b) => calculateTotal(b) - calculateTotal(a));
 
     sortedTeams.forEach((team, rankIdx) => {
-      const tr = document.createElement('tr');
-      tr.className = 'team-row';
-
       const total = calculateTotal(team);
       const isLeader = rankIdx === 0 && total > 0;
 
-      tr.innerHTML = `
-        <td class="team-name-cell">
-          <strong>${isLeader ? '👑 ' : ''}${team.name}</strong>
-          <span style="font-size: 0.75rem; color: var(--text-muted);">Peringkat #${rankIdx + 1}</span>
-        </td>
-        ${[0, 1, 2, 3].map(gameIdx => {
-          const score = team.scores[gameIdx];
-          const attempt = team.attempts[gameIdx];
-          return `
-            <td>
-              <div style="margin-bottom: 4px; font-family: var(--font-mono); font-weight: 700; color: ${score > 0 ? 'var(--neon-green)' : 'var(--text-dim)'};">
-                ${score} Poin
+      const card = document.createElement('div');
+      card.className = `team-mobile-card ${isLeader ? 'leader' : ''}`;
+
+      // Games to display (filter by pos or show all)
+      const gamesToShow = currentPosFilter === 'all' 
+        ? gameDefinitions 
+        : gameDefinitions.filter(g => g.id === parseInt(currentPosFilter, 10));
+
+      card.innerHTML = `
+        <div class="team-card-header">
+          <div class="team-title-row">
+            <span class="team-rank-badge ${isLeader ? 'leader' : ''}">${isLeader ? '👑 #1' : `#${rankIdx + 1}`}</span>
+            <span class="team-name">${team.name}</span>
+          </div>
+          <div class="team-total-score">${total} Pts</div>
+        </div>
+
+        <div class="game-scoring-rows">
+          ${gamesToShow.map(game => {
+            const score = team.scores[game.id];
+            const attempt = team.attempts[game.id];
+            const isScored = score > 0;
+
+            return `
+              <div class="game-score-item">
+                <div class="game-item-top">
+                  <span class="game-pos-label">${game.icon} ${game.pos}: ${game.title}</span>
+                  <span class="game-points-label ${isScored ? 'scored' : 'zero'}">${score} Poin</span>
+                </div>
+                <div class="game-attempt-buttons">
+                  <button class="btn-attempt btn-attempt-5 ${attempt === 'pass_1' ? 'active' : ''}" 
+                          onclick="window.handleScore(${team.id}, ${game.id}, 'pass_1')">
+                    +5 (1st)
+                  </button>
+                  <button class="btn-attempt btn-attempt-fail ${attempt === 'fail_1' ? 'active' : ''}" 
+                          onclick="window.handleScore(${team.id}, ${game.id}, 'fail_1')">
+                    Salah
+                  </button>
+                  <button class="btn-attempt btn-attempt-4 ${attempt === 'pass_2' ? 'active' : ''}" 
+                          onclick="window.handleScore(${team.id}, ${game.id}, 'pass_2')">
+                    +4 (2nd)
+                  </button>
+                </div>
               </div>
-              <div class="attempt-btn-group">
-                <button class="btn-attempt btn-attempt-5 ${attempt === 'pass_1' ? 'active' : ''}" 
-                        onclick="window.handleScore(${team.id}, ${gameIdx}, 'pass_1')">+5 (1st)</button>
-                <button class="btn-attempt btn-attempt-fail ${attempt === 'fail_1' ? 'active' : ''}" 
-                        onclick="window.handleScore(${team.id}, ${gameIdx}, 'fail_1')">Salah</button>
-                <button class="btn-attempt btn-attempt-4 ${attempt === 'pass_2' ? 'active' : ''}" 
-                        onclick="window.handleScore(${team.id}, ${gameIdx}, 'pass_2')">+4 (2nd)</button>
-              </div>
-            </td>
-          `;
-        }).join('')}
-        <td>
-          <span class="score-badge">${total} Pts</span>
-        </td>
-        <td>
-          <button class="btn btn-xs btn-outline" onclick="window.resetTeamScore(${team.id})">Reset</button>
-        </td>
+            `;
+          }).join('')}
+        </div>
+
+        <div class="team-card-footer">
+          <button class="btn-reset-team" onclick="window.resetTeamScore(${team.id})">
+            ↺ Reset Nilai ${team.name}
+          </button>
+        </div>
       `;
-      tableBody.appendChild(tr);
+
+      teamsCardsContainer.appendChild(card);
     });
   }
 
@@ -192,29 +271,38 @@ document.addEventListener('DOMContentLoaded', () => {
       team.attempts[gameIdx] = 'pass_1';
     } else if (action === 'fail_1') {
       team.scores[gameIdx] = 0;
-      team.attempts[gameIdx] = 'fail_1'; // Enables 2nd attempt +4
+      team.attempts[gameIdx] = 'fail_1'; // Downgrades next attempt to 4 pts
     } else if (action === 'pass_2') {
       team.scores[gameIdx] = 4;
       team.attempts[gameIdx] = 'pass_2';
     }
 
     saveTeams();
-    renderScoringTable();
+    renderTeamCards();
   };
 
   window.resetTeamScore = (teamId) => {
     const team = teams.find(t => t.id === teamId);
     if (!team) return;
+    if (!confirm(`Reset semua skor untuk ${team.name}?`)) return;
     team.scores = [0, 0, 0, 0];
     team.attempts = ['none', 'none', 'none', 'none'];
     saveTeams();
-    renderScoringTable();
+    renderTeamCards();
   };
 
   btnSyncOlympicWinner.addEventListener('click', () => {
     const sorted = [...teams].sort((a, b) => calculateTotal(b) - calculateTotal(a));
     const winner = sorted[0];
-    const winnerName = `${winner.name} (Total: ${calculateTotal(winner)} Poin)`;
+    const total = calculateTotal(winner);
+    
+    if (total === 0) {
+      if (!confirm('Skor tertinggi saat ini masih 0 poin. Tetap kirim ke proyektor?')) {
+        return;
+      }
+    }
+
+    const winnerName = `${winner.name} (Total: ${total} Poin)`;
 
     broadcast('SET_WINNER', {
       category: 'olympic',
@@ -224,25 +312,34 @@ document.addEventListener('DOMContentLoaded', () => {
     alert(`👑 Juara Olympic "${winnerName}" berhasil dikirim ke Slide 19 Proyektor!`);
   });
 
-  renderScoringTable();
+  renderTeamCards();
 
   // ==========================================================================
-  // 3. AWARDING DISPATCHER (COSTUME, LUNCH, ENTERTAIN)
+  // 4. AWARDING DISPATCHER (LUNCH, COSTUME, ENTERTAIN)
   // ==========================================================================
-  const btnSendCostume = document.getElementById('btn-send-costume');
-  const adminInputCostume = document.getElementById('admin-input-costume');
-
   const btnSendLunch = document.getElementById('btn-send-lunch');
   const adminInputLunch = document.getElementById('admin-input-lunch');
   const adminFileLunch = document.getElementById('admin-file-lunch');
+  const lunchPreviewBox = document.getElementById('lunch-photo-preview');
+  const lunchPreviewImg = document.getElementById('lunch-preview-img');
+
+  const btnSendCostume = document.getElementById('btn-send-costume');
+  const adminInputCostume = document.getElementById('admin-input-costume');
 
   const btnSendEntertain = document.getElementById('btn-send-entertain');
   const adminInputEntertain = document.getElementById('admin-input-entertain');
 
-  btnSendCostume.addEventListener('click', () => {
-    const name = adminInputCostume.value.trim() || 'Pemenang Kostum Terbaik';
-    broadcast('SET_WINNER', { category: 'costume', name });
-    alert(`👔 Pemenang Kostum "${name}" dikirim ke proyektor!`);
+  // Preview lunch photo on select
+  adminFileLunch.addEventListener('change', () => {
+    const file = adminFileLunch.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        lunchPreviewImg.src = e.target.result;
+        lunchPreviewBox.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
   });
 
   btnSendLunch.addEventListener('click', () => {
@@ -264,6 +361,12 @@ document.addEventListener('DOMContentLoaded', () => {
       broadcast('SET_WINNER', { category: 'lunch', name });
       alert(`🍱 Pemenang Lunch "${name}" berhasil dikirim ke proyektor!`);
     }
+  });
+
+  btnSendCostume.addEventListener('click', () => {
+    const name = adminInputCostume.value.trim() || 'Pemenang Kostum Terbaik';
+    broadcast('SET_WINNER', { category: 'costume', name });
+    alert(`👔 Pemenang Kostum "${name}" dikirim ke proyektor!`);
   });
 
   btnSendEntertain.addEventListener('click', () => {
