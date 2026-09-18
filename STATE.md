@@ -44,15 +44,13 @@
     5. *Kasus 5: Missing Absolute Reference ($)* – rumus bergeser saat ditarik ke bawah karena ketiadaan kunci sel `$`.
   - Integrasi Countdown Otomatis: Layar Pos 1 s/d 4 terkunci (`STANDBY`) saat MC briefing di Slide 19, dan serentak membuka tantangan begitu countdown 3-2-1 di Slide 20 selesai (`MULAI!`).
   - Menyelesaikan ke-5 kasus memicu sinyal `CHALLENGE_COMPLETED` ke parent window, mengaktifkan pulsing glow emas pada tombol sprint bel raksasa: *"🔔 KITA UDAH KELAR! LARI KEJAR KAK BALQIS!"*.
-- **Tantangan Babak 2: Mathchamps Sempoa Speed Math (Keyboard-First):**
-  - Mengeliminasi numpad virtual di layar, beralih ke 100% input keyboard numerik dengan navigasi instan `Enter`.
-  - Terintegrasi otomatis ke Slide 15 (Briefing) dan Slide 16 (Battle Arena).
-- **WebRTC Broadcaster & Proyektor Resilience:**
-  - Konfigurasi Google STUN servers publik, automatic retry timer jika ID terpakai sesaat, dan handshake ulang `PROYEKTOR_READY`.
-- **Personal GitHub:**
-  - Repo: `git@github.com-personal:madyazdhil/hh-kids-26.git`.
+- **Pembersihan Total Kunci Jawaban & Layar Menang di Layar Meja Pos (Scratch & Sempoa):**
+  - **Scratch Slide (`scratch-slide.html` & `src/scratch-slide.html`)**: Menghapus tombol `💡 Kunci Jawaban`, `🏆 Preview Layar Menang`, drawer slide-over kode solusi (`#solutionDrawer`), dan modal popup layar menang fullscreen (`#fullWinOverlay`). Evaluasi berhasil hanya menyalakan badge hijau `✅ KODE BENAR! TEKAN BEL DI BAWAH!` tanpa menutupi layar peserta.
+  - **Mathchamps Sempoa (`sempoa-slide.html` & `src/sempoa-slide.html`)**: Menghapus ikon gear `⚙️` dan `#editModal` yang sebelumnya membocorkan nilai `Kunci = ...`. Feedback salah dibersihkan agar tidak membocorkan angka kunci maupun rincian formula.
+  - **Root `turbowarp/` Tracked**: Root `turbowarp/` dilacak ke Git sehingga live GitHub Pages (`https://madyazdhil.github.io/hh-kids-26/pos.html?pos=1`) memiliki editor Scratch GUI lengkap tanpa 404.
+  - Terverifikasi otomatis via Playwright headless (`scripts/verify_sanitized_screens.py`) dengan 0 console error dan nol kebocoran kunci jawaban.
 
 ## Blockers and Open Questions
 
-- Tidak ada blocker. Seluruh 4 babak tantangan (Scratch, Sempoa, Memory Academy, Google Sheets Emergency Room) telah terintegrasi 100% ke `pos.html`, siap dimainkan live dengan sinkronisasi proyektor MC.
+- Tidak ada blocker. Seluruh 4 babak tantangan (Scratch, Sempoa, Memory Academy, Google Sheets Emergency Room) telah terintegrasi 100% ke `pos.html`, bersih dari bocoran kunci jawaban dan popup layar menang, siap dimainkan live dengan sinkronisasi proyektor MC.
 

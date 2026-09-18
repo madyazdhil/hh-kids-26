@@ -1147,4 +1147,32 @@ continue
   - Menambahkan event broadcast `PROYEKTOR_READY` agar saat MC membuka atau merefresh layar proyektor, seluruh laptop pos yang sedang aktif siaran otomatis menyiarkan ulang (re-transmit) layarnya tanpa perlu klik ulang.
   - Menambahkan graceful cleanup pada `beforeunload` agar Peer ID tidak terkunci di server saat tab direfresh.
 
+### User — 2026-09-18T13:12:15+07:00
+
+```text
+kunci jawaban sama layar menang nya di hapus aja yah ini di pos pos nyaaanjir
+continuee
+```
+
+### Assistant — 2026-09-18T13:26:00+07:00
+
+- **Pembersihan Total Kunci Jawaban & Layar Menang di Layar Meja Pos (`pos.html`, `scratch-slide.html`, `sempoa-slide.html`)**:
+  1. **Scratch Motion Debugging (`scratch-slide.html` & `src/scratch-slide.html`)**:
+     - Menghapus tombol `💡 Kunci Jawaban` dan `🏆 Preview Layar Menang` dari HUD kontrol atas.
+     - Menghapus elemen slide-over drawer kunci jawaban (`#solutionDrawerOverlay` dan `#solutionDrawer`) beserta seluruh blok kode solusi.
+     - Menghapus popup layar menang fullscreen (`#fullWinOverlay`, confetti canvas, dan audio dialog) agar peserta tidak terhalang popup atau tergoda melihat preview jawaban.
+     - Menyesuaikan teks briefing di Slide 1 agar fokus pada target misi dan penekanan tombol bel sprint raksasa di bawah layar pos.
+     - Ketika sinyal auto-evaluator `TURBOWARP_AUTO_WIN` diterima dari runtime hook Scratch, sistem hanya memperbarui badge status HUD secara halus menjadi `✅ KODE BENAR! TEKAN BEL DI BAWAH!` tanpa menutupi panggung Scratch.
+  2. **Mathchamps Sempoa Speed Math (`sempoa-slide.html` & `src/sempoa-slide.html`)**:
+     - Menghapus tombol ikon gear `⚙️` (`#btnEditQuestions`) dari header HUD aksi sehingga peserta tidak dapat membuka modal kustomisasi deret angka.
+     - Menghapus modal `#editModal` yang sebelumnya membocorkan nilai `Kunci = ...` untuk ke-10 nomor soal.
+     - Membersihkan feedback jawaban salah (`checkAnswer()`): tidak lagi membocorkan `Kunci: <angka>` maupun rincian formula (`feedbackCalcBreakdown`), melainkan menampilkan `❌ JAWABAN BELUM TEPAT! Jawabanmu: <angka> • Silakan coba lagi!`.
+  3. **Pengujian Otomatis Headless Browser (`scripts/verify_sanitized_screens.py`)**:
+     - Memvalidasi via Playwright script bahwa tombol `💡 Kunci Jawaban`, `🏆 Preview Layar Menang`, `#solutionDrawer`, `#fullWinOverlay`, `#btnEditQuestions`, dan `#editModal` telah 100% musnah dari DOM.
+     - Menguji simulasi submit jawaban salah pada Sempoa dan memverifikasi nol kebocoran kunci/rumus.
+     - Menghasilkan bukti screenshot verifikasi visual: `output/sanitized_check/scratch_slide2_clean_hud.png` dan `output/sanitized_check/sempoa_wrong_answer_no_leak.png`.
+  4. **Deployment & Git Checkpoint**:
+     - Mengatur `.gitignore` agar root `turbowarp/` dilacak ke Git sehingga GitHub Pages (`https://madyazdhil.github.io/hh-kids-26/pos.html?pos=1`) memiliki akses penuh ke editor TurboWarp Scratch 3.0 tanpa 404.
+     - Melakukan commit Git `feat(pos): remove answer keys and win overlays from pos challenge screens` (`5fe7dc0`) dan sukses push ke `git@github.com-personal:madyazdhil/hh-kids-26.git`.
+
 
