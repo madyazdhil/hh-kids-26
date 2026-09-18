@@ -1399,3 +1399,13 @@ Status: live sync still failing; screenshot confirms MC is on Slide 8/countdown 
 - Removed the custom JSON header from the ntfy publish request while keeping the JSON body; this avoids the preflight and preserves the existing subscriber parser.
 - Updated both `sync-engine.js` and `src/sync-engine.js`; syntax checks passed.
 - Status: ready to push and retest.
+
+### Assistant — 2026-09-18
+
+Bener, screenshot kamu akhirnya menunjukkan masalahnya dengan jelas: MC sudah di Slide 8 dan timer berjalan, tetapi Pos tetap membaca `Slide 1`. Jadi bukan masalah instruksi per Pos; event publish dari MC tidak sampai ke Pos.
+
+Aku memperbaiki publish ntfy di commit `cc4ed7a`. Sebelumnya request memakai header `Content-Type: application/json`, yang memicu CORS preflight dari GitHub Pages dan bisa diblokir browser/jaringan. Sekarang publish dikirim tanpa custom header agar langsung diterima.
+
+Perbaikan sudah dipush dan GitHub Pages sudah menyajikan kode terbaru. Setelah deployment, lakukan hard refresh pada MC dan semua Pos (`Cmd/Ctrl + Shift + R`), kemudian buka ulang semua link Pos sebelum mulai Slide 8.
+
+Video/spectator blank juga merupakan efek Pos belum menerima event/state dan belum mengirim feed aktif; setelah sinkronisasi live berhasil, feed harus diaktifkan dari tombol siaran Pos.
