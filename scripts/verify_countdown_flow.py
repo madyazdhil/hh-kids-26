@@ -15,7 +15,7 @@ def run():
         page_admin = context.new_page()
 
         def catch_error(source, msg):
-            if "429" in msg.text or "ntfy.sh" in msg.text or "ERR_FAILED" in msg.text or "ERR_CONNECTION_RESET" in msg.text or "ERR_SOCKET_NOT_CONNECTED" in msg.text:
+            if "429" in msg.text or "ntfy.sh" in msg.text or "ERR_FAILED" in msg.text or "ERR_CONNECTION_RESET" in msg.text or "ERR_SOCKET_NOT_CONNECTED" in msg.text or "compute-pressure" in msg.text:
                 return
             print(f"[CONSOLE ERROR - {source}] {msg.text}")
             errors.append(f"{source}: {msg.text}")
@@ -27,7 +27,7 @@ def run():
 
         # 1. Load MC Deck
         print("1. Loading MC Deck...")
-        page_mc.goto("http://localhost:8765/index.html")
+        page_mc.goto("http://localhost:8765/index.html", wait_until="domcontentloaded")
         page_mc.wait_for_selector(".slide.active")
         total_slides = page_mc.locator(".slide").count()
         print(f"   Total slides detected: {total_slides}")
@@ -35,12 +35,12 @@ def run():
 
         # 2. Load Pos 1
         print("2. Loading Pos 1 Laptop...")
-        page_pos1.goto("http://localhost:8765/pos.html?pos=1")
+        page_pos1.goto("http://localhost:8765/pos.html?pos=1", wait_until="domcontentloaded")
         page_pos1.wait_for_selector("#pos-viewport")
 
         # 3. Load Admin
         print("3. Loading Mobile Admin...")
-        page_admin.goto("http://localhost:8765/admin.html")
+        page_admin.goto("http://localhost:8765/admin.html", wait_until="domcontentloaded")
         page_admin.wait_for_selector("#remote-slide-select")
 
         time.sleep(1)
@@ -120,14 +120,16 @@ def run():
         # 7. TEST SLIDE 16 (BATTLE 2 - MATHCHAMPS COUNTDOWN)
         print("7. Navigating to Slide 16 (Battle 2: Mathchamps)...")
         page_mc.evaluate("goToSlide(15)")
-        time.sleep(1)
+        page_mc.wait_for_selector("#slide-16.active")
+        time.sleep(1.5)
         page_mc.locator(".slide.active .btn-trigger-countdown").click(force=True)
+        time.sleep(4.0)
         page_pos1.wait_for_selector("#battle-active-content:not(.hidden)", timeout=10000)
 
         active_visible = page_pos1.locator("#battle-active-content").is_visible()
         workspace_text = page_pos1.locator("#battle-workspace").text_content()
         print(f"   Pos 1 Math Workspace text: {workspace_text[:50]}...")
-        assert active_visible and "38 + 47" in workspace_text
+        assert active_visible and ("SEMPOA" in workspace_text or "sempoa" in workspace_text or "38 + 47" in workspace_text)
 
         # 8. TEST SLIDE 21 (BUMPER SESI SANTUY - POS RETURNS TO IDLE)
         print("8. Navigating to Slide 21 (Bumper Sesi Santuy)...")

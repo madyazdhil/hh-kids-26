@@ -26,13 +26,19 @@ class SyncHandler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == '/api/sync':
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.end_headers()
-            self.wfile.write(json.dumps(sync_state).encode('utf-8'))
+            try:
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(json.dumps(sync_state).encode('utf-8'))
+            except (BrokenPipeError, ConnectionResetError):
+                pass
         else:
-            super().do_GET()
+            try:
+                super().do_GET()
+            except (BrokenPipeError, ConnectionResetError):
+                pass
 
     def do_POST(self):
         if self.path == '/api/sync':

@@ -777,12 +777,16 @@
             <div class="feed-tag tag-cyan">POS 1 • KALANANTI (SCRATCH)</div>
             <button class="feed-pin-btn" data-target="pos1" title="Perbesar Layar Pos 1">⛶ Focus</button>
           </div>
-          <div class="feed-iframe-wrap">
-            <iframe id="iframe-pos1" src="about:blank" data-src="https://vdo.ninja/?view=hhkids26_pos1&cleanoutput&transparent=1&autoplay=1" allow="autoplay; fullscreen" loading="lazy"></iframe>
-            <div class="feed-waiting-overlay">
+          <div class="feed-media-wrap">
+            <video id="stream-screen-pos1" autoplay playsinline class="feed-screen-video hidden"></video>
+            <div id="cam-pip-pos1" class="feed-cam-pip-box hidden">
+              <video id="stream-cam-pos1" autoplay playsinline muted class="feed-cam-video"></video>
+              <div class="cam-pip-label">MEJA 1 CAM</div>
+            </div>
+            <div class="feed-waiting-overlay" id="waiting-pos1">
               <div class="waiting-spinner"></div>
               <p class="waiting-title">Menunggu Siaran Pos 1...</p>
-              <p class="waiting-sub">Klik tombol "📡 Broadcast ke Proyektor" di laptop Pos 1</p>
+              <p class="waiting-sub">Klik tombol "📡 Siarkan ke Proyektor" di laptop Pos 1</p>
             </div>
           </div>
         </div>
@@ -793,12 +797,16 @@
             <div class="feed-tag tag-gold">POS 2 • MATHCHAMPS (SEMPOA)</div>
             <button class="feed-pin-btn" data-target="pos2" title="Perbesar Layar Pos 2">⛶ Focus</button>
           </div>
-          <div class="feed-iframe-wrap">
-            <iframe id="iframe-pos2" src="about:blank" data-src="https://vdo.ninja/?view=hhkids26_pos2&cleanoutput&transparent=1&autoplay=1" allow="autoplay; fullscreen" loading="lazy"></iframe>
-            <div class="feed-waiting-overlay">
+          <div class="feed-media-wrap">
+            <video id="stream-screen-pos2" autoplay playsinline class="feed-screen-video hidden"></video>
+            <div id="cam-pip-pos2" class="feed-cam-pip-box hidden">
+              <video id="stream-cam-pos2" autoplay playsinline muted class="feed-cam-video"></video>
+              <div class="cam-pip-label">MEJA 2 CAM</div>
+            </div>
+            <div class="feed-waiting-overlay" id="waiting-pos2">
               <div class="waiting-spinner"></div>
               <p class="waiting-title">Menunggu Siaran Pos 2...</p>
-              <p class="waiting-sub">Klik tombol "📡 Broadcast ke Proyektor" di laptop Pos 2</p>
+              <p class="waiting-sub">Klik tombol "📡 Siarkan ke Proyektor" di laptop Pos 2</p>
             </div>
           </div>
         </div>
@@ -809,12 +817,16 @@
             <div class="feed-tag tag-magenta">POS 3 • MEMORY ACADEMY</div>
             <button class="feed-pin-btn" data-target="pos3" title="Perbesar Layar Pos 3">⛶ Focus</button>
           </div>
-          <div class="feed-iframe-wrap">
-            <iframe id="iframe-pos3" src="about:blank" data-src="https://vdo.ninja/?view=hhkids26_pos3&cleanoutput&transparent=1&autoplay=1" allow="autoplay; fullscreen" loading="lazy"></iframe>
-            <div class="feed-waiting-overlay">
+          <div class="feed-media-wrap">
+            <video id="stream-screen-pos3" autoplay playsinline class="feed-screen-video hidden"></video>
+            <div id="cam-pip-pos3" class="feed-cam-pip-box hidden">
+              <video id="stream-cam-pos3" autoplay playsinline muted class="feed-cam-video"></video>
+              <div class="cam-pip-label">MEJA 3 CAM</div>
+            </div>
+            <div class="feed-waiting-overlay" id="waiting-pos3">
               <div class="waiting-spinner"></div>
               <p class="waiting-title">Menunggu Siaran Pos 3...</p>
-              <p class="waiting-sub">Klik tombol "📡 Broadcast ke Proyektor" di laptop Pos 3</p>
+              <p class="waiting-sub">Klik tombol "📡 Siarkan ke Proyektor" di laptop Pos 3</p>
             </div>
           </div>
         </div>
@@ -825,12 +837,16 @@
             <div class="feed-tag tag-green">POS 4 • SPREADSHEET (#REF!)</div>
             <button class="feed-pin-btn" data-target="pos4" title="Perbesar Layar Pos 4">⛶ Focus</button>
           </div>
-          <div class="feed-iframe-wrap">
-            <iframe id="iframe-pos4" src="about:blank" data-src="https://vdo.ninja/?view=hhkids26_pos4&cleanoutput&transparent=1&autoplay=1" allow="autoplay; fullscreen" loading="lazy"></iframe>
-            <div class="feed-waiting-overlay">
+          <div class="feed-media-wrap">
+            <video id="stream-screen-pos4" autoplay playsinline class="feed-screen-video hidden"></video>
+            <div id="cam-pip-pos4" class="feed-cam-pip-box hidden">
+              <video id="stream-cam-pos4" autoplay playsinline muted class="feed-cam-video"></video>
+              <div class="cam-pip-label">MEJA 4 CAM</div>
+            </div>
+            <div class="feed-waiting-overlay" id="waiting-pos4">
               <div class="waiting-spinner"></div>
               <p class="waiting-title">Menunggu Siaran Pos 4...</p>
-              <p class="waiting-sub">Klik tombol "📡 Broadcast ke Proyektor" di laptop Pos 4</p>
+              <p class="waiting-sub">Klik tombol "📡 Siarkan ke Proyektor" di laptop Pos 4</p>
             </div>
           </div>
         </div>
@@ -859,6 +875,7 @@
     </div>
   </div>
 
+  <script src="vendor/peerjs.min.js"></script>
   <script src="sync-engine.js"></script>
   <script src="app.js"></script>
 

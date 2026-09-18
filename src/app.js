@@ -982,7 +982,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 12. SPECTATOR ARENA CONTROLLER (VDO.ninja 4-Screen Live Stream)
+  // 12. SPECTATOR ARENA CONTROLLER (WebRTC 4-Screen Live Stream + PiP Facecam)
   // ==========================================================================
   const spectatorOverlay = document.getElementById('spectator-overlay');
   const btnSpectatorLaunch = document.getElementById('btn-spectator-launch');
@@ -992,11 +992,67 @@ document.addEventListener('DOMContentLoaded', () => {
   const feedPinBtns = document.querySelectorAll('.feed-pin-btn');
 
   let isSpectatorOpen = false;
+  let proyektorPeer = null;
+
+  function initProyektorPeer() {
+    if (proyektorPeer || typeof Peer === 'undefined') return;
+    try {
+      proyektorPeer = new Peer('hhkids26-proyektor-main', {
+        debug: 1
+      });
+
+      proyektorPeer.on('open', (id) => {
+        console.log('⚡ Proyektor WebRTC Receiver Ready:', id);
+      });
+
+      proyektorPeer.on('call', (call) => {
+        call.answer(); // Answer incoming stream from Pos
+        call.on('stream', (remoteStream) => {
+          const { pos, type } = call.metadata || {};
+          const posNum = pos || 1;
+          
+          if (type === 'cam') {
+            const camVideo = document.getElementById(`stream-cam-pos${posNum}`);
+            const camBox = document.getElementById(`cam-pip-pos${posNum}`);
+            if (camVideo) {
+              camVideo.srcObject = remoteStream;
+              camVideo.play().catch(() => {});
+            }
+            if (camBox) {
+              camBox.classList.remove('hidden');
+            }
+          } else {
+            // Screen stream
+            const screenVideo = document.getElementById(`stream-screen-pos${posNum}`);
+            const waitingOverlay = document.getElementById(`waiting-pos${posNum}`);
+            if (screenVideo) {
+              screenVideo.srcObject = remoteStream;
+              screenVideo.classList.remove('hidden');
+              screenVideo.play().catch(() => {});
+            }
+            if (waitingOverlay) {
+              waitingOverlay.classList.add('hidden');
+            }
+          }
+        });
+      });
+
+      proyektorPeer.on('error', (err) => {
+        console.warn('Proyektor Peer notice:', err);
+      });
+    } catch (e) {
+      console.warn('Failed to init Proyektor Peer:', e);
+    }
+  }
+
+  // Initialize WebRTC Receiver
+  initProyektorPeer();
 
   function loadSpectatorIframes() {
+    initProyektorPeer();
     ['pos1', 'pos2', 'pos3', 'pos4'].forEach(id => {
       const iframe = document.getElementById(`iframe-${id}`);
-      if (iframe && (iframe.src === 'about:blank' || !iframe.src)) {
+      if (iframe && iframe.dataset.src && (iframe.src === 'about:blank' || !iframe.src)) {
         iframe.src = iframe.dataset.src;
       }
     });

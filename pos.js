@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!assignedPos || assignedPos < 1 || assignedPos > 4) {
     assignedPos = parseInt(localStorage.getItem('hh_pos_assigned'), 10) || 1;
   }
+  const debugSlide = parseInt(urlParams.get('slide'), 10);
+  const debugBattle = urlParams.get('battle') === '1' || urlParams.get('unlock') === '1';
 
   const posConfig = {
     1: { name: 'Kalananti (Scratch Debugging)', short: 'Scratch', icon: '🐱', color: 'var(--neon-cyan)' },
@@ -307,16 +309,16 @@ document.addEventListener('DOMContentLoaded', () => {
       battleGameTitle.textContent = '🧮 Challenge 2: Mathchamps Speed Math';
 
       battleWorkspace.innerHTML = `
-        <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; gap: 16px;">
-          <div style="font-size: 3rem; font-weight: 900; color: var(--neon-gold); font-family: monospace;">
-            38 + 47 - 19 + 52 = ?
+        <div style="height: 100%; display: flex; flex-direction: column;">
+          <div style="padding: 10px 16px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,215,0,0.25); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 800; color: var(--neon-gold); font-family: 'JetBrains Mono', monospace; font-size: 0.88rem;">
+              🧮 ARENA HITUNG CEPAT SEMPOA (MEJA ${assignedPos}) • KEYBOARD INPUT • DEFAULT 2.0s
+            </span>
+            <a href="sempoa-slide.html" target="_blank" class="btn btn-xs btn-outline" style="border-color: var(--neon-gold); color: var(--neon-gold);">
+              Buka Fullscreen Tab ↗
+            </a>
           </div>
-          <p style="color: #94a3b8; font-size: 1.1rem; max-width: 600px;">
-            Hitung secepat mungkin tanpa kalkulator! Begitu anggota tim Meja ${assignedPos} mendapatkan angka yang benar, langsung tekan bel di bawah dan lari ke Kak Balqis!
-          </p>
-          <div style="background: rgba(255,215,0,0.1); border: 1px solid var(--neon-gold); padding: 12px 24px; border-radius: 8px; color: #fff; font-size: 0.95rem;">
-            🎯 Tulis jawaban di kertas atau sebutkan langsung ke Kak Balqis!
-          </div>
+          <iframe id="sempoa-battle-frame" src="sempoa-slide.html?autostart=1" style="width: 100%; height: calc(100% - 45px); border: none; background: #070d19;"></iframe>
         </div>
       `;
     } else if (roundIdx === 2) {
@@ -325,16 +327,16 @@ document.addEventListener('DOMContentLoaded', () => {
       battleGameTitle.textContent = '🧠 Challenge 3: Memory Academy Flash';
 
       battleWorkspace.innerHTML = `
-        <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; gap: 16px;">
-          <div style="font-size: 1.5rem; font-weight: 800; color: var(--neon-green);">
-            📸 TANTANGAN DAYA INGAT VISUAL
+        <div style="height: 100%; display: flex; flex-direction: column;">
+          <div style="padding: 10px 16px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(0,255,157,0.25); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 800; color: var(--neon-green); font-family: 'JetBrains Mono', monospace; font-size: 0.88rem;">
+              🧠 ARENA VISUAL MEMORY (MEJA ${assignedPos}) • KEYBOARD [A] / [B] • 20 OBJEK
+            </span>
+            <a href="memory-slide.html" target="_blank" class="btn btn-xs btn-outline" style="border-color: var(--neon-green); color: var(--neon-green);">
+              Buka Fullscreen Tab ↗
+            </a>
           </div>
-          <p style="color: #cbd5e1; font-size: 1.05rem; max-width: 650px;">
-            Perhatikan slide gambar yang ditampilkan di proyektor MC depan! Jawab pertanyaan rahasia yang akan dibacakan Yazid dengan lantang.
-          </p>
-          <div style="padding: 16px 28px; background: rgba(0,255,157,0.1); border: 1px solid var(--neon-green); border-radius: 8px;">
-            ⚡ Siap-siap tekan bel begitu MC selesai membacakan pertanyaan!
-          </div>
+          <iframe id="memory-battle-frame" src="memory-slide.html?autostart=1" style="width: 100%; height: calc(100% - 45px); border: none; background: #030712;"></iframe>
         </div>
       `;
     } else if (roundIdx === 3) {
@@ -426,136 +428,110 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==========================================================================
-  // 5B. FLOATING TEAM FACECAM PIP (Draggable Streamer Cam)
+  // 5. WEBRTC LIVE STREAM BROADCASTER (Screen + Team Cam to Proyektor)
   // ==========================================================================
-  const btnToggleFacecam = document.getElementById('btn-toggle-facecam');
-  const floatingFacecam = document.getElementById('floating-facecam-container');
-  const floatingFacecamVideo = document.getElementById('floating-facecam-video');
-  const btnCloseFacecam = document.getElementById('btn-close-facecam');
-  const facecamBadge = document.getElementById('facecam-badge');
-  let facecamStream = null;
+  const btnBroadcastStream = document.getElementById('btn-broadcast-stream');
+  let posPeer = null;
+  let activeScreenStream = null;
+  let activeCamStream = null;
 
-  async function startFacecam() {
+  function initPosPeer() {
+    if (posPeer || typeof Peer === 'undefined') return;
     try {
-      if (facecamStream) return;
-      facecamStream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 320 }, height: { ideal: 240 }, facingMode: 'user' },
-        audio: false
+      posPeer = new Peer();
+      posPeer.on('open', (id) => {
+        console.log(`Pos ${assignedPos} WebRTC Broadcaster Ready:`, id);
       });
-      if (floatingFacecamVideo) {
-        floatingFacecamVideo.srcObject = facecamStream;
-      }
-      if (floatingFacecam) {
-        floatingFacecam.classList.remove('hidden');
-      }
-      if (btnToggleFacecam) {
-        btnToggleFacecam.classList.add('active');
-        btnToggleFacecam.innerHTML = `<span class="facecam-btn-icon">🟢</span><span class="facecam-btn-text">Facecam ON</span>`;
-      }
-      if (facecamBadge) {
-        facecamBadge.textContent = `MEJA ${assignedPos} CAM`;
+      posPeer.on('error', (err) => {
+        console.warn('Pos Peer error:', err);
+      });
+    } catch (e) {
+      console.warn('Pos Peer init error:', e);
+    }
+  }
+
+  initPosPeer();
+
+  async function startStreamingToProyektor() {
+    initPosPeer();
+
+    // 1. Ambil Webcam secara diam-diam (tanpa popup floating di layar peserta)
+    try {
+      if (!activeCamStream) {
+        activeCamStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 320 }, height: { ideal: 240 }, facingMode: 'user' },
+          audio: false
+        });
       }
     } catch (err) {
-      console.warn('Gagal menyalakan facecam:', err);
+      console.warn('Izin webcam dilewati atau ditolak:', err);
     }
-  }
 
-  function stopFacecam() {
-    if (facecamStream) {
-      facecamStream.getTracks().forEach(track => track.stop());
-      facecamStream = null;
-    }
-    if (floatingFacecamVideo) {
-      floatingFacecamVideo.srcObject = null;
-    }
-    if (floatingFacecam) {
-      floatingFacecam.classList.add('hidden');
-    }
-    if (btnToggleFacecam) {
-      btnToggleFacecam.classList.remove('active');
-      btnToggleFacecam.innerHTML = `<span class="facecam-btn-icon">📹</span><span class="facecam-btn-text">Facecam</span>`;
-    }
-  }
-
-  if (btnToggleFacecam) {
-    btnToggleFacecam.addEventListener('click', () => {
-      if (facecamStream) {
-        stopFacecam();
-      } else {
-        startFacecam();
+    // 2. Ambil Screen Share Layar Peserta
+    try {
+      if (!activeScreenStream) {
+        activeScreenStream = await navigator.mediaDevices.getDisplayMedia({
+          video: { cursor: 'always' },
+          audio: false
+        });
       }
-    });
-  }
+    } catch (err) {
+      console.warn('Screen share dibatalkan oleh pengguna:', err);
+      return;
+    }
 
-  if (btnCloseFacecam) {
-    btnCloseFacecam.addEventListener('click', (e) => {
-      e.stopPropagation();
-      stopFacecam();
-    });
-  }
-
-  // Make Floating Facecam Draggable across the screen
-  if (floatingFacecam) {
-    let isDragging = false;
-    let startX = 0;
-    let startY = 0;
-    let initialLeft = 0;
-    let initialTop = 0;
-
-    const onPointerDown = (e) => {
-      if (e.target === btnCloseFacecam) return;
-      isDragging = true;
-      const rect = floatingFacecam.getBoundingClientRect();
-      initialLeft = rect.left;
-      initialTop = rect.top;
-      startX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
-      startY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
-
-      floatingFacecam.style.bottom = 'auto';
-      floatingFacecam.style.right = 'auto';
-      floatingFacecam.style.left = `${initialLeft}px`;
-      floatingFacecam.style.top = `${initialTop}px`;
-    };
-
-    const onPointerMove = (e) => {
-      if (!isDragging) return;
-      const currentX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
-      const currentY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
-      const dx = currentX - startX;
-      const dy = currentY - startY;
-
-      const newLeft = Math.max(10, Math.min(window.innerWidth - 240, initialLeft + dx));
-      const newTop = Math.max(10, Math.min(window.innerHeight - 160, initialTop + dy));
-
-      floatingFacecam.style.left = `${newLeft}px`;
-      floatingFacecam.style.top = `${newTop}px`;
-    };
-
-    const onPointerUp = () => {
-      isDragging = false;
-    };
-
-    floatingFacecam.addEventListener('mousedown', onPointerDown);
-    window.addEventListener('mousemove', onPointerMove);
-    window.addEventListener('mouseup', onPointerUp);
-
-    floatingFacecam.addEventListener('touchstart', onPointerDown, { passive: true });
-    window.addEventListener('touchmove', onPointerMove, { passive: true });
-    window.addEventListener('touchend', onPointerUp);
-  }
-
-  // VDO.ninja Screen Share Broadcaster
-  const btnBroadcastStream = document.getElementById('btn-broadcast-stream');
-  if (btnBroadcastStream) {
-    btnBroadcastStream.addEventListener('click', () => {
-      // Auto-start facecam jika belum aktif agar wajah dan layar menyatu
-      if (!facecamStream) {
-        startFacecam();
+    // 3. Kirim kedua stream ke MC Proyektor via PeerJS
+    if (posPeer) {
+      if (activeScreenStream) {
+        posPeer.call('hhkids26-proyektor-main', activeScreenStream, {
+          metadata: { pos: assignedPos, type: 'screen' }
+        });
       }
-      const pushUrl = `https://vdo.ninja/?push=hhkids26_pos${assignedPos}&screenshare&quality=1&label=Pos%20${assignedPos}&transparent=1`;
-      window.open(pushUrl, '_blank');
+      if (activeCamStream) {
+        posPeer.call('hhkids26-proyektor-main', activeCamStream, {
+          metadata: { pos: assignedPos, type: 'cam' }
+        });
+      }
+    }
+
+    if (btnBroadcastStream) {
       btnBroadcastStream.classList.add('streaming');
       btnBroadcastStream.innerHTML = `<span class="broadcast-icon">🟢</span><span class="broadcast-text">Siaran Aktif (Pos ${assignedPos})</span>`;
+    }
+
+    // Listener otomatis saat pengguna mengklik "Stop sharing" di Chrome
+    if (activeScreenStream) {
+      const track = activeScreenStream.getVideoTracks()[0];
+      if (track) {
+        track.onended = () => {
+          stopStreaming();
+        };
+      }
+    }
+  }
+
+  function stopStreaming() {
+    if (activeScreenStream) {
+      activeScreenStream.getTracks().forEach(t => t.stop());
+      activeScreenStream = null;
+    }
+    if (activeCamStream) {
+      activeCamStream.getTracks().forEach(t => t.stop());
+      activeCamStream = null;
+    }
+    if (btnBroadcastStream) {
+      btnBroadcastStream.classList.remove('streaming');
+      btnBroadcastStream.innerHTML = `<span class="broadcast-icon">📡</span><span class="broadcast-text">Siarkan ke Proyektor</span>`;
+    }
+  }
+
+  if (btnBroadcastStream) {
+    btnBroadcastStream.addEventListener('click', () => {
+      if (activeScreenStream) {
+        stopStreaming();
+      } else {
+        startStreamingToProyektor();
+      }
     });
   }
 
@@ -565,6 +541,23 @@ document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.requestFullscreen().catch(() => {});
       } else {
         document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    // Forward keyboard events (A, B, 1, 2, ArrowLeft, ArrowRight, Space, R) to Memory Arena frame
+    const memFrame = document.getElementById('memory-battle-frame');
+    if (memFrame && memFrame.contentWindow) {
+      memFrame.contentWindow.postMessage({ type: 'KEY_DOWN', key: e.key }, '*');
+    }
+  });
+
+  // Listen for challenge completion events from embedded frames
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'MEMORY_CHALLENGE_COMPLETE') {
+      if (btnSprintBell) {
+        btnSprintBell.scrollIntoView({ behavior: 'smooth' });
+        btnSprintBell.style.animation = 'bellPulse 0.8s infinite ease-in-out';
+        playBellChime();
       }
     }
   });

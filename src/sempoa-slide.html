@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mathchamps Sempoa Speed Calculation Arena - Office Olympics 2026</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Outfit:wght@400;600;700;800;900&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #070d19;
+      --bg-card: rgba(13, 35, 74, 0.75);
+      --bg-card-hover: rgba(17, 45, 94, 0.85);
+      --neon-cyan: #00f0ff;
+      --neon-gold: #ffd700;
+      --neon-green: #00ff9d;
+      --neon-red: #ff4757;
+      --neon-purple: #d946ef;
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --border-gold: rgba(255, 215, 0, 0.35);
+      --font-display: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-body: 'Space Grotesk', sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 20%, rgba(255, 215, 0, 0.08) 0%, #030712 90%);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    .arena-container {
+      width: 100%;
+      max-width: 640px;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 2px solid var(--border-gold);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: 0 0 35px rgba(255, 215, 0, 0.15), 0 20px 40px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+    }
+
+    /* Top HUD Header */
+    .arena-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 12px;
+    }
+
+    .arena-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(255, 215, 0, 0.15);
+      border: 1px solid var(--neon-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.25);
+    }
+
+    .brand-text h1 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: var(--neon-gold);
+      letter-spacing: 0.5px;
+      line-height: 1.15;
+    }
+
+    .brand-text p {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-action-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.15s ease;
+    }
+
+    .icon-action-btn:hover {
+      background: rgba(255, 215, 0, 0.15);
+      border-color: var(--neon-gold);
+      color: var(--neon-gold);
+    }
+
+    /* Question Navigator Pills (1 to 10) */
+    .pills-bar-wrapper {
+      background: rgba(3, 7, 18, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .pills-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .pills-header .active-badge {
+      color: var(--neon-gold);
+    }
+
+    .pills-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: thin;
+    }
+
+    .pill-btn {
+      flex: 0 0 auto;
+      min-width: 40px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.03);
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .pill-btn:hover {
+      border-color: var(--neon-gold);
+      color: var(--neon-gold);
+    }
+
+    .pill-btn.active {
+      background: var(--neon-gold);
+      border-color: var(--neon-gold);
+      color: #030712;
+      box-shadow: 0 0 16px rgba(255, 215, 0, 0.5);
+    }
+
+    .pill-btn.done-correct {
+      background: rgba(0, 255, 157, 0.15);
+      border-color: var(--neon-green);
+      color: var(--neon-green);
+    }
+
+    .pill-btn.done-wrong {
+      background: rgba(255, 71, 87, 0.15);
+      border-color: var(--neon-red);
+      color: var(--neon-red);
+    }
+
+    /* Screen Stage Box */
+    .screen-stage {
+      width: 100%;
+      height: 220px;
+      background: radial-gradient(circle at 50% 50%, rgba(13, 35, 74, 0.95) 0%, rgba(3, 7, 18, 0.98) 100%);
+      border: 2px solid rgba(255, 215, 0, 0.25);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .screen-stage.flash-active {
+      border-color: var(--neon-gold);
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), inset 0 0 20px rgba(255, 215, 0, 0.1);
+    }
+
+    .stage-status-badge {
+      position: absolute;
+      top: 12px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--neon-cyan);
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid var(--neon-cyan);
+      padding: 4px 14px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    .number-display-hero {
+      font-family: var(--font-display);
+      font-size: 5.6rem;
+      font-weight: 900;
+      color: var(--neon-gold);
+      text-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+      line-height: 1;
+      user-select: none;
+      transition: transform 0.05s ease;
+    }
+
+    .number-display-hero.negative {
+      color: var(--neon-red);
+      text-shadow: 0 0 25px rgba(255, 71, 87, 0.6);
+    }
+
+    .number-display-hero.countdown-pulse {
+      color: var(--neon-cyan);
+      font-size: 4.8rem;
+      text-shadow: 0 0 25px rgba(0, 240, 255, 0.7);
+      animation: popCountdown 0.7s infinite ease-out;
+    }
+
+    @keyframes popCountdown {
+      0% { transform: scale(0.9); opacity: 0.8; }
+      50% { transform: scale(1.12); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.9; }
+    }
+
+    .stage-bottom-hint {
+      position: absolute;
+      bottom: 10px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Controls Bar */
+    .controls-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .control-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-align: left;
+    }
+
+    .control-item label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .control-item select {
+      background: rgba(3, 7, 18, 0.8);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .control-item select:focus {
+      border-color: var(--neon-gold);
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    }
+
+    /* Action Buttons */
+    .btn-action-primary {
+      width: 100%;
+      padding: 15px 24px;
+      background: linear-gradient(135deg, #ffd700 0%, #ff8800 100%);
+      border: 2px solid #ffffff;
+      border-radius: var(--radius-md);
+      color: #030712;
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-action-primary:active {
+      transform: scale(0.98);
+    }
+
+    /* KEYBOARD-ONLY ANSWER INPUT SECTION (Tanpa Numpad Virtual) */
+    .answer-section {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .answer-label {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--neon-cyan);
+    }
+
+    .answer-input-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .answer-keyboard-input {
+      width: 100%;
+      padding: 16px 20px;
+      background: rgba(3, 7, 18, 0.9);
+      border: 2px solid var(--neon-cyan);
+      border-radius: var(--radius-md);
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: #ffffff;
+      outline: none;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+      transition: all 0.15s;
+    }
+
+    .answer-keyboard-input:focus {
+      border-color: var(--neon-gold);
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+    }
+
+    .keyboard-hint-pill {
+      margin-top: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .keyboard-hint-pill kbd {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: var(--neon-gold);
+    }
+
+    .btn-submit-answer {
+      width: 100%;
+      padding: 14px 20px;
+      background: var(--neon-cyan);
+      border: none;
+      border-radius: var(--radius-md);
+      color: #030712;
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+      transition: all 0.15s;
+    }
+
+    .btn-submit-answer:hover {
+      background: #38bdf8;
+    }
+
+    /* Feedback Box */
+    .feedback-banner {
+      width: 100%;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      font-family: var(--font-body);
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .feedback-banner.correct {
+      background: rgba(0, 255, 157, 0.12);
+      border: 2px solid var(--neon-green);
+      color: var(--neon-green);
+      box-shadow: 0 0 25px rgba(0, 255, 157, 0.25);
+    }
+
+    .feedback-banner.wrong {
+      background: rgba(255, 71, 87, 0.12);
+      border: 2px solid var(--neon-red);
+      color: var(--neon-red);
+      box-shadow: 0 0 25px rgba(255, 71, 87, 0.25);
+    }
+
+    .feedback-title-text {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 900;
+    }
+
+    .feedback-calc-breakdown {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: #ffffff;
+      word-break: break-word;
+    }
+
+    .feedback-actions-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .btn-action-secondary {
+      flex: 1;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-action-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .btn-action-next {
+      flex: 1.3;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--neon-green) 0%, #059669 100%);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #030712;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(0, 255, 157, 0.4);
+    }
+
+    /* Bottom Info Status */
+    .arena-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 12px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .score-glow {
+      color: var(--neon-gold);
+      font-weight: 800;
+    }
+
+    /* Modal Edit 10 Soal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 7, 18, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 200;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 520px;
+      max-height: 85vh;
+      background: #0d1e38;
+      border: 2px solid var(--neon-gold);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-head {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-head h3 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      color: var(--neon-gold);
+    }
+
+    .modal-body-content {
+      padding: 16px 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .edit-soal-card {
+      background: rgba(3, 7, 18, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .edit-soal-label {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .edit-soal-input {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--border-subtle);
+      color: #ffffff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .edit-soal-input:focus {
+      border-color: var(--neon-gold);
+    }
+
+    .modal-foot {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      gap: 10px;
+      background: rgba(3, 7, 18, 0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="arena-container">
+    <!-- Top HUD Header -->
+    <div class="arena-header">
+      <div class="arena-brand">
+        <div class="brand-icon-box">🧮</div>
+        <div class="brand-text">
+          <h1>MATHCHAMPS SEMPOA</h1>
+          <p>OFFICE OLYMPICS • SPEED CALCULATION</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btnSoundToggle" class="icon-action-btn" title="Nyalakan/Matikan Audio" onclick="toggleSound()">🔊</button>
+        <button id="btnEditQuestions" class="icon-action-btn" title="Kustomisasi 10 Soal" onclick="openEditModal()">⚙️</button>
+      </div>
+    </div>
+
+    <!-- Question Navigator Pills (Soal 1 s/d 10) -->
+    <div class="pills-bar-wrapper">
+      <div class="pills-header">
+        <span>NAVIGASI 10 SOAL MEJA</span>
+        <span id="soalProgressTag" class="active-badge">Soal 1 dari 10</span>
+      </div>
+      <div class="pills-scroll" id="pillsScroll">
+        <!-- Generated via JS -->
+      </div>
+    </div>
+
+    <!-- Screen Stage Box -->
+    <div id="screenStage" class="screen-stage">
+      <div id="stageStatusBadge" class="stage-status-badge">STANDBY • SIAP BERHITUNG</div>
+      <div id="numberDisplayHero" class="number-display-hero">READY</div>
+      <div id="stageBottomHint" class="stage-bottom-hint">Tatap layar dan bersiap saat hitungan dimulai</div>
+    </div>
+
+    <!-- Controls Bar -->
+    <div id="controlsBar" class="controls-bar">
+      <div class="control-item">
+        <label>KECEPATAN TAYANG</label>
+        <select id="speedLevelSelect">
+          <option value="2000" selected>2.0 Detik per Angka (Default)</option>
+          <option value="1500">1.5 Detik (Sedang)</option>
+          <option value="1000">1.0 Detik (Cepat)</option>
+          <option value="700">0.7 Detik (Tantangan)</option>
+          <option value="400">0.4 Detik (Extreme)</option>
+        </select>
+      </div>
+      <div class="control-item">
+        <label>MODE SOAL</label>
+        <select id="modeSelect" onchange="onModeChange()">
+          <option value="preset" selected>10 Soal Resmi (Preset)</option>
+          <option value="random">Acak Otomatis (Generator)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Main Start Button -->
+    <button id="btnStartGame" class="btn-action-primary" onclick="startGame()">
+      <span>▶</span> MULAI HITUNG SOAL <span id="btnStartNum">1</span> (SPASI)
+    </button>
+
+    <!-- KEYBOARD-ONLY ANSWER INPUT (Tanpa Numpad Layar) -->
+    <div id="answerSection" class="answer-section">
+      <div class="answer-label">
+        ⌨️ KETIK HASIL AKHIR DI KEYBOARD:
+      </div>
+      <div class="answer-input-wrapper">
+        <input 
+          type="number" 
+          id="keyboardAnswerInput" 
+          class="answer-keyboard-input" 
+          placeholder="Ketik angka..." 
+          autocomplete="off" 
+        />
+      </div>
+      <div class="keyboard-hint-pill">
+        Tekan <kbd>ENTER</kbd> pada keyboard fisik laptop untuk cek jawaban secara instan!
+      </div>
+      <button id="btnCheckAnswer" class="btn-submit-answer" onclick="checkAnswer()">
+        <span>✓</span> PERIKSA JAWABAN (ENTER)
+      </button>
+
+      <!-- Feedback Banner -->
+      <div id="feedbackBanner" class="feedback-banner">
+        <div id="feedbackTitleText" class="feedback-title-text"></div>
+        <div id="feedbackDetailText" style="font-size: 0.95rem; font-weight: 700;"></div>
+        <div id="feedbackCalcBreakdown" class="feedback-calc-breakdown"></div>
+
+        <div class="feedback-actions-row">
+          <button class="btn-action-secondary" onclick="retryCurrentQuestion()">
+            ↺ Ulangi Soal Ini
+          </button>
+          <button id="btnNextQuestion" class="btn-action-next" onclick="goToNextQuestion()">
+            Soal Berikutnya ➔ (Enter)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Arena Footer -->
+    <div class="arena-footer">
+      <span>Babak 2: Mathchamps</span>
+      <span>Akumulasi: <span id="scoreDisplay" class="score-glow">0 / 10 Selesai</span></span>
+      <span id="soundStatusText">🔊 Audio ON</span>
+    </div>
+  </div>
+
+  <!-- Modal Edit 10 Soal -->
+  <div id="editModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>⚙️ Kustomisasi Deret 10 Soal</h3>
+        <button class="icon-action-btn" onclick="closeEditModal()">✕</button>
+      </div>
+      <div class="modal-body-content">
+        <p style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;">
+          Pisahkan angka dengan koma (contoh: <code>38, 47, -19, 52</code>). Tanda minus (<code>-</code>) otomatis dihitung sebagai pengurangan.
+        </p>
+        <div id="modalInputsContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-action-secondary" onclick="resetDefaultQuestions()">Reset Default</button>
+        <button class="btn-action-primary" style="font-size: 0.95rem; padding: 10px 18px;" onclick="saveCustomQuestions()">Simpan Perubahan</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========================================================================
+    // 1. DATA 10 SOAL RESMI SEMPOA
+    // ========================================================================
+    const DEFAULT_QUESTIONS = [
+      { id: 1, numbers: [4, 5, -2, 1, -3], label: "Soal 1" },
+      { id: 2, numbers: [7, -5, 6, -3, 4], label: "Soal 2" },
+      { id: 3, numbers: [12, 5, -6, 8, -4], label: "Soal 3" },
+      { id: 4, numbers: [25, 14, -18, 30, -11], label: "Soal 4" },
+      { id: 5, numbers: [38, 47, -19, 52, -28], label: "Soal 5" },
+      { id: 6, numbers: [15, 23, 41, -27, 16, -18], label: "Soal 6" },
+      { id: 7, numbers: [42, -15, 33, -20, 18, 22], label: "Soal 7" },
+      { id: 8, numbers: [50, -25, 14, 31, -40, 22, -12], label: "Soal 8" },
+      { id: 9, numbers: [64, -32, 18, 25, -45, 30, -10], label: "Soal 9" },
+      { id: 10, numbers: [35, 24, -19, 42, -31, 18, 25, -14], label: "Soal 10" }
+    ];
+
+    let questions = [];
+    let currentQuestionIndex = 0;
+    let questionResults = {};
+    let currentActiveNumbers = [];
+    let isPlaying = false;
+    let isWaitingAnswer = false;
+    let isFeedbackShown = false;
+    let soundEnabled = true;
+
+    function initQuestions() {
+      const saved = localStorage.getItem('sempoa_custom_10_soal');
+      if (saved) {
+        try {
+          questions = JSON.parse(saved);
+        } catch (e) {
+          questions = JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
+        }
+      } else {
+        questions = JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
+      }
+    }
+
+    // ========================================================================
+    // 2. AUDIO SYNTH (WEB AUDIO API)
+    // ========================================================================
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playTone(freq, type = 'sine', duration = 0.15, gainVal = 0.25) {
+      if (!soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+        gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playCountdownBeep(isFinal = false) {
+      if (!soundEnabled) return;
+      if (isFinal) {
+        playTone(880, 'triangle', 0.15, 0.35);
+        setTimeout(() => playTone(1320, 'triangle', 0.3, 0.4), 100);
+      } else {
+        playTone(440, 'sine', 0.12, 0.3);
+      }
+    }
+
+    function playNumberTick() {
+      if (!soundEnabled) return;
+      playTone(550, 'triangle', 0.08, 0.15);
+    }
+
+    function playCorrectChime() {
+      if (!soundEnabled) return;
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C-E-G-C major
+      notes.forEach((f, idx) => {
+        setTimeout(() => playTone(f, 'sine', 0.3, 0.3), idx * 80);
+      });
+    }
+
+    function playWrongBuzz() {
+      if (!soundEnabled) return;
+      playTone(200, 'sawtooth', 0.25, 0.25);
+      setTimeout(() => playTone(160, 'sawtooth', 0.3, 0.25), 100);
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('btnSoundToggle').textContent = soundEnabled ? '🔊' : '🔇';
+      document.getElementById('soundStatusText').textContent = soundEnabled ? '🔊 Audio ON' : '🔇 Audio OFF';
+      if (soundEnabled) playTone(600, 'sine', 0.1);
+    }
+
+    // ========================================================================
+    // 3. UI RENDERING & PILLS
+    // ========================================================================
+    const screenStage = document.getElementById('screenStage');
+    const stageStatusBadge = document.getElementById('stageStatusBadge');
+    const numberDisplayHero = document.getElementById('numberDisplayHero');
+    const stageBottomHint = document.getElementById('stageBottomHint');
+    const pillsScroll = document.getElementById('pillsScroll');
+    const soalProgressTag = document.getElementById('soalProgressTag');
+    const btnStartNum = document.getElementById('btnStartNum');
+    const btnStartGame = document.getElementById('btnStartGame');
+    const controlsBar = document.getElementById('controlsBar');
+    const speedLevelSelect = document.getElementById('speedLevelSelect');
+    const modeSelect = document.getElementById('modeSelect');
+
+    const answerSection = document.getElementById('answerSection');
+    const keyboardAnswerInput = document.getElementById('keyboardAnswerInput');
+    const btnCheckAnswer = document.getElementById('btnCheckAnswer');
+    const feedbackBanner = document.getElementById('feedbackBanner');
+    const feedbackTitleText = document.getElementById('feedbackTitleText');
+    const feedbackDetailText = document.getElementById('feedbackDetailText');
+    const feedbackCalcBreakdown = document.getElementById('feedbackCalcBreakdown');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+
+    function renderQuestionPills() {
+      pillsScroll.innerHTML = '';
+      questions.forEach((q, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'pill-btn';
+        if (idx === currentQuestionIndex) {
+          btn.classList.add('active');
+        }
+        if (questionResults[idx] === true) {
+          btn.classList.add('done-correct');
+          btn.innerHTML = `✓${idx + 1}`;
+        } else if (questionResults[idx] === false) {
+          btn.classList.add('done-wrong');
+          btn.innerHTML = `✕${idx + 1}`;
+        } else {
+          btn.textContent = `${idx + 1}`;
+        }
+
+        btn.onclick = () => selectQuestion(idx);
+        pillsScroll.appendChild(btn);
+      });
+
+      soalProgressTag.textContent = `Soal ${currentQuestionIndex + 1} dari ${questions.length}`;
+      btnStartNum.textContent = `${currentQuestionIndex + 1}`;
+      updateScoreSummary();
+    }
+
+    function selectQuestion(idx) {
+      if (isPlaying) return;
+      currentQuestionIndex = idx;
+      renderQuestionPills();
+      resetToStandby();
+    }
+
+    function updateScoreSummary() {
+      const correct = Object.values(questionResults).filter(v => v === true).length;
+      scoreDisplay.textContent = `${correct} / ${questions.length} Benar`;
+    }
+
+    function onModeChange() {
+      // Preset vs random
+    }
+
+    function sleep(ms) {
+      return new Promise(r => setTimeout(r, ms));
+    }
+
+    // ========================================================================
+    // 4. GAME FLOW (START -> COUNTDOWN -> ROLLING NUMBERS -> KEYBOARD ANSWER)
+    // ========================================================================
+    async function startGame() {
+      if (isPlaying) return;
+      isPlaying = true;
+      isWaitingAnswer = false;
+      isFeedbackShown = false;
+
+      // Ambil kecepatan (Default 2.0s = 2000ms)
+      const totalSpeedMs = parseInt(speedLevelSelect.value, 10) || 2000;
+      const visibleMs = Math.round(totalSpeedMs * 0.82);
+      const blankMs = Math.max(70, totalSpeedMs - visibleMs);
+
+      // Siapkan angka
+      if (modeSelect.value === 'random') {
+        currentActiveNumbers = generateRandomSequence(5, 2);
+      } else {
+        const curQ = questions[currentQuestionIndex] || questions[0];
+        currentActiveNumbers = [...curQ.numbers];
+      }
+
+      // Hide Controls & Answer UI
+      btnStartGame.style.display = 'none';
+      controlsBar.style.display = 'none';
+      answerSection.style.display = 'none';
+      feedbackBanner.style.display = 'none';
+      keyboardAnswerInput.value = '';
+      screenStage.classList.add('flash-active');
+
+      // Countdown 3, 2, 1, GO!
+      stageStatusBadge.innerText = 'BERSIAP...';
+      stageBottomHint.innerText = 'Pusatkan pandangan ke angka!';
+      for (let c = 3; c >= 1; c--) {
+        numberDisplayHero.className = 'number-display-hero countdown-pulse';
+        numberDisplayHero.innerText = c;
+        playCountdownBeep(false);
+        await sleep(700);
+      }
+
+      numberDisplayHero.className = 'number-display-hero countdown-pulse';
+      numberDisplayHero.innerText = 'GO!';
+      playCountdownBeep(true);
+      await sleep(400);
+
+      // Putar Angka Satu per Satu
+      const totalRows = currentActiveNumbers.length;
+      for (let i = 0; i < totalRows; i++) {
+        const num = currentActiveNumbers[i];
+        stageStatusBadge.innerText = `BARIS ${i + 1} DARI ${totalRows}`;
+        stageBottomHint.innerText = `Soal ${currentQuestionIndex + 1} • Kecepatan ${(totalSpeedMs / 1000).toFixed(1)}s`;
+
+        numberDisplayHero.className = 'number-display-hero' + (num < 0 ? ' negative' : '');
+        numberDisplayHero.innerText = num;
+        playNumberTick();
+
+        await sleep(visibleMs);
+
+        // Blank flash antar angka
+        if (i < totalRows - 1) {
+          numberDisplayHero.innerText = '';
+          await sleep(blankMs);
+        }
+      }
+
+      // Waktunya Menjawab via KEYBOARD
+      screenStage.classList.remove('flash-active');
+      stageStatusBadge.innerText = 'WAKTUNYA MENJAWAB!';
+      stageBottomHint.innerText = 'Ketik di keyboard lalu tekan ENTER';
+      numberDisplayHero.className = 'number-display-hero';
+      numberDisplayHero.innerText = '?';
+
+      answerSection.style.display = 'flex';
+      btnCheckAnswer.style.display = 'block';
+      keyboardAnswerInput.focus();
+      isPlaying = false;
+      isWaitingAnswer = true;
+    }
+
+    function generateRandomSequence(rows, digits) {
+      const arr = [];
+      let sum = 0;
+      const min = digits === 1 ? 1 : Math.pow(10, digits - 1);
+      const max = Math.pow(10, digits) - 1;
+      for (let i = 0; i < rows; i++) {
+        let v = Math.floor(Math.random() * (max - min + 1)) + min;
+        if (i > 0 && Math.random() > 0.45 && (sum - v) >= 0) {
+          v = -v;
+        }
+        sum += v;
+        arr.push(v);
+      }
+      return arr;
+    }
+
+    // ========================================================================
+    // 5. KEYBOARD INPUT & CHECK
+    // ========================================================================
+    keyboardAnswerInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (isWaitingAnswer && !isFeedbackShown) {
+          checkAnswer();
+        }
+      }
+    });
+
+    // Global Key Listener for Space (Start) and Enter (Next)
+    window.addEventListener('keydown', (e) => {
+      // Space to start when standby
+      if (e.code === 'Space' && !isPlaying && !isWaitingAnswer && document.activeElement !== keyboardAnswerInput) {
+        e.preventDefault();
+        startGame();
+      }
+      // Enter to go to next question if feedback is shown
+      if (e.key === 'Enter' && isFeedbackShown) {
+        e.preventDefault();
+        goToNextQuestion();
+      }
+    });
+
+    function checkAnswer() {
+      const raw = keyboardAnswerInput.value.trim();
+      if (raw === '') {
+        keyboardAnswerInput.focus();
+        return;
+      }
+
+      const playerAns = parseInt(raw, 10);
+      const correctAns = currentActiveNumbers.reduce((a, b) => a + b, 0);
+      const isCorrect = (playerAns === correctAns);
+
+      if (modeSelect.value === 'preset') {
+        questionResults[currentQuestionIndex] = isCorrect;
+        renderQuestionPills();
+      }
+
+      isFeedbackShown = true;
+      feedbackBanner.style.display = 'flex';
+      btnCheckAnswer.style.display = 'none';
+
+      if (isCorrect) {
+        playCorrectChime();
+        feedbackBanner.className = 'feedback-banner correct';
+        feedbackTitleText.innerHTML = '🎉 BENAR SEKALI! MANTAP!';
+        feedbackDetailText.innerHTML = `Hasil Perhitungan: <strong>${correctAns}</strong>`;
+      } else {
+        playWrongBuzz();
+        feedbackBanner.className = 'feedback-banner wrong';
+        feedbackTitleText.innerHTML = '❌ YAH, BELUM TEPAT!';
+        feedbackDetailText.innerHTML = `Jawabanmu: <strong>${playerAns}</strong> | Kunci: <strong>${correctAns}</strong>`;
+      }
+
+      const formula = currentActiveNumbers.map((n, idx) => {
+        if (idx === 0) return `${n}`;
+        return n >= 0 ? `+ ${n}` : `- ${Math.abs(n)}`;
+      }).join(' ');
+
+      feedbackCalcBreakdown.innerHTML = `📐 Rincian: ${formula} = <strong>${correctAns}</strong>`;
+    }
+
+    function retryCurrentQuestion() {
+      resetToStandby();
+      startGame();
+    }
+
+    function goToNextQuestion() {
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+      } else {
+        currentQuestionIndex = 0;
+      }
+      renderQuestionPills();
+      resetToStandby();
+      startGame();
+    }
+
+    function resetToStandby() {
+      isPlaying = false;
+      isWaitingAnswer = false;
+      isFeedbackShown = false;
+      answerSection.style.display = 'none';
+      feedbackBanner.style.display = 'none';
+      controlsBar.style.display = 'grid';
+      btnStartGame.style.display = 'flex';
+      stageStatusBadge.innerText = 'STANDBY • SIAP BERHITUNG';
+      stageBottomHint.innerText = 'Tekan tombol Mulai (atau Spasi) untuk mulai';
+      numberDisplayHero.className = 'number-display-hero';
+      numberDisplayHero.innerText = 'READY';
+      btnStartNum.textContent = `${currentQuestionIndex + 1}`;
+    }
+
+    // ========================================================================
+    // 6. MODAL EDIT SOAL KUSTOM
+    // ========================================================================
+    const editModal = document.getElementById('editModal');
+    const modalInputsContainer = document.getElementById('modalInputsContainer');
+
+    function openEditModal() {
+      renderModalInputs();
+      editModal.classList.add('active');
+    }
+
+    function closeEditModal() {
+      editModal.classList.remove('active');
+    }
+
+    function renderModalInputs() {
+      modalInputsContainer.innerHTML = '';
+      questions.forEach((q, idx) => {
+        const sum = q.numbers.reduce((a, b) => a + b, 0);
+        const card = document.createElement('div');
+        card.className = 'edit-soal-card';
+        card.innerHTML = `
+          <div class="edit-soal-label">
+            <span>SOAL #${idx + 1} (${q.numbers.length} Baris)</span>
+            <span style="color: var(--neon-gold); font-weight: 800;">Kunci = ${sum}</span>
+          </div>
+          <input type="text" class="edit-soal-input" id="edit_input_${idx}" value="${q.numbers.join(', ')}" />
+        `;
+        modalInputsContainer.appendChild(card);
+      });
+    }
+
+    function saveCustomQuestions() {
+      const updated = [];
+      for (let i = 0; i < questions.length; i++) {
+        const el = document.getElementById(`edit_input_${i}`);
+        if (!el) continue;
+        const nums = el.value.trim().split(/[\s,]+/).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
+        if (nums.length === 0) {
+          alert(`Soal #${i + 1} tidak boleh kosong!`);
+          return;
+        }
+        updated.push({
+          id: i + 1,
+          numbers: nums,
+          label: `Soal ${i + 1}`
+        });
+      }
+
+      questions = updated;
+      localStorage.setItem('sempoa_custom_10_soal', JSON.stringify(questions));
+      closeEditModal();
+      renderQuestionPills();
+      resetToStandby();
+    }
+
+    function resetDefaultQuestions() {
+      if (confirm('Kembalikan semua 10 soal ke default?')) {
+        questions = JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
+        localStorage.removeItem('sempoa_custom_10_soal');
+        renderModalInputs();
+        renderQuestionPills();
+        resetToStandby();
+      }
+    }
+
+    editModal.addEventListener('click', (e) => {
+      if (e.target === editModal) closeEditModal();
+    });
+
+    // Check URL autostart param
+    window.addEventListener('DOMContentLoaded', () => {
+      initQuestions();
+      renderQuestionPills();
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('autostart') === '1') {
+        setTimeout(startGame, 500);
+      }
+    });
+  </script>
+</body>
+</html>
