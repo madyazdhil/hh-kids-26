@@ -1,27 +1,35 @@
-# Canvas: Regroup Happy Hour Interactive Web Deck
+# Canvas: Regroup Happy Hour Interactive Web Deck & Admin Station
 
-- **Aplikasi Web Deck:** [`src/index.html`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/src/index.html)
-- **Gaya Desain (Navy & Black Glassmorphism):** [`src/style.css`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/src/style.css)
-- **Logic & Slide Engine (Three.js WebGL, Web Audio Synth, Timers):** [`src/app.js`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/src/app.js)
-- **One-Click Launch Script:** [`start.sh`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/start.sh) (run `./start.sh` to serve on port 8765 & open in browser)
-- **Testing & Automated Screen Capture:** [`scripts/verify_deck.py`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/scripts/verify_deck.py)
-- **Dokumentasi Rundown & Panduan MC/Operator:** [`docs/rundown-and-guide.md`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/docs/rundown-and-guide.md)
+- **Aplikasi Web Deck (Proyektor):** [`src/index.html`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/src/index.html)
+- **Admin Station & Remote Control (Operator):** [`src/admin.html`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/src/admin.html)
+- **Styling Deck:** [`src/style.css`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/src/style.css) & [`src/admin.css`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/src/admin.css)
+- **Logic & Remote Sync:** [`src/app.js`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/src/app.js) & [`src/admin.js`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/src/admin.js)
+- **One-Click Launch Script:** [`start.sh`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/start.sh) (run `./start.sh` to serve on port 8765)
+- **Automated Verification Script:** [`scripts/verify_22_slides_and_admin.py`](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/scripts/verify_22_slides_and_admin.py)
+- **GitHub Repository:** [madyazdhil/hh-kids-26](https://github.com/madyazdhil/hh-kids-26)
 - **Google Docs Live Sync:** [Notes - Regroup Happy Hour (Tab 2)](https://docs.google.com/document/d/1F78ZeIbbctTQxr5XO6hzp6G1t3FGO11CH_2Zf-uoZYI/edit?tab=t.5zp149vq0h6p)
 
-## Daftar Slide (16 Segmen Interaktif)
-1. **Pre-Show Lounge:** BGM player sandbox YouTube (Lofi, Upbeat, Jazz) + drop kado reminder.
-2. **Hero Welcoming:** Neon Navy & Black theme, dresscode badge, ringkasan 4 misi sore.
-3. **Cari Instruktur Senam:** Game Batu-Gunting-Kertas Terbalik lawan Yazid + Drumroll.
+## Struktur 22 Atomic Slides (Zero Spoiler & Pure Bumper Titles)
+
+1. **Pre-Show Lounge:** BGM player sandbox YouTube (Lofi, Upbeat, Jazz) + drop box reminder.
+2. **Welcome Screen:** Pure visual title, dresscode badge, clean welcoming (tanpa spoiler Office Olympic).
+3. **Cari Korban Senam:** Game Batu-Gunting-Kertas Terbalik lawan MC Yazid.
 4. **Senam Arcade MR.MINIRA:** Embedded YouTube player + HUD action buttons (Dodge, Jump, Duck, Punch).
-5. **Office Olympics Opening:** Olympic Rings glowing, Rules Bel Kak Balqis (+5 / +4 poin).
-6. **Timer Pos Inspection:** Countdown timer 1:00 (presets 1m/2m/3m, audio tick & buzzer).
-7. **Timer Group Strategizing:** Countdown timer 2:00 (checklist 4 perwakilan role).
-8. **Challenge 1 Kalananti:** Scratch Code Debugging (3-step progressive reveal).
-9. **Challenge 2 Mathchamps:** Speed Math Sempoa (3-step progressive reveal).
-10. **Challenge 3 Memory Academy:** Visual Memory Flash 3 detik (3-step progressive reveal).
-11. **Challenge 4 Spreadsheet (Special):** Formula Error Fixer #REF! (3-step progressive reveal).
-12. **Sesi Santuy (Bongkar Kedok):** Early dinner & Guardian Angel stealth reveal + SFX misteri.
-13. **Grand Awarding Stage:** 4 trofi & kartu juara (Olympic, Costume, Lunch, Most Entertaining) + photo slot & confetti.
-14. **Doorprize Nyeleneh Lottery:** Roda undian nomor acak (sendal jepit, tolak angin, cabai rawit, beng-beng, dll).
-15. **Speech Khidmat Bu Deina:** Pose duduk tegak, hening & khidmat untuk Queen Aldeina.
-16. **Closing & Foto Bersama:** Grand celebration confetti explosion & ucapan terima kasih.
+5. **Bumper Post-Senam:** Cooling Down title backdrop saat MC berbicara.
+6. **Title Splash Office Olympics:** Cincin neon glowing + judul Office Olympics (tanpa rules).
+7. **Briefing 4 Pos Laptop:** Penjelasan scouting ketua kelompok di meja tengah (mandiri, no shouting).
+8. **Timer 1 Menit Scouting:** Countdown timer inspeksi pos laptop.
+9. **Bumper Selesai Scouting:** Waktu inspeksi selesai (backdrop bersih untuk MC).
+10. **Briefing Rules & Bel Kak Balqis:** Penjelasan poin (+5 / +4 pt), lari kejar Kak Balqis, dan penugasan tim.
+11. **Timer 2 Menit Rapat Tim:** Countdown timer strategi kelompok.
+12. **Bumper Ready to Battle:** Clean title splash sebelum pertandingan dimulai.
+13. **Challenge 1 Kalananti:** Scratch Code Debugging (3-step progressive reveal).
+14. **Challenge 2 Mathchamps:** Speed Math Sempoa (3-step progressive reveal).
+15. **Challenge 3 Memory Academy:** Visual Memory Flash (3-step progressive reveal).
+16. **Challenge 4 Spreadsheet (Special):** Formula Error Fixer #REF! (3-step progressive reveal).
+17. **Bumper Sesi Santuy:** Kenyang Sore, Bongkar Kedok.
+18. **Tebak Guardian Angel:** Sesi buka kado putih dan tebak identitas angel.
+19. **Grand Awarding Stage:** Penobatan juara (Olympic ranking dari Admin, Best Costume, Most Entertaining, Lunch Challenge: Aulia & Nurul).
+20. **Doorprize Nyeleneh Lottery:** Roda undian nomor acak hadiah unik.
+21. **Speech Khidmat Queen Aldeina:** Sikap duduk tegak dan hening.
+22. **Closing & Foto Bersama:** Grand celebration confetti explosion.

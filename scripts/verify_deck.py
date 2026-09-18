@@ -1,99 +1,118 @@
 import os
 import sys
 import time
+import shutil
 from playwright.sync_api import sync_playwright
 
 def run():
-    html_path = os.path.abspath("src/index.html")
     output_dir = os.path.abspath("output")
-    artifact_dir = "/Users/yazidhilmi/.gemini/antigravity-ide/brain/5b20cf98-4ce7-4c6b-98fd-195b37f5210d"
+    artifact_dir = "/Users/yazidhilmi/.gemini/antigravity-ide/brain/f1a9fd39-f7c3-4a76-81af-14ae9dba4dd5"
     os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(artifact_dir, exist_ok=True)
 
+    port = 8765
     console_errors = []
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        # 16:9 widescreen presentation display
+        # Same context so BroadcastChannel and localStorage are shared across tabs
         context = browser.new_context(viewport={'width': 1440, 'height': 900})
-        page = context.new_page()
+        page_deck = context.new_page()
+        page_admin = context.new_page()
 
-        page.on("console", lambda msg: console_errors.append(msg.text) if msg.type == "error" else None)
-        page.on("pageerror", lambda err: console_errors.append(str(err)))
+        page_deck.on("console", lambda msg: console_errors.append(f"[Deck] {msg.text}") if msg.type == "error" else None)
+        page_deck.on("pageerror", lambda err: console_errors.append(f"[Deck Error] {err}"))
+        page_admin.on("console", lambda msg: console_errors.append(f"[Admin] {msg.text}") if msg.type == "error" else None)
+        page_admin.on("pageerror", lambda err: console_errors.append(f"[Admin Error] {err}"))
+        # Auto-accept any browser alerts from admin panel
+        page_admin.on("dialog", lambda dialog: dialog.accept())
 
-        print(f"Loading deck from: file://{html_path}")
-        page.goto(f"file://{html_path}")
-        page.wait_for_load_state("networkidle")
+        print("1. Loading Presentation Deck...")
+        page_deck.goto(f"http://localhost:{port}/index.html")
+        page_deck.wait_for_load_state("networkidle")
+
+        print("2. Loading Admin Control Center...")
+        page_admin.goto(f"http://localhost:{port}/admin.html")
+        page_admin.wait_for_load_state("networkidle")
         time.sleep(1)
 
-        # 1. Capture Slide 1 (Pre-show)
-        s1_path = os.path.join(output_dir, "slide_01_preshow.png")
-        page.screenshot(path=s1_path)
-        print("Captured Slide 1")
+        # ----------------------------------------------------------------------
+        # TEST 1: REMOTE SLIDE CONTROL (Admin -> Deck)
+        # ----------------------------------------------------------------------
+        print("\n--- Test 1: Remote Slide Navigation ---")
+        page_admin.click("#remote-btn-next")
+        time.sleep(0.8)
 
-        # 2. Advance to Slide 2 (Hero Welcoming)
-        page.keyboard.press("ArrowRight")
-        time.sleep(0.6)
-        s2_path = os.path.join(output_dir, "slide_02_hero.png")
-        page.screenshot(path=s2_path)
-        print("Captured Slide 2")
+        # Verify Deck moved to Slide 2
+        slide2_active = page_deck.locator("#slide-2").evaluate("el => el.classList.contains('active')")
+        print(f"Deck Slide 2 Active: {slide2_active}")
+        assert slide2_active, "Deck did not advance to Slide 2 via Admin Next button"
 
-        # 3. Jump to Slide 5 (Office Olympic Opening)
-        page.select_option("#slide-select", "4") # index 4 is slide 5
-        time.sleep(0.6)
-        s5_path = os.path.join(output_dir, "slide_05_olympics.png")
-        page.screenshot(path=s5_path)
-        print("Captured Slide 5")
+        # Capture Admin Remote Dashboard
+        admin_remote_path = os.path.join(output_dir, "admin_tab_remote.png")
+        page_admin.screenshot(path=admin_remote_path)
+        print("Captured admin_tab_remote.png")
 
-        # 4. Jump to Slide 6 (Timer: Ketua Kelompok Mencari)
-        page.select_option("#slide-select", "5") # index 5 is slide 6
+        # ----------------------------------------------------------------------
+        # TEST 2: OFFICE OLYMPIC SCORING (Wrong Try -> 4 Pts -> Leaderboard)
+        # ----------------------------------------------------------------------
+        print("\n--- Test 2: Office Olympic Scorer ---")
+        # In Kelompok 1, click Salah (fail_1)
+        print("Clicking Salah for Kelompok 1...")
+        page_admin.click("#teams-table-body tr:first-child .btn-attempt-fail")
         time.sleep(0.5)
-        # Start timer with hotkey 'T'
-        page.keyboard.press("t")
+
+        # Click +4 (2nd) for Kelompok 1
+        page_admin.click("#teams-table-body tr:first-child .btn-attempt-4")
+        time.sleep(0.5)
+
+        # In Kelompok 2, click +5 (1st)
+        page_admin.click("#teams-table-body tr:nth-child(2) .btn-attempt-5")
+        time.sleep(0.5)
+
+        # Click Sync Olympic Winner to Deck
+        page_admin.click("#btn-sync-olympic-winner")
+        time.sleep(0.8)
+
+        # Capture Admin Olympic Scorer
+        admin_olympic_path = os.path.join(output_dir, "admin_tab_olympic.png")
+        page_admin.screenshot(path=admin_olympic_path)
+        print("Captured admin_tab_olympic.png")
+
+        # ----------------------------------------------------------------------
+        # TEST 3: GRAND AWARDING & PHOTO SYNC (Aulia & Nurul prefilled)
+        # ----------------------------------------------------------------------
+        print("\n--- Test 3: Grand Awarding & Winner Dispatch ---")
+        lunch_val = page_admin.input_value("#admin-input-lunch")
+        print(f"Lunch Challenge Winner Input: {lunch_val}")
+        assert "Aulia" in lunch_val and "Nurul" in lunch_val, "Lunch challenge not prefilled with Aulia & Nurul"
+
+        # Click send lunch button
+        print("Dispatching Aulia & Nurul to presentation deck...")
+        page_admin.click("#btn-send-lunch")
         time.sleep(1.2)
-        s6_path = os.path.join(output_dir, "slide_06_timer.png")
-        page.screenshot(path=s6_path)
-        print("Captured Slide 6 (Timer running)")
 
-        # 5. Jump to Slide 8 (Challenge 1: Scratch) & test progressive reveal
-        page.select_option("#slide-select", "7") # index 7 is slide 8
-        time.sleep(0.5)
-        # First step active by default, press Space to reveal Bell kak balqis alert
-        page.keyboard.press("Space")
-        time.sleep(0.5)
-        s8_step2_path = os.path.join(output_dir, "slide_08_scratch_step2.png")
-        page.screenshot(path=s8_step2_path)
-        print("Captured Slide 8 Step 2")
+        # Verify Deck is now on Slide 19 (Awarding) and Lunch award shows Aulia & Nurul
+        slide19_active = page_deck.locator("#slide-19").evaluate("el => el.classList.contains('active')")
+        print(f"Deck Slide 19 Active: {slide19_active}")
+        assert slide19_active, "Deck did not jump to Slide 19 upon Award Dispatch"
 
-        # 6. Jump to Slide 13 (Awarding Stage)
-        page.select_option("#slide-select", "12") # index 12 is slide 13
-        time.sleep(0.5)
-        # Type a winner in the first input and click reveal
-        award_input = page.locator("#award-olympic .winner-input")
-        award_input.fill("TIM SULTAN DA VINCI")
-        page.click("#award-olympic .btn-reveal-winner")
-        time.sleep(0.6)
-        s13_path = os.path.join(output_dir, "slide_13_awarding.png")
-        page.screenshot(path=s13_path)
-        print("Captured Slide 13 (Awarding revealed)")
+        placeholder_text = page_deck.inner_text("#award-lunch .winner-placeholder")
+        print(f"Deck Revealed Winner Text: {placeholder_text}")
+        assert "Aulia" in placeholder_text and "Nurul" in placeholder_text, "Deck did not show Aulia & Nurul"
 
-        # 7. Jump to Slide 14 (Doorprize Nyeleneh Lottery Machine)
-        page.select_option("#slide-select", "13") # index 13 is slide 14
-        time.sleep(0.5)
-        page.click("#btn-spin-doorprize")
-        # Wait 3 seconds for spin to finish
-        time.sleep(3.0)
-        s14_path = os.path.join(output_dir, "slide_14_doorprize.png")
-        page.screenshot(path=s14_path)
-        print("Captured Slide 14 (Doorprize won)")
+        # Capture Deck Slide 19 Awarding
+        deck_award_path = os.path.join(output_dir, "slide_19_awarding_synced.png")
+        page_deck.screenshot(path=deck_award_path)
+        print("Captured slide_19_awarding_synced.png")
 
-        # Copy screenshots to artifact directory for embedding
-        import shutil
-        for fname in ["slide_01_preshow.png", "slide_02_hero.png", "slide_05_olympics.png", 
-                      "slide_06_timer.png", "slide_08_scratch_step2.png", "slide_13_awarding.png", "slide_14_doorprize.png"]:
+        # Copy screenshots to artifact directory
+        for fname in ["admin_tab_remote.png", "admin_tab_olympic.png", "slide_19_awarding_synced.png"]:
             src = os.path.join(output_dir, fname)
             dst = os.path.join(artifact_dir, fname)
-            shutil.copyfile(src, dst)
-            print(f"Copied {fname} to artifacts")
+            if os.path.exists(src):
+                shutil.copyfile(src, dst)
+                print(f"Copied {fname} to artifacts")
 
         browser.close()
 
@@ -102,7 +121,7 @@ def run():
         for err in console_errors:
             print("ERROR:", err)
     else:
-        print("No errors detected! Everything is clean.")
+        print("No errors detected! Everything is 100% clean.")
 
 if __name__ == "__main__":
     run()
