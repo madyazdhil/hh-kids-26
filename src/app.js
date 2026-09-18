@@ -724,8 +724,15 @@ document.addEventListener('DOMContentLoaded', () => {
     syncChannel.postMessage({ type, payload, timestamp: Date.now() });
   }
 
+  let lastProcessedTimestamp = 0;
   function handleRemoteCommand(data) {
     if (!data || !data.type) return;
+
+    // Deduplicate between BroadcastChannel and storage events
+    if (data.timestamp && data.timestamp <= lastProcessedTimestamp) {
+      return;
+    }
+    lastProcessedTimestamp = data.timestamp || Date.now();
 
     if (syncStatus) {
       syncStatus.textContent = '⚡ Remote: Aktif';
