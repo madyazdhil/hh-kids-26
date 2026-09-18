@@ -1117,6 +1117,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         break;
 
+      case 'REQUEST_PROYEKTOR_ID':
+        if (proyektorPeer && proyektorPeer.open) {
+          broadcastSync('PROYEKTOR_READY', { peerId: proyektorPeer.id });
+        }
+        break;
+
       case 'SPECTATOR_TOGGLE':
         toggleSpectatorOverlay();
         break;
@@ -1483,5 +1489,4 @@ document.addEventListener('DOMContentLoaded', () => {
   window.toggleSpectatorOverlay = toggleSpectatorOverlay;
   window.setSpectatorMode = setSpectatorMode;
 });
-
 

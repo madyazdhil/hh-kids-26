@@ -1409,3 +1409,16 @@ Aku memperbaiki publish ntfy di commit `cc4ed7a`. Sebelumnya request memakai hea
 Perbaikan sudah dipush dan GitHub Pages sudah menyajikan kode terbaru. Setelah deployment, lakukan hard refresh pada MC dan semua Pos (`Cmd/Ctrl + Shift + R`), kemudian buka ulang semua link Pos sebelum mulai Slide 8.
 
 Video/spectator blank juga merupakan efek Pos belum menerima event/state dan belum mengirim feed aktif; setelah sinkronisasi live berhasil, feed harus diaktifkan dari tombol siaran Pos.
+
+### User — 2026-09-18
+
+> sama ini kenapa kok gabsia yah kameranya udah nyala dan terkonek tapi ngga ada disitu yah
+
+Status: camera feed / spectator rendering issue under investigation.
+
+### Assistant action — 2026-09-18
+
+- Inspected the camera/WebRTC path and found the spectator receiver can start with a fallback PeerJS ID, while a Pos laptop may only know the old fixed ID if the `PROYEKTOR_READY` message was missed.
+- Added an explicit `REQUEST_PROYEKTOR_ID` handshake: each Pos requests the current projector Peer ID when its Peer opens and when streaming starts; the MC responds with the actual active Peer ID.
+- Updated `pos.js` / `src/pos.js` and `app.js` / `src/app.js`; syntax checks passed.
+- Status: implemented; ready to push and retest camera feed after refreshing MC spectator and Pos pages.

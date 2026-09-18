@@ -486,6 +486,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       posPeer.on('open', (id) => {
         console.log(`⚡ Pos ${assignedPos} WebRTC Broadcaster Ready:`, id);
+        if (window.HHSync) {
+          window.HHSync.send('REQUEST_PROYEKTOR_ID', { pos: assignedPos });
+        }
       });
       posPeer.on('error', (err) => {
         console.warn('Pos Peer error:', err);
@@ -526,6 +529,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function startStreamingToProyektor() {
     initPosPeer();
+    if (window.HHSync) {
+      window.HHSync.send('REQUEST_PROYEKTOR_ID', { pos: assignedPos });
+    }
 
     if (btnBroadcastStream) {
       btnBroadcastStream.innerHTML = `<span class="broadcast-icon">🟡</span><span class="broadcast-text">Menyiapkan Siaran...</span>`;
