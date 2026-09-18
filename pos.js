@@ -304,6 +304,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (renderedBattleRound === roundIdx && battleWorkspace && battleWorkspace.firstElementChild) return;
     renderedBattleRound = roundIdx;
     
+    // Helper: fullscreen button HTML (rendered inside workspace header)
+    function fsBtn(accentColor = 'var(--neon-cyan)') {
+      return `<button
+        class="btn btn-xs btn-outline"
+        style="border-color:${accentColor};color:${accentColor};cursor:pointer;"
+        onclick="(function(){
+          var ws=document.getElementById('battle-workspace');
+          if(!document.fullscreenElement){
+            (ws||document.documentElement).requestFullscreen().catch(function(){});
+          } else {
+            document.exitFullscreen().catch(function(){});
+          }
+        })()"
+      >⛶ Fullscreen Arena</button>`;
+    }
+
     if (roundIdx === 0) {
       // CHALLENGE 1: SCRATCH (SLIDE 14)
       battleRoundBadge.textContent = `BABAK 1 DARI 4 • MEJA ${assignedPos}`;
@@ -313,9 +329,9 @@ document.addEventListener('DOMContentLoaded', () => {
         <div style="height: 100%; display: flex; flex-direction: column;">
           <div style="padding: 12px 16px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
             <span style="font-weight: 800; color: var(--neon-cyan);">ARENA TANTANGAN SCRATCH GUI (MEJA ${assignedPos}):</span>
-            <button onclick="document.getElementById('scratch-battle-frame').requestFullscreen().catch(()=>{})" class="btn btn-xs btn-outline" style="cursor:pointer;">⛶ Fullscreen</button>
+            ${fsBtn('var(--neon-cyan)')}
           </div>
-          <iframe id="scratch-battle-frame" src="scratch-slide.html" style="width: 100%; height: calc(100% - 45px); border: none; background: #0f172a;" allowfullscreen></iframe>
+          <iframe src="scratch-slide.html" style="width: 100%; height: calc(100% - 45px); border: none; background: #0f172a;"></iframe>
         </div>
       `;
     } else if (roundIdx === 1) {
@@ -329,9 +345,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <span style="font-weight: 800; color: var(--neon-gold); font-family: 'JetBrains Mono', monospace; font-size: 0.88rem;">
               🧮 ARENA HITUNG CEPAT SEMPOA (MEJA ${assignedPos}) • KEYBOARD INPUT • DEFAULT 2.0s
             </span>
-            <button onclick="document.getElementById('sempoa-battle-frame').requestFullscreen().catch(()=>{})" class="btn btn-xs btn-outline" style="border-color: var(--neon-gold); color: var(--neon-gold); cursor:pointer;">⛶ Fullscreen</button>
+            ${fsBtn('var(--neon-gold)')}
           </div>
-          <iframe id="sempoa-battle-frame" src="sempoa-slide.html?autostart=1" style="width: 100%; height: calc(100% - 45px); border: none; background: #070d19;" allowfullscreen></iframe>
+          <iframe id="sempoa-battle-frame" src="sempoa-slide.html?autostart=1" style="width: 100%; height: calc(100% - 45px); border: none; background: #070d19;"></iframe>
         </div>
       `;
     } else if (roundIdx === 2) {
@@ -345,9 +361,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <span style="font-weight: 800; color: var(--neon-green); font-family: 'JetBrains Mono', monospace; font-size: 0.88rem;">
               🧠 ARENA KUIS KILAT MEMORY (MEJA ${assignedPos}) • KEYBOARD [A] / [B] • 20 SOAL
             </span>
-            <button onclick="document.getElementById('memory-battle-frame').requestFullscreen().catch(()=>{})" class="btn btn-xs btn-outline" style="border-color: var(--neon-green); color: var(--neon-green); cursor:pointer;">⛶ Fullscreen</button>
+            ${fsBtn('var(--neon-green)')}
           </div>
-          <iframe id="memory-battle-frame" src="memory-slide.html?mode=quiz&autostart=1" style="width: 100%; height: calc(100% - 45px); border: none; background: #030712;" allowfullscreen></iframe>
+          <iframe id="memory-battle-frame" src="memory-slide.html?mode=quiz&autostart=1" style="width: 100%; height: calc(100% - 45px); border: none; background: #030712;"></iframe>
         </div>
       `;
     } else if (roundIdx === 3) {
@@ -361,9 +377,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <span style="font-weight: 800; color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-size: 0.88rem;">
               📊 ARENA KLINIK SPREADSHEET (MEJA ${assignedPos}) • GOOGLE WORKSPACE • F4 / CTRL+Z
             </span>
-            <button onclick="document.getElementById('sheets-battle-frame').requestFullscreen().catch(()=>{})" class="btn btn-xs btn-outline" style="border-color: #38bdf8; color: #38bdf8; cursor:pointer;">⛶ Fullscreen</button>
+            ${fsBtn('#38bdf8')}
           </div>
-          <iframe id="sheets-battle-frame" src="sheets-slide.html" style="width: 100%; height: calc(100% - 45px); border: none; background: #030712;" allowfullscreen></iframe>
+          <iframe id="sheets-battle-frame" src="sheets-slide.html" style="width: 100%; height: calc(100% - 45px); border: none; background: #030712;"></iframe>
         </div>
       `;
     }
@@ -615,137 +631,96 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==========================================================================
-  // VICTORY FULLSCREEN OVERLAY — fires when embedded challenge sends COMPLETE
+  // VICTORY OVERLAY — shown in-page when challenge completes (fullscreen)
   // ==========================================================================
-  const victoryOverlay    = document.getElementById('victory-fullscreen-overlay');
-  const victoryBellBtn    = document.getElementById('victory-bell-btn');
+  const victoryOverlay = document.getElementById('victory-fullscreen-overlay');
+  const victoryBellBtn = document.getElementById('victory-bell-btn');
   const victoryDismissBtn = document.getElementById('victory-dismiss-btn');
-  const victorySubtitle   = document.getElementById('victory-subtitle');
-  const victoryEmoji      = document.getElementById('victory-emoji');
+  const victorySubtitle = document.getElementById('victory-subtitle');
 
-  // Round-specific flavour text
-  const ROUND_FLAVOUR = [
-    { emoji: '🐱', sub: 'Scratch Bug Ditemukan & Diperbaiki! Luar biasa!' },
-    { emoji: '🧮', sub: 'Sempoa Speed Math Terlintasi! Kecepatan kilat!' },
-    { emoji: '🧠', sub: '20 Pertanyaan Memory Selesai! Ingatan fotografis!' },
-    { emoji: '📊', sub: '#REF! Error Diselesaikan! Spreadsheet Master!' },
-  ];
-
-  // Confetti particle animation on the victory-canvas
-  function launchConfetti() {
-    const canvas = document.getElementById('victory-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const COLORS = ['#00ff9d','#ffd700','#ff6b6b','#38bdf8','#a78bfa','#fb923c'];
-    const particles = Array.from({ length: 120 }, () => ({
-      x:   Math.random() * canvas.width,
-      y:   Math.random() * -canvas.height,
-      r:   Math.random() * 8 + 4,
-      dx:  (Math.random() - 0.5) * 3,
-      dy:  Math.random() * 4 + 2,
-      rot: Math.random() * 360,
-      drot: (Math.random() - 0.5) * 6,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      shape: Math.random() > 0.5 ? 'rect' : 'circle',
-    }));
-
-    let raf;
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.rot * Math.PI / 180);
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = 0.9;
-        if (p.shape === 'rect') {
-          ctx.fillRect(-p.r, -p.r / 2, p.r * 2, p.r);
-        } else {
-          ctx.beginPath();
-          ctx.arc(0, 0, p.r, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        ctx.restore();
-        p.x   += p.dx;
-        p.y   += p.dy;
-        p.rot += p.drot;
-        if (p.y > canvas.height) {
-          p.y  = -20;
-          p.x  = Math.random() * canvas.width;
-        }
-      });
-      raf = requestAnimationFrame(draw);
-    }
-    draw();
-    // Store raf on canvas so we can cancel it on dismiss
-    canvas._confettiRaf = raf;
-    canvas._confettiRafFn = draw;
-    return () => cancelAnimationFrame(raf);
-  }
-
-  let stopConfetti = null;
-
-  function showVictoryOverlay() {
+  function showVictoryOverlay(subtitle) {
     if (!victoryOverlay) return;
-
-    // Pick flavour for active round
-    const roundIdx = getActiveRoundIndex();
-    const flavour  = ROUND_FLAVOUR[roundIdx] || ROUND_FLAVOUR[0];
-    if (victoryEmoji)    victoryEmoji.textContent  = flavour.emoji;
-    if (victorySubtitle) victorySubtitle.textContent = flavour.sub;
-
-    // Show the overlay (flex)
+    if (subtitle && victorySubtitle) victorySubtitle.textContent = subtitle;
     victoryOverlay.style.display = 'flex';
-
-    // Go fullscreen on the overlay element itself (fallback: whole document)
-    const fsTarget = victoryOverlay;
-    if (fsTarget.requestFullscreen) {
-      fsTarget.requestFullscreen().catch(() => {
-        // If element FS not allowed, fall back to document FS
-        document.documentElement.requestFullscreen().catch(() => {});
-      });
-    } else if (document.documentElement.requestFullscreen) {
+    // Kick off confetti canvas
+    startVictoryConfetti();
+    // Also go fullscreen so the overlay fills the entire screen
+    if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch(() => {});
     }
-
-    // Play chime
     playBellChime();
-
-    // Kick off confetti
-    if (stopConfetti) stopConfetti();
-    stopConfetti = launchConfetti();
-
-    // Pulse the overlay bell button
-    if (victoryBellBtn) {
-      victoryBellBtn.style.animation = 'bellPop 0.8s cubic-bezier(.36,.07,.19,.97) both';
+    // Flash the sprint bell button too
+    if (btnSprintBell) {
+      btnSprintBell.style.animation = 'bellPulse 0.8s infinite ease-in-out';
+      btnSprintBell.style.background = '#00ff9d';
     }
   }
 
   function hideVictoryOverlay() {
     if (!victoryOverlay) return;
     victoryOverlay.style.display = 'none';
-
-    // Cancel confetti
-    const canvas = document.getElementById('victory-canvas');
-    if (canvas && canvas._confettiRaf) {
-      cancelAnimationFrame(canvas._confettiRaf);
-    }
-    if (stopConfetti) { stopConfetti(); stopConfetti = null; }
-
-    // Exit fullscreen
+    stopVictoryConfetti();
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
     }
   }
 
-  // Overlay bell button → ring bell + broadcast + dismiss
+  // Confetti canvas animation
+  let confettiAnimId = null;
+  const confettiPieces = [];
+  function startVictoryConfetti() {
+    const canvas = document.getElementById('victory-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    confettiPieces.length = 0;
+    const COLORS = ['#00ff9d','#ffd700','#ff6b6b','#38bdf8','#c084fc','#fb923c'];
+    for (let i = 0; i < 160; i++) {
+      confettiPieces.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * -canvas.height,
+        w: 8 + Math.random() * 10,
+        h: 4 + Math.random() * 6,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        vx: (Math.random() - 0.5) * 3,
+        vy: 2 + Math.random() * 4,
+        angle: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 0.15
+      });
+    }
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confettiPieces.forEach(p => {
+        ctx.save();
+        ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+        ctx.rotate(p.angle);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = 0.85;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+        p.x += p.vx;
+        p.y += p.vy;
+        p.angle += p.spin;
+        if (p.y > canvas.height + 20) {
+          p.y = -20;
+          p.x = Math.random() * canvas.width;
+        }
+      });
+      confettiAnimId = requestAnimationFrame(draw);
+    }
+    draw();
+  }
+  function stopVictoryConfetti() {
+    if (confettiAnimId) { cancelAnimationFrame(confettiAnimId); confettiAnimId = null; }
+    const canvas = document.getElementById('victory-canvas');
+    if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // Victory bell button → ring sync bell then hide overlay
   if (victoryBellBtn) {
     victoryBellBtn.addEventListener('click', () => {
       playBellChime();
-
       if (window.HHSync) {
         window.HHSync.send('POS_BELL_RUNG', {
           pos: assignedPos,
@@ -753,46 +728,30 @@ document.addEventListener('DOMContentLoaded', () => {
           timestamp: Date.now()
         });
       }
-
-      // Flash the button then hide overlay after 1.5s
-      victoryBellBtn.style.background = 'linear-gradient(135deg,#ffd700,#ffb300)';
-      victoryBellBtn.innerHTML = `
-        <span style="font-size:clamp(2rem,5vw,3.5rem);">🏃‍♂️💨💨</span>
-        <span>BEL DIBUNYIKAN! LARI SEKARANG!</span>
-        <span style="font-size:0.6em;font-weight:600;opacity:0.8;">Sinyal sudah terkirim ke panitia!</span>
-      `;
-
-      // Also update the physical sprint bell below
-      if (btnSprintBell) {
-        btnSprintBell.style.background = '#00ff9d';
-        btnSprintBell.innerHTML = `
-          <span class="bell-emoji">🏃‍♂️💨</span>
-          <span class="bell-main-text">BEL DIBUNYIKAN! LARI KE KAK BALQIS!</span>
-          <span class="bell-sub-text">Sinyal bel sudah terkirim ke panitia! Sprint sekarang!</span>
-        `;
-        setTimeout(() => {
-          btnSprintBell.style.background = '';
-          btnSprintBell.innerHTML = `
-            <span class="bell-emoji">🔔</span>
-            <span class="bell-main-text">KITA UDAH KELAR! LARI KEJAR KAK BALQIS!</span>
-            <span class="bell-sub-text">Tekan bel ini, lalu 1 perwakilan tim lari secepat kilat ke meja panitia! (+5 / +4 Pt)</span>
-          `;
-        }, 4000);
-      }
-
-      setTimeout(hideVictoryOverlay, 1500);
+      victoryBellBtn.textContent = '✅ BEL TERKIRIM! LARI SEKARANG! 🏃‍♂️💨';
+      victoryBellBtn.style.background = 'linear-gradient(135deg,#ffd700,#ffaa00)';
+      setTimeout(() => hideVictoryOverlay(), 5000);
     });
   }
 
-  // Dismiss button → just close overlay
+  // Dismiss button → hide overlay
   if (victoryDismissBtn) {
-    victoryDismissBtn.addEventListener('click', hideVictoryOverlay);
+    victoryDismissBtn.addEventListener('click', () => hideVictoryOverlay());
   }
+
+  // ESC key also hides overlay (in case they exit fullscreen)
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && victoryOverlay && victoryOverlay.style.display === 'flex') {
+      stopVictoryConfetti();
+      victoryOverlay.style.display = 'none';
+    }
+  });
 
   // Listen for challenge completion events from embedded frames
   window.addEventListener('message', (e) => {
     if (e.data && (e.data.type === 'MEMORY_CHALLENGE_COMPLETE' || e.data.type === 'CHALLENGE_COMPLETED')) {
-      showVictoryOverlay();
+      const subtitle = e.data.subtitle || e.data.message || 'TANTANGAN BERHASIL DISELESAIKAN!';
+      showVictoryOverlay(subtitle);
     }
   });
 
