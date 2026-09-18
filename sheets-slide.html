@@ -543,8 +543,7 @@
         ],
         formulas: { "C2": "=SUM(A2:#REF!)", "C3": "=SUM(A3:#REF!)", "C4": "=SUM(A4:#REF!)" },
         actions: [
-          { text: "↩ Undo Delete Kolom (Ctrl+Z)", primary: true, act: "undo" },
-          { text: "✏️ Isi Rumus =SUM(A2:B2)", primary: false, act: "fix_ref" }
+          { text: "↩ Undo Delete Kolom (Ctrl+Z)", primary: true, act: "undo" }
         ],
         validate: (val, state) => {
           if (state.restored) return true;
@@ -609,7 +608,7 @@
         ],
         formulas: { "B5": "=SUM(B1:B5)" },
         actions: [
-          { text: "✂️ Potong Rentang Rumus ke B4 (=SUM(B1:B4))", primary: true, act: "fix_circ" }
+          { text: "✂️ Potong Rentang Referensi Rumus", primary: true, act: "fix_circ" }
         ],
         validate: (val) => {
           const c = val.replace(/\s+/g, '').toUpperCase();
