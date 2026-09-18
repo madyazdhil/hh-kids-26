@@ -1016,3 +1016,23 @@ Mengonfirmasi bahwa pemahaman pengguna 100% benar mengenai pemisahan alur antara
 4. **Verifikasi & Git Push:**
    - Menjalankan verifikasi otomatis Playwright `scripts/verify_countdown_flow.py` dan lulus 100% dengan 0 error.
    - Perubahan telah di-commit dan di-push ke GitHub: `git@github.com-personal:madyazdhil/hh-kids-26.git` (commit `a0a1e7e`).
+
+### User — 2026-09-18T11:27:36+07:00
+
+ini katanya udah connected tapi kok dai masi kosong gitu yah aastaga 
+
+### Assistant — 2026-09-18T11:31:00+07:00
+
+Menganalisis dan mengatasi tampilan hitam (black screen) pada Spectator Arena VDO.ninja:
+1. **Akar Masalah dari Screenshot:**
+   - Di window broadcast Pos 1 (`vdo.ninja/?push=hhkids26_pos1...`), bitrate 49 kbps (audio only) dan tombol video kamera di bawah berwarna **MERAH bercoret** (video track muted/off).
+   - Penyebabnya adalah parameter `&webcam=0` di URL yang secara default mematikan video track di VDO.ninja, sehingga feed video tidak ditransmisikan ke proyektor MC.
+2. **Solusi Instan di Layar Pengguna Saat Ini:**
+   - Klik ikon **Kamera Merah** di bagian bawah window popup VDO.ninja. Browser akan memunculkan dialog *"Choose what to share"*. Pilih tab/layar yang ingin dibagikan dan klik *"Share"*.
+3. **Penyempurnaan Kode Sistem:**
+   - Menghapus parameter `&webcam=0` pada tautan push di `pos.js` dan `src/pos.js`, serta mengalihkan pembukaan broadcast ke tab browser penuh (`_blank`) agar dialog izin pemilihan layar Chrome tidak terpotong atau tersembunyi.
+4. **Fallback Google Meet:**
+   - Menyarankan penggunaan tombol darurat `↗ Buka GMeet` di pojok kanan atas Spectator Monitor sebagai opsi paling aman tanpa konfigurasi izin jika dibutuhkan di lokasi acara.
+5. **Git Push:**
+   - Perubahan telah di-commit dan di-push ke GitHub: `git@github.com-personal:madyazdhil/hh-kids-26.git` (commit `08b6f18`).
+
