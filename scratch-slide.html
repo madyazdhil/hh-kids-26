@@ -3,17 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Scratch Motion Debugging Challenge - Real Scratch GUI Slides</title>
+  <title>Scratch Motion Debugging Challenge - TurboWarp Scratch 3.0 GUI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --scratch-blue: #4c97ff;
-      --scratch-orange: #ffab19;
-      --scratch-yellow: #ffd500;
-      --scratch-purple: #9966ff;
-      --scratch-red: #ff6680;
+      --scratch-purple-bar: #855cd6;
+      --scratch-purple-dark: #6e40c9;
+      --scratch-motion: #4c97ff;
+      --scratch-looks: #9966ff;
+      --scratch-sound: #cf63cf;
+      --scratch-events: #ffbf00;
+      --scratch-control: #ffab19;
+      --scratch-sensing: #5cb1d6;
+      --scratch-operators: #59c059;
+      --scratch-variables: #ff8c1a;
+      --scratch-custom: #ff6680;
       
       --bg-dark: #0f172a;
       --bg-panel: #1e293b;
@@ -22,15 +28,16 @@
       --accent-green: #22c55e;
       --accent-yellow: #facc15;
       --accent-red: #ef4444;
-      --radius-sm: 8px;
-      --radius-md: 14px;
-      --radius-lg: 20px;
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      user-select: none;
     }
 
     body {
@@ -57,8 +64,8 @@
       height: 100%;
       opacity: 0;
       pointer-events: none;
-      transform: translateX(40px);
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: translateX(30px);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       display: flex;
       flex-direction: column;
     }
@@ -74,11 +81,11 @@
     /* ========================================== */
     .slide-1-content {
       flex: 1;
-      padding: 30px 48px;
+      padding: 28px 44px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      max-width: 1300px;
+      max-width: 1260px;
       margin: 0 auto;
       width: 100%;
     }
@@ -89,7 +96,7 @@
       align-items: center;
       padding-bottom: 16px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }
 
     .logo-group {
@@ -139,7 +146,7 @@
     }
 
     .pill-btn.active {
-      background: var(--scratch-blue);
+      background: var(--scratch-motion);
       color: white;
       box-shadow: 0 2px 8px rgba(76, 151, 255, 0.4);
     }
@@ -151,7 +158,7 @@
 
     .hero-box {
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }
 
     .hero-tag {
@@ -179,15 +186,16 @@
     .hero-box p {
       color: var(--text-muted);
       font-size: 15px;
-      max-width: 680px;
+      max-width: 720px;
       margin: 0 auto;
+      line-height: 1.55;
     }
 
     .briefing-cards {
       display: grid;
       grid-template-columns: 1.15fr 0.85fr;
       gap: 24px;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }
 
     .sticky-note {
@@ -222,7 +230,7 @@
     }
 
     .sticky-note p {
-      font-size: 14.5px;
+      font-size: 14px;
       line-height: 1.6;
       margin-bottom: 14px;
       font-weight: 500;
@@ -236,7 +244,7 @@
     }
 
     .constraint-box h4 {
-      font-size: 12.5px;
+      font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: #854d0e;
@@ -321,29 +329,29 @@
       box-shadow: 0 12px 30px rgba(34, 197, 94, 0.6);
     }
 
-    /* ========================================== */
-    /* SLIDE 2: REAL SCRATCH GUI IFRAME STYLES    */
-    /* ========================================== */
+    /* ============================================================ */
+    /* SLIDE 2: AUTHENTIC TURBOWARP SCRATCH 3.0 GUI WORKSPACE       */
+    /* ============================================================ */
     #slide2 {
       display: flex;
       flex-direction: column;
       width: 100vw;
       height: 100vh;
+      background: #0f172a;
       overflow: hidden;
-      background: #111827;
     }
 
-    /* Top Floating Action Bar */
-    .scratch-top-hud {
-      height: 52px;
-      background: #0f172a;
+    /* TOP SLIDE HUD / CONTROL BAR */
+    .turbowarp-hud-bar {
+      height: 48px;
+      background: #1e293b;
       border-bottom: 1px solid rgba(255, 255, 255, 0.12);
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 16px;
-      z-index: 50;
       flex-shrink: 0;
+      z-index: 50;
     }
 
     .hud-left {
@@ -352,37 +360,68 @@
       gap: 12px;
     }
 
-    .hud-btn-back {
+    .hud-back-btn {
       background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #e2e8f0;
-      font-size: 13px;
-      font-weight: 700;
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       padding: 6px 14px;
       border-radius: var(--radius-sm);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s ease;
       display: flex;
       align-items: center;
       gap: 6px;
+      transition: all 0.15s ease;
     }
 
-    .hud-btn-back:hover {
+    .hud-back-btn:hover {
       background: rgba(255, 255, 255, 0.16);
-      border-color: #38bdf8;
+      border-color: rgba(255, 255, 255, 0.35);
     }
 
-    .hud-mission-badge {
-      background: rgba(245, 158, 11, 0.15);
-      border: 1px solid rgba(245, 158, 11, 0.4);
-      color: #facc15;
-      font-size: 12px;
-      font-weight: 700;
+    .hud-proj-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.6);
       padding: 4px 12px;
       border-radius: 999px;
-      display: flex;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 12.5px;
+      color: #94a3b8;
+    }
+
+    .hud-proj-badge strong {
+      color: #f8fafc;
+    }
+
+    .hud-status-badge {
+      display: inline-flex;
       align-items: center;
       gap: 6px;
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .hud-status-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 8px #22c55e;
+      animation: pulseGlow 1.5s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.6; }
     }
 
     .hud-right {
@@ -391,124 +430,184 @@
       gap: 10px;
     }
 
-    .hud-key-btn {
-      background: rgba(56, 189, 248, 0.15);
-      border: 1px solid #38bdf8;
-      color: #38bdf8;
-      font-size: 13px;
-      font-weight: 700;
-      padding: 6px 16px;
+    .hud-action-btn {
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 6px 12px;
       border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .hud-key-btn:hover {
-      background: rgba(56, 189, 248, 0.3);
-    }
-
-    .hud-win-test-btn {
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      border: none;
-      color: white;
-      font-family: 'Fredoka', sans-serif;
-      font-size: 15px;
-      padding: 7px 20px;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
-      transition: all 0.2s ease;
       display: flex;
       align-items: center;
       gap: 6px;
+      transition: all 0.15s ease;
     }
 
-    .hud-win-test-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(34, 197, 94, 0.6);
+    .hud-action-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      color: white;
     }
 
-    /* REAL SCRATCH GUI IFRAME */
-    .scratch-iframe-container {
+    .hud-action-btn.hint {
+      background: rgba(250, 204, 21, 0.15);
+      border-color: rgba(250, 204, 21, 0.35);
+      color: #fde047;
+      font-weight: 700;
+    }
+
+    .hud-action-btn.hint:hover {
+      background: rgba(250, 204, 21, 0.25);
+    }
+
+    .hud-action-btn.test-win {
+      background: rgba(168, 85, 247, 0.15);
+      border-color: rgba(168, 85, 247, 0.35);
+      color: #c084fc;
+    }
+
+    .hud-action-btn.test-win:hover {
+      background: rgba(168, 85, 247, 0.25);
+    }
+
+    /* TURBOWARP IFRAME WRAPPER */
+    .turbowarp-frame-container {
       flex: 1;
       width: 100%;
-      height: calc(100vh - 52px);
+      height: calc(100vh - 48px);
       position: relative;
-      background: #000;
+      background: #e9eef2;
     }
 
-    #scratchFrame {
+    #turbowarpIframe {
       width: 100%;
       height: 100%;
       border: none;
       display: block;
     }
 
-    /* SOLUTION DRAWER / MODAL */
-    .solution-modal {
-      display: none;
+    /* SLIDE-OVER SOLUTION DRAWER */
+    .solution-drawer-overlay {
       position: fixed;
-      top: 64px;
-      right: 20px;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .solution-drawer-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .solution-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
       width: 440px;
-      max-height: 80vh;
+      max-width: 90vw;
+      height: 100vh;
       background: #1e293b;
-      border: 2px solid #38bdf8;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-      border-radius: var(--radius-md);
-      padding: 20px;
-      z-index: 100;
-      overflow-y: auto;
-    }
-
-    .solution-modal.open {
-      display: block;
-      animation: fadeInModal 0.3s ease;
-    }
-
-    @keyframes fadeInModal {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .sol-header {
+      border-left: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+      z-index: 10000;
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
+    }
+
+    .solution-drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
       align-items: center;
-      margin-bottom: 14px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      justify-content: space-between;
     }
 
-    .sol-header h4 {
+    .drawer-title {
       font-family: 'Fredoka', sans-serif;
-      color: #38bdf8;
-      font-size: 18px;
+      font-size: 20px;
+      color: #fde047;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .sol-close {
-      background: transparent;
+    .drawer-close-btn {
+      background: rgba(255, 255, 255, 0.1);
       border: none;
       color: #94a3b8;
-      font-size: 20px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
       cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .sol-box {
-      background: #0f172a;
-      border-radius: var(--radius-sm);
-      padding: 12px;
-      margin-bottom: 12px;
+    .drawer-close-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .drawer-content {
+      padding: 22px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .solution-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+
+    .solution-card h4 {
+      font-size: 15px;
+      color: #38bdf8;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .solution-card p {
       font-size: 13px;
-      line-height: 1.6;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-bottom: 12px;
     }
 
-    .sol-box h5 {
-      color: #facc15;
-      margin-bottom: 6px;
-      font-size: 14px;
-      font-family: 'Fredoka', sans-serif;
+    .code-block-preview {
+      background: #090d16;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-family: 'Fira Code', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #e2e8f0;
+      overflow-x: auto;
     }
+
+    .code-block-preview .kw { color: #f59e0b; font-weight: 600; }
+    .code-block-preview .bl { color: #38bdf8; }
+    .code-block-preview .hl { color: #4ade80; font-weight: 700; }
 
     /* ============================================================ */
     /* FULLSCREEN WIN OVERLAY ("NUTUP SELURUH HTML")                 */
@@ -518,9 +617,9 @@
       inset: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: rgba(15, 23, 42, 0.96);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
       z-index: 999999;
       display: flex;
       flex-direction: column;
@@ -529,7 +628,7 @@
       opacity: 0;
       pointer-events: none;
       transform: scale(1.05);
-      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .fullscreen-win-overlay.show {
@@ -552,11 +651,11 @@
       z-index: 2;
       background: linear-gradient(135deg, #1e293b, #0f172a);
       border: 3px solid #facc15;
-      box-shadow: 0 0 80px rgba(250, 204, 21, 0.4), 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 0 90px rgba(250, 204, 21, 0.45), 0 25px 50px -12px rgba(0, 0, 0, 0.8);
       border-radius: 28px;
       padding: 44px 54px;
       text-align: center;
-      max-width: 620px;
+      max-width: 640px;
       width: 90%;
       animation: bounceCard 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
@@ -567,16 +666,16 @@
     }
 
     .win-icon-bell {
-      font-size: 72px;
+      font-size: 76px;
       display: inline-block;
       animation: ringBell 1s ease infinite alternate;
       margin-bottom: 8px;
     }
 
     @keyframes ringBell {
-      0% { transform: rotate(-15deg) scale(1); }
-      50% { transform: rotate(15deg) scale(1.1); }
-      100% { transform: rotate(-15deg) scale(1); }
+      0% { transform: rotate(-16deg) scale(1); }
+      50% { transform: rotate(16deg) scale(1.1); }
+      100% { transform: rotate(-16deg) scale(1); }
     }
 
     .win-title {
@@ -590,10 +689,10 @@
 
     .win-subtitle {
       font-family: 'Fredoka', sans-serif;
-      font-size: 28px;
+      font-size: 30px;
       color: #38bdf8;
-      margin-bottom: 20px;
-      text-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+      margin-bottom: 22px;
+      text-shadow: 0 0 18px rgba(56, 189, 248, 0.4);
     }
 
     .win-badge-row {
@@ -601,6 +700,7 @@
       justify-content: center;
       gap: 12px;
       margin-bottom: 20px;
+      flex-wrap: wrap;
     }
 
     .win-badge {
@@ -615,7 +715,7 @@
 
     .win-desc {
       color: #cbd5e1;
-      font-size: 14.5px;
+      font-size: 15px;
       line-height: 1.6;
       margin-bottom: 28px;
     }
@@ -624,6 +724,7 @@
       display: flex;
       justify-content: center;
       gap: 14px;
+      flex-wrap: wrap;
     }
 
     .btn-replay {
@@ -632,7 +733,7 @@
       border: 1px solid rgba(255, 255, 255, 0.2);
       font-family: 'Fredoka', sans-serif;
       font-size: 17px;
-      padding: 10px 26px;
+      padding: 11px 26px;
       border-radius: var(--radius-md);
       cursor: pointer;
       transition: all 0.2s ease;
@@ -649,7 +750,7 @@
       border: none;
       font-family: 'Fredoka', sans-serif;
       font-size: 17px;
-      padding: 10px 28px;
+      padding: 11px 28px;
       border-radius: var(--radius-md);
       cursor: pointer;
       box-shadow: 0 4px 16px rgba(37, 99, 235, 0.4);
@@ -659,13 +760,6 @@
     .btn-back-briefing:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 24px rgba(37, 99, 235, 0.6);
-    }
-
-    @media (max-width: 900px) {
-      .briefing-cards { grid-template-columns: 1fr; }
-      .win-title { font-size: 32px; }
-      .win-subtitle { font-size: 22px; }
-      .solution-modal { width: 90%; right: 5%; }
     }
   </style>
 </head>
@@ -682,11 +776,11 @@
         <div class="global-nav">
           <div class="logo-group">
             <span class="scratch-badge">SCRATCH 3.0</span>
-            <span class="nav-title">Debugging Mission & Code Evaluation</span>
+            <span class="nav-title">Debugging Mission &amp; Auto-Grader</span>
           </div>
           <div class="slide-pills">
             <button class="pill-btn active" onclick="goToSlide(1)">1. Briefing Soal</button>
-            <button class="pill-btn" onclick="goToSlide(2)">2. Scratch Asli (Slide 2)</button>
+            <button class="pill-btn" onclick="goToSlide(2)">2. TurboWarp Workspace (Slide 2)</button>
           </div>
         </div>
 
@@ -694,7 +788,7 @@
         <div class="hero-box">
           <span class="hero-tag">🔴 DEBUGGING MISSION #01</span>
           <h1>Misteri Kucing Macet di Kiri</h1>
-          <p>Tantangan membetulkan kode Scratch agar kucing bolak-balik selamanya di layar dengan mematuhi 2 batasan ketat!</p>
+          <p>Tantangan membetulkan kode balok Scratch di TurboWarp agar kucing meluncur bolak-balik selamanya di layar dengan mematuhi 2 batasan ketat!</p>
         </div>
 
         <!-- Cards -->
@@ -722,17 +816,17 @@
               <h3>💡 Mengapa Kucingnya Bisa Macet?</h3>
               <div class="clue-item">
                 <h5>1. Jebakan Koordinat Awal (x = -250)</h5>
-                <p>Panggung Scratch hanya selebar -240 s.d +240. Di x = -250, sensor <code>touching edge?</code> langsung <strong>TRUE</strong> sejak detik pertama!</p>
+                <p>Panggung Scratch berukuran x: -240 s.d +240. Posisi x = -250 membuat sensor <code>touching edge?</code> langsung <strong>TRUE</strong> sejak detik pertama!</p>
               </div>
               <div class="clue-item">
                 <h5>2. Belok 90 Derajat Bukan Balik Badan</h5>
-                <p>Untuk bolak-balik maju-mundur, kucing harus putar <strong>180°</strong> (atau ubah hadap 90° ke -90°). Belok 90° membuatnya berputar menabrak tembok.</p>
+                <p>Untuk bolak-balik maju-mundur, kucing harus berbalik <strong>180°</strong> (atau arah 90° dan -90°). Belok 90° membuatnya memutar ke lantai/atap dan tetap menyentuh tepi!</p>
               </div>
             </div>
 
-            <div style="background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: var(--radius-sm); padding: 10px 14px; margin-top: 10px;">
+            <div style="background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: var(--radius-sm); padding: 12px 14px; margin-top: 12px;">
               <p style="color: #4ade80; font-size: 13px; font-weight: 600;">
-                ✨ Selesaikan kode di Scratch asli pada Slide 2. Begitu kodingan berhasil diperbaiki, tekan tombol verifikasi untuk memicu layar kemenangan!
+                ⚡ <strong>Fitur Auto-Win Aktif:</strong> Workspace di Slide 2 menggunakan <strong>TurboWarp Scratch 3.0 GUI Asli</strong>. Begitu kamu perbaiki baloknya dan klik bendera hijau ⚑, sistem auto-evaluator langsung memicu layar <strong>MENANG PENUH</strong>!
               </p>
             </div>
           </div>
@@ -741,93 +835,108 @@
         <!-- CTA Start Button -->
         <div class="cta-area">
           <button class="start-btn" onclick="goToSlide(2)">
-            Mulai Koding di Scratch Asli ➔
+            Buka TurboWarp &amp; Selesaikan Tantangan ➔
           </button>
         </div>
       </div>
     </section>
 
     <!-- ========================================== -->
-    <!-- SLIDE 2: REAL SCRATCH GUI EMBED            -->
+    <!-- SLIDE 2: AUTHENTIC TURBOWARP SCRATCH 3.0   -->
     <!-- ========================================== -->
     <section id="slide2" class="slide">
-      <!-- Top HUD Header -->
-      <div class="scratch-top-hud">
+      
+      <!-- TOP HUD CONTROL BAR -->
+      <div class="turbowarp-hud-bar">
         <div class="hud-left">
-          <button class="hud-btn-back" onclick="goToSlide(1)">
-            ← Kembali ke Briefing
+          <button class="hud-back-btn" onclick="goToSlide(1)">
+            ← Briefing Soal
           </button>
-          <div class="hud-mission-badge">
-            <span>🎯 Misi: Kucing Bolak-balik</span>
-            <span style="color:#cbd5e1;">|</span>
-            <span style="color:#f87171;">🚫 Tanpa [if on edge bounce]</span>
-            <span style="color:#cbd5e1;">|</span>
-            <span style="color:#38bdf8;">🔒 Mulai x = -250</span>
+          <div class="hud-proj-badge">
+            🐱 Proyek: <strong>CyberParra (M) Motion debugme</strong>
+          </div>
+          <div class="hud-status-badge">
+            <span class="hud-status-pulse"></span>
+            Auto-Evaluator Standby
           </div>
         </div>
 
         <div class="hud-right">
-          <button class="hud-key-btn" onclick="toggleSolutionModal()">
+          <button class="hud-action-btn hint" onclick="openSolutionDrawer()">
             💡 Kunci Jawaban
           </button>
-          <button class="hud-win-test-btn" onclick="triggerWinOverlay()">
-            🏆 Selesai &amp; Cek Kemenangan
+          <button class="hud-action-btn" onclick="reloadTurboWarpProject()">
+            🔄 Reset Soal
+          </button>
+          <button class="hud-action-btn test-win" onclick="triggerWinOverlay()" title="Uji Tampilan Layar Menang">
+            🏆 Preview Layar Menang
           </button>
         </div>
       </div>
 
-      <!-- Real Scratch 3.0 Web App Embedded via Iframe -->
-      <div class="scratch-iframe-container">
-        <!-- Official Scratch 3.0 Web GUI (Scratch Foundation) -->
+      <!-- FULL AUTHENTIC TURBOWARP SCRATCH 3.0 IFRAME -->
+      <div class="turbowarp-frame-container">
         <iframe 
-          id="scratchFrame" 
-          src="https://scratchfoundation.github.io/scratch-gui/" 
-          allow="geolocation; microphone; camera"
-          title="Scratch 3.0 Real Editor">
-        </iframe>
-
-        <!-- Solution Drawer / Modal -->
-        <div id="solutionModal" class="solution-modal">
-          <div class="sol-header">
-            <h4>💡 Kunci Jawaban &amp; Solusi</h4>
-            <button class="sol-close" onclick="toggleSolutionModal()">✕</button>
-          </div>
-
-          <div class="sol-box">
-            <h5>Solusi 1 (Rekomendasi - Paling Bersih):</h5>
-            <p>Gunakan pengecekan koordinat X (bebas dari jebakan <code>touching edge</code>):</p>
-            <pre style="background:#1e293b; padding:8px; border-radius:6px; font-family:'Fira Code', monospace; font-size:11.5px; color:#38bdf8; margin-top:6px; overflow-x:auto;">when ⚑ clicked
-set rotation style [left-right]
-go to x: (-250) y: (0)
-forever
-  point in direction (90)
-  repeat until &lt;(x position) &gt; 230&gt;
-    move (10) steps
-    next costume
-  point in direction (-90)
-  repeat until &lt;(x position) &lt; -230&gt;
-    move (10) steps
-    next costume</pre>
-          </div>
-
-          <div class="sol-box">
-            <h5>Solusi 2 (Perbaikan Blok Asli):</h5>
-            <p>Ganti <code>turn 90</code> menjadi <code>turn 180</code> dan beri jeda langkah menjauh dari tembok:</p>
-            <pre style="background:#1e293b; padding:8px; border-radius:6px; font-family:'Fira Code', monospace; font-size:11.5px; color:#4ade80; margin-top:6px; overflow-x:auto;">// Di dalam forever:
-if &lt;touching edge?&gt; then
-  turn cw (180) degrees
-  repeat (4)
-    move (10) steps</pre>
-          </div>
-
-          <button onclick="triggerWinOverlay(); toggleSolutionModal();" style="width:100%; background:#22c55e; color:white; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer; font-family:'Fredoka'; font-size:16px;">
-            🎉 Terapkan &amp; Rayakan Kemenangan!
-          </button>
-        </div>
+          id="turbowarpIframe" 
+          src="./turbowarp/editor.html" 
+          allow="autoplay; camera; microphone; clipboard-read; clipboard-write"
+          title="TurboWarp Scratch 3.0 GUI Editor"
+        ></iframe>
       </div>
+
     </section>
 
   </div>
+
+  <!-- ============================================================ -->
+  <!-- SLIDE-OVER SOLUTION DRAWER                                   -->
+  <!-- ============================================================ -->
+  <div id="solutionDrawerOverlay" class="solution-drawer-overlay" onclick="closeSolutionDrawer()"></div>
+  <aside id="solutionDrawer" class="solution-drawer">
+    <div class="drawer-header">
+      <h3 class="drawer-title">💡 Panduan Kunci Jawaban</h3>
+      <button class="drawer-close-btn" onclick="closeSolutionDrawer()">✕</button>
+    </div>
+    <div class="drawer-content">
+      
+      <!-- SOLUTION 1 -->
+      <div class="solution-card">
+        <h4>✨ Solusi A: Koordinat X (Paling Direkomendasikan)</h4>
+        <p>Ganti logika Script 2 dengan dua perulangan <code>repeat until</code> berdasarkan posisi X panggung:</p>
+        <div class="code-block-preview">
+<span class="kw">when ⚑ clicked</span>
+<span class="kw">forever</span>
+  <span class="bl">point in direction</span> 90
+  <span class="kw">repeat until</span> &lt;<span class="hl">(x position) &gt; 230</span>&gt;
+    <span class="bl">move</span> 10 steps
+    <span class="bl">next costume</span>
+  <span class="bl">point in direction</span> -90
+  <span class="kw">repeat until</span> &lt;<span class="hl">(x position) &lt; -230</span>&gt;
+    <span class="bl">move</span> 10 steps
+    <span class="bl">next costume</span>
+        </div>
+      </div>
+
+      <!-- SOLUTION 2 -->
+      <div class="solution-card">
+        <h4>🔄 Solusi B: Putar 180° + Balok Pelepasan Tepi</h4>
+        <p>Ubah balok putar 90° menjadi 180°, lalu tambahkan langkah keluar dari tepi agar tidak macet di x = -250:</p>
+        <div class="code-block-preview">
+<span class="kw">when ⚑ clicked</span>
+<span class="kw">forever</span>
+  <span class="kw">if</span> &lt;touching edge?&gt; <span class="kw">then</span>
+    <span class="hl">turn ↷ 180 degrees</span>
+    <span class="kw">repeat</span> 4
+      <span class="bl">move</span> 10 steps
+        </div>
+      </div>
+
+      <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 12px; font-size: 12.5px; color: #bae6fd;">
+        ℹ️ <strong>Tips:</strong> Silakan susun salah satu dari kedua solusi di atas langsung pada balok TurboWarp di sebelah kiri. Ketika bendera hijau diklik dan kucing bergerak bolak-balik melintasi x = 180 lalu kembali ke x = -180, layar Menang akan langsung otomatis aktif!
+      </div>
+
+    </div>
+  </aside>
 
   <!-- ============================================================ -->
   <!-- FULLSCREEN WIN OVERLAY ("NUTUP SELURUH HTML")                 -->
@@ -846,12 +955,12 @@ if &lt;touching edge?&gt; then
       </div>
 
       <p class="win-desc">
-        Luar biasa! Kamu berhasil memecahkan misteri kucing macet tanpa melanggar batasan. Kucing sekarang bisa bergerak bolak-balik selamanya di panggung Scratch!
+        Hebat sekali! Kucing sekarang berhasil meluncur bolak-balik selamanya di layar Scratch tanpa terjebak di kiri dan tanpa melanggar batasan kodingan!
       </p>
 
       <div class="win-actions">
         <button class="btn-replay" onclick="closeWinOverlay()">
-          🔄 Lanjut di Scratch
+          🔄 Lanjut Eksplorasi di TurboWarp
         </button>
         <button class="btn-back-briefing" onclick="closeWinOverlay(); goToSlide(1);">
           📄 Kembali ke Briefing
@@ -862,17 +971,46 @@ if &lt;touching edge?&gt; then
 
   <script>
     // ==========================================
-    // SLIDE CONTROLLER
+    // SLIDE NAVIGATION
     // ==========================================
     function goToSlide(slideIndex) {
       document.getElementById('slide1').classList.toggle('active', slideIndex === 1);
       document.getElementById('slide2').classList.toggle('active', slideIndex === 2);
     }
 
-    function toggleSolutionModal() {
-      const modal = document.getElementById('solutionModal');
-      modal.classList.toggle('open');
+    // ==========================================
+    // TURBOWARP IFRAME RELOAD
+    // ==========================================
+    function reloadTurboWarpProject() {
+      const iframe = document.getElementById('turbowarpIframe');
+      if (iframe) {
+        iframe.src = './turbowarp/editor.html';
+      }
     }
+
+    // ==========================================
+    // SOLUTION DRAWER
+    // ==========================================
+    function openSolutionDrawer() {
+      document.getElementById('solutionDrawer').classList.add('open');
+      document.getElementById('solutionDrawerOverlay').classList.add('open');
+    }
+
+    function closeSolutionDrawer() {
+      document.getElementById('solutionDrawer').classList.remove('open');
+      document.getElementById('solutionDrawerOverlay').classList.remove('open');
+    }
+
+    // ==========================================
+    // POSTMESSAGE LISTENER (TURBOWARP AUTO-WIN)
+    // ==========================================
+    window.addEventListener('message', (event) => {
+      // Listen for message from TurboWarp runtime hook
+      if (event.data && (event.data.type === 'TURBOWARP_AUTO_WIN' || event.data === 'TURBOWARP_AUTO_WIN')) {
+        console.log('[Slide Parent] Auto-Win Signal Received from TurboWarp GUI!');
+        triggerWinOverlay();
+      }
+    });
 
     // ==========================================
     // FULLSCREEN WIN OVERLAY & AUDIO CHIME
@@ -933,7 +1071,7 @@ if &lt;touching edge?&gt; then
       }
     }
 
-    // Lightweight Standalone Canvas Confetti
+    // Standalone Canvas Confetti
     let confettiAnimationId = null;
     function startConfetti() {
       const canvas = document.getElementById('confettiCanvas');
@@ -988,8 +1126,10 @@ if &lt;touching edge?&gt; then
         cancelAnimationFrame(confettiAnimationId);
       }
       const canvas = document.getElementById('confettiCanvas');
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
     }
   </script>
 </body>

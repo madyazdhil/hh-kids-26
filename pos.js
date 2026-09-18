@@ -345,16 +345,16 @@ document.addEventListener('DOMContentLoaded', () => {
       battleGameTitle.textContent = '📊 Challenge 4: Spreadsheet Special (#REF! Fixer)';
 
       battleWorkspace.innerHTML = `
-        <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; gap: 16px;">
-          <div style="font-size: 2.5rem; font-weight: 900; color: #38bdf8; font-family: monospace;">
-            =VLOOKUP(A2, Data!$A$2:$D$100, 3, FALSE)
+        <div style="height: 100%; display: flex; flex-direction: column;">
+          <div style="padding: 10px 16px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(56,189,248,0.25); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 800; color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-size: 0.88rem;">
+              📊 ARENA KLINIK SPREADSHEET (MEJA ${assignedPos}) • GOOGLE WORKSPACE • F4 / CTRL+Z
+            </span>
+            <a href="sheets-slide.html" target="_blank" class="btn btn-xs btn-outline" style="border-color: #38bdf8; color: #38bdf8;">
+              Buka Fullscreen Tab ↗
+            </a>
           </div>
-          <p style="color: #cbd5e1; font-size: 1.05rem; max-width: 650px;">
-            Perbaiki formula yang memunculkan error <code>#REF!</code> di sheet panitia!
-          </p>
-          <div style="background: rgba(56,189,248,0.1); border: 1px solid #38bdf8; padding: 12px 24px; border-radius: 8px; color: #fff; font-size: 0.95rem;">
-            🛠️ Temukan kolom yang hilang dan perbaiki rentang tabelnya!
-          </div>
+          <iframe id="sheets-battle-frame" src="sheets-slide.html" style="width: 100%; height: calc(100% - 45px); border: none; background: #030712;"></iframe>
         </div>
       `;
     }
@@ -553,10 +553,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Listen for challenge completion events from embedded frames
   window.addEventListener('message', (e) => {
-    if (e.data && e.data.type === 'MEMORY_CHALLENGE_COMPLETE') {
+    if (e.data && (e.data.type === 'MEMORY_CHALLENGE_COMPLETE' || e.data.type === 'CHALLENGE_COMPLETED')) {
       if (btnSprintBell) {
         btnSprintBell.scrollIntoView({ behavior: 'smooth' });
         btnSprintBell.style.animation = 'bellPulse 0.8s infinite ease-in-out';
+        btnSprintBell.style.background = '#00ff9d';
         playBellChime();
       }
     }
@@ -621,9 +622,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Initial setup
+  if (debugSlide && debugSlide >= 1) {
+    currentSlideIndex = debugSlide - 1;
+    if (debugBattle) {
+      isBattleUnlocked = true;
+    }
+  }
   updatePosIdentity(assignedPos);
   evaluateScreenState();
   if (window.HHSync) {
     window.HHSync.send('REQUEST_STATUS');
   }
 });
+

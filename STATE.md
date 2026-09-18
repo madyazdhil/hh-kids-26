@@ -26,10 +26,18 @@
   - Sinkronisasi instan tombol *"Kirim Juara ke Proyektor"* menuju Slide 23 (Awarding) dan remote spin Doorprize menuju Slide 24.
 - **Automated Playwright Verification:**
   - `scripts/verify_countdown_flow.py` memvalidasi MC deck 26 slide, locked briefing states, countdown transitions, and admin awarding jump (0 console errors).
+- **Tantangan Babak 3: Memory Academy Visual Flash Integrasi Penuh:**
+  - Desain diselaraskan 100% dengan template Dark Navy Black Glassmorphism `pos.html`.
+  - Menggunakan 20 objek (10 objek baru dari Ruangguru CDN `cdn-web-2.ruangguru.com` + 10 objek klasik) dengan pengacakan dinamis Fisher-Yates shuffle.
+  - Alur otomatis: Terkunci di Slide 17 (Briefing), terbuka serentak di semua meja (Pos 1 s/d 4) begitu hitungan mundur 3-2-1 di proyektor Slide 18 selesai (`MULAI!`).
+  - Fase observasi 20 kartu 3D flip berurutan (1.0s) dilengkapi tombol lewati instan (`Spasi`).
+  - Fase kuis 20 pertanyaan bergambar yang didesain **Keyboard-First** (`A`/`1`/`←` dan `B`/`2`/`→`) dengan tactile glow badge dan Web Audio synth sound effects.
+  - Begitu kuis selesai, sistem menampilkan skor akurasi dan menyalakan pulsing glow pada tombol bel raksasa: *"🔔 KITA UDAH KELAR! LARI KEJAR KAK BALQIS!"*.
+  - Terverifikasi via Playwright dengan 0 console error (`verify_memory_pos_integration.py`).
 - **Personal GitHub:**
   - Repo: `git@github.com-personal:madyazdhil/hh-kids-26.git`.
 
 ## Blockers and Open Questions
 
-- Tidak ada blocker. Seluruh alur 26 slide dan sinkronisasi pos standby telah teruji dan siap live.
+- Tidak ada blocker. Seluruh alur 26 slide, sinkronisasi pos standby, dan tantangan interaktif telah teruji dan siap live.
 
