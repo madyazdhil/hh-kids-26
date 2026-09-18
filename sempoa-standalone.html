@@ -646,7 +646,6 @@
         </div>
         <div class="header-actions">
           <button id="btnSoundToggle" class="icon-btn" title="Nyalakan/Matikan Suara" onclick="toggleSound()">🔊</button>
-          <button id="btnEditQuestions" class="icon-btn" title="Kustomisasi 10 Soal" onclick="openEditModal()">⚙️</button>
         </div>
       </div>
 
@@ -1155,21 +1154,15 @@
         playCorrectChime();
         feedbackBox.className = 'feedback-box correct';
         feedbackTitle.innerHTML = '🎉 HEBAT! JAWABANMU BENAR!';
-        feedbackDetail.innerHTML = `Hasil Perhitungan: <strong>${correctAns}</strong>`;
+        feedbackDetail.innerHTML = `Jawaban: <strong>${playerAns}</strong> ✅ Tepat!`;
       } else {
         playWrongBuzz();
         feedbackBox.className = 'feedback-box wrong';
         feedbackTitle.innerHTML = '❌ YAH, BELUM TEPAT!';
-        feedbackDetail.innerHTML = `Jawabanmu: <strong>${playerAns}</strong> — Silakan coba lagi!`;
+        feedbackDetail.innerHTML = `Jawabanmu: <strong>${playerAns}</strong> • Coba lagi!`;
       }
 
-      // Rincian rumus hitungan (hanya tampil kalau benar)
-      const formula = currentActiveNumbers.map((n, idx) => {
-        if (idx === 0) return `${n}`;
-        return n >= 0 ? `+ ${n}` : `- ${Math.abs(n)}`;
-      }).join(' ');
-
-      breakdownText.innerHTML = isCorrect ? `📐 <strong>Rincian:</strong> ${formula} = <strong>${correctAns}</strong>` : '';
+      breakdownText.innerHTML = '';
     }
 
     function retryCurrentQuestion() {
@@ -1224,7 +1217,6 @@
         row.innerHTML = `
           <div class="soal-editor-label">
             <span>SOAL #${idx + 1} (${q.numbers.length} Baris)</span>
-            <span class="ans-hint">Kunci = ${sum}</span>
           </div>
           <input type="text" class="soal-editor-input" id="edit_soal_${idx}" value="${q.numbers.join(', ')}" />
         `;
