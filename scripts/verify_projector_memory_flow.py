@@ -44,7 +44,7 @@ def run():
         active_id = page_pos1.evaluate("document.querySelector('.pos-state-panel.active')?.id")
         print(f"   Active Panel: {active_id}")
         time.sleep(2)
-        page_pos1.screenshot(path="projects/regroup-happy-hour/output/verify_01_briefing_pos1_locked.png")
+        page_pos1.screenshot(path="output/verify_01_briefing_pos1_locked.png")
 
         # 3. Go to Slide 18 (Battle 3 Arena: Countdown)
         print("3. Navigating to Slide 18 (Battle 3 Arena: Countdown & Observation)...")
@@ -79,7 +79,7 @@ def run():
         assert obs_box_mc, "MC Stage 2 Observation Box should be visible!"
         assert "KARTU" in counter_mc, "Card counter should show current card number!"
 
-        page_mc.screenshot(path="projects/regroup-happy-hour/output/verify_02_projector_observation_active.png")
+        page_mc.screenshot(path="output/verify_02_projector_observation_active.png")
 
         # 5. Check Pos 1 & Pos 3 Screen: Attention State (Tatap Proyektor!)
         print("6. Checking Pos 1 Screen during Projector Observation...")
@@ -95,7 +95,7 @@ def run():
         assert "TATAP LAYAR PROYEKTOR" in countdown_hint_pos1, "Pos 1 should instruct team to look at projector!"
         assert not battle_active_pos1, "Pos 1 quiz should NOT be active yet during observation!"
 
-        page_pos1.screenshot(path="projects/regroup-happy-hour/output/verify_03_pos1_attention_projector.png")
+        page_pos1.screenshot(path="output/verify_03_pos1_attention_projector.png")
 
         # 6. Skip Observation on MC (or finish 20 cards)
         print("7. Clicking Skip Observation on MC to trigger Quiz...")
@@ -106,7 +106,7 @@ def run():
         quiz_active_box_mc = page_mc.locator("#memory-stage-quiz-active").is_visible()
         print(f"   MC Quiz Active Banner Visible: {quiz_active_box_mc}")
         assert quiz_active_box_mc, "MC Stage 3 Quiz Active banner should be visible!"
-        page_mc.screenshot(path="projects/regroup-happy-hour/output/verify_04_projector_quiz_active.png")
+        page_mc.screenshot(path="output/verify_04_projector_quiz_active.png")
 
         # 7. Check Pos 1: Quiz is now immediately unlocked and visible!
         print("8. Checking Pos 1 Screen after MEMORY_START_QUIZ...")
@@ -124,7 +124,7 @@ def run():
         assert quiz_view_pos1, "Quiz view should be directly visible inside frame!"
         assert not obs_view_pos1, "Observation view inside pos frame should be hidden (already observed on projector)!"
 
-        page_pos1.screenshot(path="projects/regroup-happy-hour/output/verify_05_pos1_quiz_unlocked.png")
+        page_pos1.screenshot(path="output/verify_05_pos1_quiz_unlocked.png")
 
         # 8. Test answering 20 questions with Keyboard
         print("9. Simulating answering all 20 questions via Keyboard A/B...")
@@ -141,7 +141,7 @@ def run():
         print(f"   Pos 1 Final Score: {score_pos1}")
         assert result_view_pos1, "Result view should be visible after 20 questions!"
 
-        page_pos1.screenshot(path="projects/regroup-happy-hour/output/verify_06_pos1_quiz_finished.png")
+        page_pos1.screenshot(path="output/verify_06_pos1_quiz_finished.png")
 
         # 9. Test Sprint Bell Click
         print("10. Testing Sprint Bell on Pos 1...")
@@ -152,7 +152,7 @@ def run():
         print(f"   Pos 1 Bell Button State: {bell_text.strip()[:40]}...")
         assert "BEL DIBUNYIKAN" in bell_text, "Bell button should reflect triggered state!"
 
-        page_pos1.screenshot(path="projects/regroup-happy-hour/output/verify_07_pos1_bell_rung.png")
+        page_pos1.screenshot(path="output/verify_07_pos1_bell_rung.png")
 
         browser.close()
 
