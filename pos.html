@@ -157,6 +157,112 @@
 
   </main>
 
+  <!-- ====================================================================
+       VICTORY FULLSCREEN OVERLAY (triggered by CHALLENGE_COMPLETED)
+       Hidden by default — shown in-page when challenge is complete
+       ==================================================================== -->
+  <div id="victory-fullscreen-overlay" aria-live="assertive" style="
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: radial-gradient(ellipse at center, #0a2a1a 0%, #050d1a 70%);
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 24px;
+    font-family: 'Outfit', sans-serif;
+  ">
+    <!-- Animated bg particles -->
+    <canvas id="victory-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
+
+    <!-- Content -->
+    <div style="position:relative;z-index:2;text-align:center;padding:32px;">
+      <div id="victory-emoji" style="font-size:clamp(5rem,14vw,10rem);line-height:1;animation:victoryBounce 0.6s cubic-bezier(.36,.07,.19,.97) both;">🏆</div>
+
+      <div style="
+        font-size: clamp(2rem,6vw,4.5rem);
+        font-weight: 900;
+        letter-spacing: 0.04em;
+        color: #00ff9d;
+        text-shadow: 0 0 40px rgba(0,255,157,0.8), 0 0 80px rgba(0,255,157,0.4);
+        margin: 16px 0 8px;
+        animation: victoryGlow 1.5s ease-in-out infinite alternate;
+      ">SELESAI! 🎉</div>
+
+      <div id="victory-subtitle" style="
+        font-size: clamp(1rem,2.5vw,1.6rem);
+        color: #ffd700;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-shadow: 0 0 20px rgba(255,215,0,0.6);
+        margin-bottom: 32px;
+      ">TANTANGAN BERHASIL DISELESAIKAN!</div>
+
+      <button id="victory-bell-btn" style="
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #00ff9d, #00c97a);
+        color: #050d1a;
+        border: none;
+        border-radius: 20px;
+        padding: 24px 48px;
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(1.2rem,3vw,2rem);
+        font-weight: 900;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        box-shadow: 0 0 40px rgba(0,255,157,0.5), 0 8px 32px rgba(0,0,0,0.4);
+        animation: bellPop 0.8s cubic-bezier(.36,.07,.19,.97) 0.3s both;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      " onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+        <span style="font-size:clamp(2rem,5vw,3.5rem);">🔔🏃‍♂️💨</span>
+        <span>LARI KE KAK BALQIS SEKARANG!</span>
+        <span style="font-size:0.6em;font-weight:600;opacity:0.8;">Tekan tombol ini → sinyal terkirim → sprint ke meja panitia!</span>
+      </button>
+
+      <div style="margin-top:24px;">
+        <button id="victory-dismiss-btn" style="
+          background: transparent;
+          border: 1px solid rgba(255,255,255,0.25);
+          color: rgba(255,255,255,0.5);
+          padding: 10px 24px;
+          border-radius: 8px;
+          font-family: 'Outfit', sans-serif;
+          font-size: 0.85rem;
+          cursor: pointer;
+          transition: all 0.2s;
+        " onmouseover="this.style.opacity='1';this.style.color='#fff'" onmouseout="this.style.opacity='1';this.style.color='rgba(255,255,255,0.5)'">
+          ✖ Tutup Overlay (kembali ke arena)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes victoryBounce {
+      0%   { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+      60%  { transform: scale(1.15) rotate(5deg); }
+      80%  { transform: scale(0.95); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes victoryGlow {
+      from { text-shadow: 0 0 30px rgba(0,255,157,0.7), 0 0 60px rgba(0,255,157,0.3); }
+      to   { text-shadow: 0 0 60px rgba(0,255,157,1),   0 0 120px rgba(0,255,157,0.6); }
+    }
+    @keyframes bellPop {
+      0%   { transform: scale(0) translateY(40px); opacity: 0; }
+      70%  { transform: scale(1.08) translateY(-6px); }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    @keyframes confettiFall {
+      to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+  </style>
+
   <script src="vendor/peerjs.min.js"></script>
   <script src="sync-engine.js"></script>
   <script src="pos.js"></script>
