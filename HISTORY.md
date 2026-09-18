@@ -1328,3 +1328,17 @@ Untuk retest: restart server, hard refresh semua laptop, lalu buka URL Pos dari 
 > push dong perbaikan ke githubnya mana keliatan kalo gitu
 
 Status: approved; explicit request to push the implemented fixes to GitHub.
+
+### Assistant — 2026-09-18
+
+Sudah dipush ke GitHub ✅
+
+Repository:
+`git@github.com-personal:madyazdhil/hh-kids-26.git`
+
+Branch: `main`
+Commit perbaikan utama:
+- `59d611f` — sync scouting dan battle phases
+- `4a84588` — fix countdown unlock race
+
+Working tree sekarang bersih dan sudah sinkron dengan `origin/main`.
