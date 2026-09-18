@@ -9,6 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   // 1. WEB AUDIO API SYNTHESIZER (ZERO MISSING ASSET RISK)
   // ==========================================================================
+  // One complete, ordered snapshot accompanies every MC state transition.
+  const liveState = { index: 0, title: '', revision: 0,
+    timer: { isRunning: false, currentSec: 60, totalSec: 60 },
+    battle: { round: null, count: null, phase: 'locked' } };
+  const syncConnections = new Set();
   let audioCtx = null;
   let isMuted = false;
 
@@ -315,6 +320,9 @@ document.addEventListener('DOMContentLoaded', () => {
         isMemoryObservingProjector = false;
       }
 
+      if (index !== currentSlideIndex) {
+        Object.values(battleCountdowns).forEach(timer => clearInterval(timer.interval));
+      }
       currentSlideIndex = index;
       updateSlideUI();
       SoundFx.playClick();
@@ -1019,6 +1027,29 @@ document.addEventListener('DOMContentLoaded', () => {
   // 10. REAL-TIME BROADCAST CHANNEL & REMOTE CONTROL SYNC
   // ==========================================================================
   function broadcastSync(type, payload = {}) {
+    const stateTypes = ['SLIDE_CHANGED', 'CURRENT_SLIDE_STATUS', 'TIMER_UPDATE',
+      'TIMER_TICK', 'TIMER_RESET', 'TIMER_EXPIRED', 'BATTLE_COUNTDOWN',
+      'BATTLE_UNLOCKED', 'MEMORY_OBSERVATION_START', 'MEMORY_START_QUIZ'];
+    if (type === 'SLIDE_CHANGED' || type === 'CURRENT_SLIDE_STATUS') {
+      if (liveState.index !== payload.index) {
+        liveState.battle = { round: null, count: null, phase: 'locked' };
+      }
+      liveState.index = payload.index;
+      liveState.title = payload.title;
+    } else if (type.startsWith('TIMER_') && payload.timerId === 1) {
+      liveState.timer = { ...payload };
+    } else if (type === 'BATTLE_COUNTDOWN') {
+      liveState.battle = { round: payload.round, count: payload.count,
+        phase: payload.count > 0 ? 'countdown' : (payload.round === 3 ? 'observing' : 'active') };
+    } else if (type === 'MEMORY_OBSERVATION_START') {
+      liveState.battle = { round: 3, count: 0, phase: 'observing' };
+    } else if (type === 'BATTLE_UNLOCKED' || type === 'MEMORY_START_QUIZ') {
+      liveState.battle = { round: payload.round, count: 0, phase: 'active' };
+    }
+    if (stateTypes.includes(type)) {
+      liveState.revision++;
+      payload = { ...payload, state: JSON.parse(JSON.stringify(liveState)) };
+    }
     if (window.HHSync) {
       window.HHSync.send(type, payload);
     } else {
@@ -1225,11 +1256,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
+      proyektorPeer.on('connection', connection => {
+        connection.on('open', () => {
+          syncConnections.add(connection);
+          broadcastSync('CURRENT_SLIDE_STATUS', { index: currentSlideIndex,
+            title: slides[currentSlideIndex]?.dataset.title || '' });
+          connection.send({ type: 'PROYEKTOR_READY', payload: { peerId: proyektorPeer.id } });
+        });
+        connection.on('data', message => window.HHSync?.receive(message));
+        connection.on('close', () => syncConnections.delete(connection));
+        connection.on('error', () => syncConnections.delete(connection));
+      });
+
       proyektorPeer.on('call', (call) => {
         call.answer(); // Answer incoming stream from Pos
         call.on('stream', (remoteStream) => {
           const { pos, type } = call.metadata || {};
           const posNum = pos || 1;
+          const receipt = { type: 'STREAM_RECEIVED', payload: { pos: posNum, type } };
+          syncConnections.forEach(connection => { if (connection.open) connection.send(receipt); });
           
           if (type === 'cam') {
             const camVideo = document.getElementById(`stream-cam-pos${posNum}`);
@@ -1240,9 +1285,9 @@ document.addEventListener('DOMContentLoaded', () => {
               camVideo.srcObject = remoteStream;
               camVideo.play().catch(() => {});
             }
-            if (camBox) {
-              camBox.classList.remove('hidden');
-            }
+            if (camBox) camBox.classList.remove('hidden');
+            const waitingText = document.querySelector(`#waiting-pos${posNum} .waiting-title`);
+            if (waitingText) waitingText.textContent = 'Kamera tersambung • layar belum dibagikan';
             remoteStream.getVideoTracks().forEach(track => {
               track.onended = () => {
                 if (camBox) camBox.classList.add('hidden');
@@ -1276,6 +1321,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       });
 
+      proyektorPeer.on('disconnected', () => {
+        if (proyektorPeer && !proyektorPeer.destroyed) proyektorPeer.reconnect();
+      });
       proyektorPeer.on('error', (err) => {
         console.warn('Proyektor Peer notice:', err);
         if (err.type === 'unavailable-id') {
@@ -1297,13 +1345,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Reliable ordered data transport does not depend on the notification relay.
+  window.HHSync?.addTransport(message => {
+    syncConnections.forEach(connection => { if (connection.open) connection.send(message); });
+  });
+  setInterval(() => {
+    syncConnections.forEach(connection => {
+      if (connection.open) connection.send({ type: 'CURRENT_SLIDE_STATUS',
+        senderId: window.HHSync?.clientId,
+        payload: { index: currentSlideIndex, state: liveState } });
+    });
+  }, 5000);
   // Initialize WebRTC Receiver
   initProyektorPeer();
 
   function loadSpectatorIframes() {
     initProyektorPeer();
-    if (window.HHSync) {
-      window.HHSync.send('PROYEKTOR_READY', { peerId: 'hhkids26-proyektor-main' });
+    if (window.HHSync && proyektorPeer?.open) {
+      window.HHSync.send('PROYEKTOR_READY', { peerId: proyektorPeer.id });
     }
     ['pos1', 'pos2', 'pos3', 'pos4'].forEach(id => {
       const iframe = document.getElementById(`iframe-${id}`);

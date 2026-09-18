@@ -16,7 +16,11 @@
   // Unique client identifier to avoid echo loops
   const clientId = 'client_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
   
+  const startedAt = Date.now();
   const listeners = [];
+  const directTransports = [];
+  let cloudPolling = false;
+  let cloudBackoffUntil = 0;
   const seenMessageIds = new Set();
   let broadcastChannel = null;
   let eventSource = null;
@@ -33,6 +37,9 @@
 
   function dispatchMessage(msg) {
     if (!msg || !msg.type) return;
+    // Cached relay commands must not move a newly opened MC back in time.
+    if ((msg.type.startsWith('REMOTE_') || ['SET_WINNER', 'SPECTATOR_TOGGLE', 'SPECTATOR_FOCUS'].includes(msg.type))
+      && msg.timestamp && msg.timestamp < startedAt) return;
 
     // Ignore self-echo
     if (msg.senderId === clientId) return;
@@ -113,12 +120,17 @@
   // EventSource open but never deliver its events, so add a lightweight
   // polling fallback using the same ntfy topic.
   async function pollCloud() {
+    if (cloudPolling || Date.now() < cloudBackoffUntil) return;
+    cloudPolling = true;
     try {
       const since = cloudPollCursor || '30s';
       const res = await fetch(`${PUB_URL}/json?poll=1&since=${encodeURIComponent(since)}`, {
-        cache: 'no-store'
+        cache: 'no-store', signal: AbortSignal.timeout(8000)
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        if (res.status === 429) cloudBackoffUntil = Date.now() + 60000;
+        throw new Error(`Relay HTTP ${res.status}`);
+      }
       const lines = (await res.text()).split('\n');
       lines.forEach((line) => {
         if (!line.trim()) return;
@@ -129,11 +141,13 @@
         } catch (e) {}
       });
     } catch (e) {
-      // SSE remains available if polling is blocked.
+      // Direct data connections and local polling remain available.
+    } finally {
+      cloudPolling = false;
     }
   }
   pollCloud();
-  cloudPollInterval = setInterval(pollCloud, 1500);
+  cloudPollInterval = setInterval(pollCloud, 10000);
 
   // 4. Setup Local Server Polling (/api/sync) for offline Da Vinci Wi-Fi
   let isInitialPoll = true;
@@ -202,6 +216,9 @@
   // Public API
   const HHSync = {
     clientId,
+    // PeerJS data channels share the same deduplication path as other transports.
+    receive: dispatchMessage,
+    addTransport(send) { directTransports.push(send); },
 
     /**
      * Send a message to all connected screens and devices
@@ -217,6 +234,10 @@
         payload,
         timestamp: now
       };
+
+      directTransports.forEach(send => {
+        try { send(msg); } catch (error) { console.warn('Direct sync:', error); }
+      });
 
       // 1. BroadcastChannel (Same Machine)
       if (broadcastChannel) {
@@ -255,8 +276,13 @@
           // preflight from GitHub Pages and can silently block the publish
           // on managed browsers. ntfy accepts the JSON string as the message
           // body, and subscribers parse raw.message below.
-          body: JSON.stringify(msg)
-        }).catch(() => {});
+          body: JSON.stringify(msg),
+          signal: AbortSignal.timeout(8000)
+        }).then(res => {
+          if (!res.ok) throw new Error(`Relay HTTP ${res.status}`);
+        }).catch(error => {
+          window.dispatchEvent(new CustomEvent('hh-relay-error', { detail: error.message }));
+        });
       } catch (e) {}
     },
 

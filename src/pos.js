@@ -56,6 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // out of order. Keep the unlock signal until the matching battle slide is
   // known locally instead of letting a late SLIDE_CHANGED reset it.
   let pendingBattleUnlockRound = null;
+  let lastStateRevision = -1;
+  let stateSender = null;
+  let lastStateAt = 0;
+  let lastStatusRequestAt = 0;
 
   // Update Pos Assignment UI
   function updatePosIdentity(posNum) {
@@ -71,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
     scoutingPosBadge.textContent = `POS ${posNum}: ${conf.name.toUpperCase()}`;
 
     renderScoutingContent();
-    renderBattleContent();
+    if (isBattleUnlocked) renderBattleContent();
   }
 
   posSelectSwitcher.addEventListener('change', (e) => {
@@ -111,13 +115,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Slide 8 (index 7): Scouting Sesi 1 Menit
     else if (currentSlideIndex === 7) {
-      if (timerCurrentSec === 0) {
+      if (!isTimerRunning || timerCurrentSec <= 0) {
         // Once the inspection timer has actually expired, hide the clues.
         showPanel(stateOlympicIdle);
       } else {
-        // Show each Pos' instructions as soon as Slide 8 is active. The
-        // timer may not have started yet, but the leader still needs to read
-        // the correct game briefing on their assigned laptop.
+        // Scouting exposes instructions only while the MC timer runs.
         showPanel(stateScouting);
       }
     }
@@ -252,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div style="display: flex; flex-direction: column; gap: 12px;">
           <h3 style="color: var(--neon-gold); font-size: 1.25rem;">🧮 POS 2: MATHCHAMPS SPEED MATH</h3>
           <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.5;">
-            <strong>Misi Rahasia:</strong> Soal hitung mental cepat sempoa! Angka akan berganti otomatis setiap 4 detik.
+            <strong>Misi Rahasia:</strong> Soal hitung mental cepat sempoa! Angka akan berganti otomatis setiap 2 detik.
           </p>
           <div style="background: rgba(0,0,0,0.5); padding: 14px; border-radius: 8px; border-left: 4px solid var(--neon-gold); font-family: monospace;">
             <div style="color: #94a3b8; font-size: 0.85rem;">[Clue Soal]:</div>
@@ -468,6 +470,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   const btnBroadcastStream = document.getElementById('btn-broadcast-stream');
   let posPeer = null;
+  let dataConnection = null;
+  const mediaCalls = new Map();
   let activeScreenStream = null;
   let activeCamStream = null;
   let activeProyektorPeerId = 'hhkids26-proyektor-main';
@@ -486,6 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       posPeer.on('open', (id) => {
         console.log(`⚡ Pos ${assignedPos} WebRTC Broadcaster Ready:`, id);
+        connectProjectorData();
         if (window.HHSync) {
           window.HHSync.send('REQUEST_PROYEKTOR_ID', { pos: assignedPos });
         }
@@ -498,6 +503,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function connectProjectorData() {
+    if (!posPeer?.open) return;
+    if (dataConnection && dataConnection.peer === activeProyektorPeerId && dataConnection.open) return;
+    if (dataConnection) dataConnection.close();
+    const connection = posPeer.connect(activeProyektorPeerId, { reliable: true });
+    dataConnection = connection;
+    connection.on('open', () => {
+      window.HHSync?.send('REQUEST_STATUS');
+      if (activeScreenStream || activeCamStream) transmitStreamsToProyektor();
+    });
+    connection.on('data', message => window.HHSync?.receive(message));
+    connection.on('error', error => console.warn('Koneksi proyektor:', error));
+  }
+  window.HHSync?.addTransport(message => {
+    if (dataConnection?.open) dataConnection.send(message);
+  });
+  setInterval(() => {
+    if (!posPeer || posPeer.destroyed) initPosPeer();
+    else if (posPeer.disconnected) posPeer.reconnect();
+    if (!dataConnection?.open) connectProjectorData();
+    if (activeCamStream || activeScreenStream) transmitStreamsToProyektor();
+    if (Date.now() - lastStateAt > 15000) {
+      posSyncStatus.textContent = '🟡 Belum menerima status MC — memulihkan koneksi…';
+      if (Date.now() - lastStatusRequestAt > 15000) {
+        lastStatusRequestAt = Date.now();
+        window.HHSync?.send('REQUEST_STATUS');
+      }
+    }
+  }, 5000);
   initPosPeer();
 
   function transmitStreamsToProyektor() {
@@ -506,18 +540,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const doCall = () => {
       const targetId = activeProyektorPeerId || 'hhkids26-proyektor-main';
-      if (activeScreenStream) {
-        console.log(`📡 Sending Screen Stream from Pos ${assignedPos} to Proyektor (${targetId})...`);
-        posPeer.call(targetId, activeScreenStream, {
-          metadata: { pos: assignedPos, type: 'screen' }
+      [['screen', activeScreenStream], ['cam', activeCamStream]].forEach(([type, stream]) => {
+        if (!stream) return;
+        const previous = mediaCalls.get(type);
+        if (previous && previous.peer === targetId && !['failed', 'closed'].includes(previous.peerConnection?.connectionState)) return;
+        if (previous) previous.close();
+        const call = posPeer.call(targetId, stream, { metadata: { pos: assignedPos, type } });
+        if (!call) return;
+        mediaCalls.set(type, call);
+        const failed = () => {
+          if (mediaCalls.get(type) === call) mediaCalls.delete(type);
+          if (btnBroadcastStream && (activeCamStream || activeScreenStream)) {
+            btnBroadcastStream.querySelector('.broadcast-text').textContent = 'Siaran terputus — menyambung ulang…';
+          }
+        };
+        call.on('close', failed);
+        call.on('error', failed);
+        const pc = call.peerConnection;
+        if (pc) pc.addEventListener('connectionstatechange', () => {
+          if (pc.connectionState === 'failed') { call.close(); failed(); }
         });
-      }
-      if (activeCamStream) {
-        console.log(`📷 Sending Team Cam Stream from Pos ${assignedPos} to Proyektor (${targetId})...`);
-        posPeer.call(targetId, activeCamStream, {
-          metadata: { pos: assignedPos, type: 'cam' }
-        });
-      }
+      });
     };
 
     if (posPeer.open) {
@@ -537,6 +580,11 @@ document.addEventListener('DOMContentLoaded', () => {
       btnBroadcastStream.innerHTML = `<span class="broadcast-icon">🟡</span><span class="broadcast-text">Menyiapkan Siaran...</span>`;
     }
 
+    // Screen picker must start inside the original click's user activation.
+    const screenRequest = activeScreenStream ? Promise.resolve(activeScreenStream)
+      : navigator.mediaDevices.getDisplayMedia({ video: { cursor: 'always' }, audio: false })
+        .catch(error => { console.warn('Screen share:', error); return null; });
+
     // 1. Ambil Webcam secara diam-diam (tanpa popup floating di layar peserta)
     try {
       if (!activeCamStream) {
@@ -549,20 +597,11 @@ document.addEventListener('DOMContentLoaded', () => {
       console.warn('Izin webcam dilewati atau ditolak:', err);
     }
 
-    // 2. Ambil Screen Share Layar Peserta
-    try {
-      if (!activeScreenStream) {
-        activeScreenStream = await navigator.mediaDevices.getDisplayMedia({
-          video: { cursor: 'always' },
-          audio: false
-        });
-      }
-    } catch (err) {
-      console.warn('Screen share dibatalkan oleh pengguna:', err);
-      if (btnBroadcastStream) {
-        btnBroadcastStream.classList.remove('streaming');
-        btnBroadcastStream.innerHTML = `<span class="broadcast-icon">📡</span><span class="broadcast-text">Siarkan ke Proyektor</span>`;
-      }
+    activeScreenStream = await screenRequest;
+    // Camera-only broadcasting is valid when screen sharing was declined.
+    if (!activeScreenStream && !activeCamStream) {
+      stopStreaming();
+      if (btnBroadcastStream) btnBroadcastStream.querySelector('.broadcast-text').textContent = 'Izin kamera/layar belum diberikan — coba lagi';
       return;
     }
 
@@ -571,7 +610,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnBroadcastStream) {
       btnBroadcastStream.classList.add('streaming');
-      btnBroadcastStream.innerHTML = `<span class="broadcast-icon">🟢</span><span class="broadcast-text">Siaran Aktif (Pos ${assignedPos})</span>`;
+      btnBroadcastStream.innerHTML = `<span class="broadcast-icon">🟢</span><span class="broadcast-text">Menghubungkan siaran Pos ${assignedPos}…</span>`;
     }
 
     // Listener otomatis saat pengguna mengklik "Stop sharing" di Chrome bar
@@ -586,6 +625,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function stopStreaming() {
+    mediaCalls.forEach(call => call.close());
+    mediaCalls.clear();
     if (activeScreenStream) {
       activeScreenStream.getTracks().forEach(t => t.stop());
       activeScreenStream = null;
@@ -602,7 +643,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnBroadcastStream) {
     btnBroadcastStream.addEventListener('click', () => {
-      if (activeScreenStream) {
+      if (activeScreenStream || activeCamStream) {
         stopStreaming();
       } else {
         startStreamingToProyektor();
@@ -612,9 +653,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Re-send stream if Proyektor requests status or sends PROYEKTOR_READY
   if (window.HHSync) {
+    window.HHSync.on('STREAM_RECEIVED', data => {
+      if (data.payload.pos === assignedPos && btnBroadcastStream && (activeScreenStream || activeCamStream)) {
+        btnBroadcastStream.querySelector('.broadcast-text').textContent = `Diterima Proyektor • ${data.payload.type === 'cam' ? 'Kamera' : 'Layar'} Pos ${assignedPos}`;
+      }
+    });
     window.HHSync.on('PROYEKTOR_READY', (data) => {
       if (data && data.payload && data.payload.peerId) {
         activeProyektorPeerId = data.payload.peerId;
+        connectProjectorData();
         console.log('⚡ Active Proyektor Peer ID updated:', activeProyektorPeerId);
       }
       if (activeScreenStream || activeCamStream) {
@@ -778,6 +825,32 @@ document.addEventListener('DOMContentLoaded', () => {
   function handleSyncMessage(data) {
     if (!data || !data.type) return;
 
+    const snapshot = data.payload?.state;
+    if (snapshot && Number.isInteger(snapshot.index)) {
+      if (stateSender !== data.senderId) {
+        stateSender = data.senderId;
+        lastStateRevision = -1;
+      }
+      if (snapshot.revision < lastStateRevision) return;
+      lastStateRevision = snapshot.revision;
+      lastStateAt = Date.now();
+      currentSlideIndex = snapshot.index;
+      isTimerRunning = snapshot.timer.isRunning;
+      timerCurrentSec = snapshot.timer.currentSec;
+      scoutingTimerDisplay.textContent = `${String(Math.floor(timerCurrentSec / 60)).padStart(2, '0')}:${String(timerCurrentSec % 60).padStart(2, '0')}`;
+      const battle = snapshot.battle;
+      isBattleUnlocked = battle.phase === 'active' && currentSlideIndex === getBattleSlideIndex(battle.round - 1);
+      isMemoryObserving = battle.phase === 'observing' && currentSlideIndex === 17;
+      pendingBattleUnlockRound = null;
+      posSyncStatus.textContent = `🟢 Terhubung ke Proyektor (Slide ${currentSlideIndex + 1})`;
+      evaluateScreenState();
+      if (battle.phase === 'countdown' && currentSlideIndex === getBattleSlideIndex(battle.round - 1)) {
+        document.getElementById('battle-countdown-display').textContent = battle.count;
+      }
+      return;
+    }
+    // Once complete snapshots are available, delayed legacy events cannot undo them.
+    if (lastStateRevision >= 0) return;
     if (data.type === 'SLIDE_CHANGED' || data.type === 'CURRENT_SLIDE_STATUS') {
       const idx = data.payload.index;
       if (typeof idx === 'number') {
