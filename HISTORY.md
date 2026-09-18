@@ -1342,3 +1342,27 @@ Commit perbaikan utama:
 - `4a84588` — fix countdown unlock race
 
 Working tree sekarang bersih dan sudah sinkron dengan `origin/main`.
+
+### User — 2026-09-18
+
+> astaga ini masi gabisa nih astaga&#x20;
+>
+> di link pos pos nya&#x20;
+>
+> Laptop Meja 1 (Scratch): [https://madyazdhil.github.io/hh-kids-26/pos.html?pos=1](https://madyazdhil.github.io/hh-kids-26/pos.html?pos=1)
+> Laptop Meja 2 (Mathchamps): [https://madyazdhil.github.io/hh-kids-26/pos.html?pos=2](https://madyazdhil.github.io/hh-kids-26/pos.html?pos=2)
+> Laptop Meja 3 (Memory Academy): [https://madyazdhil.github.io/hh-kids-26/pos.html?pos=3](https://madyazdhil.github.io/hh-kids-26/pos.html?pos=3)
+> Laptop Meja 4 (Spreadsheet): [https://madyazdhil.github.io/hh-kids-26/pos.html?pos=4](https://madyazdhil.github.io/hh-kids-26/pos.html?pos=4)
+>
+> ini slide nya udha slide 8 dan udah mulai countdonwya tapi kok dai ngga kebuk a
+
+Status: live production sync bug investigation.
+
+### Assistant action — 2026-09-18
+
+- Verified the deployed GitHub Pages Pos 1 page and confirmed the new `pos.js` fix is live.
+- Found a production-specific transport problem: GitHub Pages was repeatedly polling `/api/sync` on `https://madyazdhil.github.io/api/sync`, which does not exist (405/404). The page did open an ntfy SSE request, but managed networks can keep SSE open without delivering events.
+- Added a cloud ntfy JSON polling fallback every 1.5 seconds, with a message cursor and shared deduplication, while keeping SSE as the primary transport.
+- Restricted `/api/sync` polling and POST to localhost/LAN hosts only, eliminating invalid GitHub Pages requests.
+- Updated both `sync-engine.js` and `src/sync-engine.js`; syntax checks passed with `node --check`.
+- Status: implemented locally; ready to push and retest on the supplied live links.

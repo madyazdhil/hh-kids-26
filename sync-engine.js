@@ -21,6 +21,8 @@
   let broadcastChannel = null;
   let eventSource = null;
   let localPollInterval = null;
+  let cloudPollInterval = null;
+  let cloudPollCursor = null;
 
   // Initialize BroadcastChannel if supported
   try {
@@ -72,6 +74,15 @@
     }
   });
 
+  function dispatchCloudEvent(raw) {
+    if (!raw || raw.event !== 'message' || !raw.message) return;
+    try {
+      dispatchMessage(JSON.parse(raw.message));
+    } catch (e) {
+      // Ignore keepalives and malformed relay messages.
+    }
+  }
+
   // 3. Setup Cloud SSE via ntfy.sh (Cross-device, Phone to Laptop, Laptop to Laptop)
   function connectCloudSSE() {
     try {
@@ -82,11 +93,7 @@
 
       eventSource.onmessage = (event) => {
         try {
-          const raw = JSON.parse(event.data);
-          if (raw.message) {
-            const msg = JSON.parse(raw.message);
-            dispatchMessage(msg);
-          }
+          dispatchCloudEvent(JSON.parse(event.data));
         } catch (e) {
           // Ignore non-JSON system ping messages
         }
@@ -102,12 +109,45 @@
   }
   connectCloudSSE();
 
+  // SSE is the primary cloud transport. Some managed networks keep an
+  // EventSource open but never deliver its events, so add a lightweight
+  // polling fallback using the same ntfy topic.
+  async function pollCloud() {
+    try {
+      const since = cloudPollCursor || '30s';
+      const res = await fetch(`${PUB_URL}/json?poll=1&since=${encodeURIComponent(since)}`, {
+        cache: 'no-store'
+      });
+      if (!res.ok) return;
+      const lines = (await res.text()).split('\n');
+      lines.forEach((line) => {
+        if (!line.trim()) return;
+        try {
+          const raw = JSON.parse(line);
+          if (raw.id) cloudPollCursor = raw.id;
+          dispatchCloudEvent(raw);
+        } catch (e) {}
+      });
+    } catch (e) {
+      // SSE remains available if polling is blocked.
+    }
+  }
+  pollCloud();
+  cloudPollInterval = setInterval(pollCloud, 1500);
+
   // 4. Setup Local Server Polling (/api/sync) for offline Da Vinci Wi-Fi
   let isInitialPoll = true;
 
   function startLocalPolling() {
-    // Only poll if running on http:// (localhost or local IP), not file://
-    if (!window.location.protocol.startsWith('http')) return;
+    // GitHub Pages is also http(s), but it has no /api/sync endpoint. Only
+    // use this transport on the operator's local server or a LAN IP.
+    const host = window.location.hostname;
+    const isLocalHost = host === 'localhost'
+      || host === '127.0.0.1'
+      || /^10\./.test(host)
+      || /^192\.168\./.test(host)
+      || /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+    if (!isLocalHost) return;
 
     localPollInterval = setInterval(async () => {
       try {
@@ -191,7 +231,13 @@
       } catch (e) {}
 
       // 3. Local Server POST (/api/sync)
-      if (window.location.protocol.startsWith('http')) {
+      const host = window.location.hostname;
+      const isLocalHost = host === 'localhost'
+        || host === '127.0.0.1'
+        || /^10\./.test(host)
+        || /^192\.168\./.test(host)
+        || /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+      if (window.location.protocol.startsWith('http') && isLocalHost) {
         try {
           fetch('/api/sync', {
             method: 'POST',
