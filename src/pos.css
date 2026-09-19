@@ -1071,3 +1071,42 @@ body.pos-screen-body {
 .connection-card input { width: 100%; box-sizing: border-box; padding: 10px; margin: 10px 0; color: white; background: #050811; border: 1px solid #64748b; border-radius: 6px; }
 #projector-pos-links { display: flex; flex-wrap: wrap; gap: 12px; }
 #projector-pos-links a { color: #38bdf8; }
+
+/* ==========================================================================
+   NATIVE INTEGRATED CHALLENGE ARENAS\n   ========================================================================== */
+.integrated-challenge { height: 100%; min-height: 430px; display: flex; flex-direction: column; color: #f8fafc; background: radial-gradient(circle at 80% 0%, color-mix(in srgb, var(--challenge-accent) 14%, transparent), transparent 42%), rgba(3, 7, 18, 0.96); }
+.integrated-challenge-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 13px 18px; border-bottom: 1px solid color-mix(in srgb, var(--challenge-accent) 38%, transparent); background: rgba(0,0,0,.28); }
+.integrated-challenge-toolbar > div { display: flex; flex-direction: column; gap: 4px; }
+.integrated-kicker, .panel-label, .math-round-counter, .memory-progress, .case-number { color: var(--challenge-accent); font: 800 .76rem 'JetBrains Mono', monospace; letter-spacing: .08em; text-transform: uppercase; }
+.integrated-challenge-toolbar strong { font-size: 1.02rem; }
+.integrated-challenge-body { flex: 1; min-height: 0; padding: 18px; overflow: auto; }
+.integrated-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 18px; height: 100%; }
+.integrated-panel, .math-arena, .memory-arena, .sheets-arena { border: 1px solid rgba(255,255,255,.13); border-radius: 14px; background: rgba(15,23,42,.74); padding: 18px; }
+.code-panel { position: relative; overflow: hidden; }
+.scratch-code { margin: 16px 0 0; min-height: 230px; padding: 22px; border-radius: 12px; background: #111827; color: #dbeafe; font: 700 1rem/2 'JetBrains Mono', monospace; white-space: pre-wrap; }
+.code-keyword { color: #f0abfc; }
+.scratch-sprite { position: absolute; right: 28px; bottom: 18px; font-size: 4rem; filter: drop-shadow(0 0 18px #00f0ff); }
+.choice-stack { display: grid; gap: 10px; margin: 16px 0; }
+.game-choice, .game-primary { border: 1px solid color-mix(in srgb, var(--challenge-accent) 55%, white 8%); border-radius: 10px; padding: 12px 14px; background: rgba(15,23,42,.9); color: #f8fafc; font: 700 .9rem 'Outfit', sans-serif; cursor: pointer; transition: .16s ease; }
+.game-choice:hover, .game-choice.selected { border-color: var(--challenge-accent); background: color-mix(in srgb, var(--challenge-accent) 18%, #0f172a); transform: translateY(-1px); }
+.game-choice.correct { border-color: var(--neon-green); background: rgba(0,255,157,.15); }
+.game-choice.wrong { border-color: var(--neon-red); background: rgba(255,71,87,.15); }
+.game-primary { width: 100%; margin-top: 8px; border: 0; color: #030712; background: linear-gradient(135deg, var(--challenge-accent), white); font-weight: 900; }
+.game-primary:disabled { opacity: .55; cursor: not-allowed; }
+.game-status { margin-top: 14px; min-height: 26px; color: #cbd5e1; font-size: .92rem; font-weight: 700; }
+.game-status.is-complete { color: var(--neon-green); }
+.math-arena, .memory-arena { max-width: 860px; margin: 0 auto; text-align: center; padding: 28px; }
+.math-equation { margin: 22px 0; color: var(--neon-gold); font: 900 clamp(3rem, 8vw, 6rem)/1 'JetBrains Mono', monospace; text-shadow: 0 0 26px rgba(255,215,0,.35); }
+.math-answer { width: min(520px, 100%); padding: 15px 18px; border: 2px solid rgba(255,215,0,.5); border-radius: 12px; background: #020617; color: #fff; text-align: center; font: 900 1.8rem 'JetBrains Mono', monospace; outline: none; }
+.math-answer:focus { border-color: var(--neon-gold); box-shadow: 0 0 24px rgba(255,215,0,.22); }
+.math-history { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 16px; color: var(--neon-green); font: 700 .82rem 'JetBrains Mono', monospace; }
+.memory-question-card { margin: 22px auto; padding: 24px; border-radius: 16px; background: linear-gradient(145deg, rgba(0,255,157,.12), rgba(15,23,42,.86)); }
+.memory-icon { font-size: 3.5rem; }
+.memory-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 24px; }
+.memory-option { min-height: 90px; border: 2px solid rgba(0,255,157,.3); border-radius: 12px; background: rgba(2,6,23,.76); color: #fff; cursor: pointer; font-size: 1rem; font-weight: 800; }
+.memory-option:hover { border-color: var(--neon-green); background: rgba(0,255,157,.12); }
+.memory-finished { padding: 30px; border-radius: 12px; color: var(--neon-green); font-size: 1.4rem; font-weight: 900; }
+.sheets-toolbar { display: flex; gap: 12px; align-items: center; padding: 12px; margin-bottom: 14px; border-radius: 8px; background: #111827; font: 700 .85rem 'JetBrains Mono', monospace; }
+.sheet-fx { color: #38bdf8; font-size: 1.3rem; font-style: italic; }.cell-address { padding: 5px 10px; border: 1px solid #334155; border-radius: 4px; color: #f8fafc; }.formula-preview { color: #94a3b8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sheets-cases { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }.sheet-case { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; border: 1px solid rgba(56,189,248,.24); border-radius: 10px; background: rgba(15,23,42,.86); }.sheet-case.solved { border-color: var(--neon-green); }.sheet-case strong { display: block; }.sheet-case p { margin: 4px 0 0; color: #94a3b8; font-size: .82rem; }.sheet-fix { flex: 0 0 auto; padding: 9px 12px; }
+@media (max-width: 820px) { .integrated-grid, .memory-options, .sheets-cases { grid-template-columns: 1fr; }.integrated-challenge-toolbar { align-items: flex-start; flex-direction: column; }.math-equation { font-size: 3.2rem; } }

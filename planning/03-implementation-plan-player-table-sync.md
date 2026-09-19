@@ -47,3 +47,14 @@ Status: execute selesai; seluruh regresi utama lulus pada 19 September 2026.
 - `verify_pos_flow.py`: PASS — alur 26 slide, briefing lock, countdown 3-2-1, unlock, re-lock, dan admin sync.
 - `verify_projector_memory_flow.py`: PASS — observasi proyektor, kuis Pos serentak, 20 jawaban keyboard, tombol bel, dan 0 console error.
 - Perbaikan tambahan: badge briefing eksplisit, reset stage Memory saat Slide 18 dibuka ulang, feedback bel lebih tahan lama dan tidak bergantung pada relay/audio, serta klik DOM untuk kontrol fullscreen-sensitive di test.
+
+
+## Revisi UI challenge terintegrasi — 2026-09-19
+
+- Semua challenge Pos dipindahkan dari iframe menjadi komponen native di `pos.js`: Scratch, Sempoa, Memory, dan Spreadsheet.
+- Arena memakai layout full-size dengan toolbar, status, input, pilihan jawaban, scoring, dan completion state langsung di halaman Pos.
+- Keyboard Memory tidak lagi diteruskan ke iframe; handler A/B berjalan langsung di halaman Pos.
+- Tes recovery dan flow 26 slide dimigrasikan dari assertion URL iframe ke selector integrated arena.
+- Verifikasi: `verify_recovery_flow.py` dan `verify_pos_flow.py` lulus.
+
+Status: implementasi integrated challenge selesai dan terverifikasi lokal.

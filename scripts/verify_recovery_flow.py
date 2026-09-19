@@ -127,8 +127,8 @@ def run():
                 events += flush()
             for page in pos:
                 active(page, '#battle-active-content')
-                expected = ['scratch-slide','sempoa-slide','memory-slide','sheets-slide'][round_no-1]
-                assert expected in page.locator('#battle-workspace iframe').get_attribute('src')
+                expected = ['KALANANTI', 'MATHCHAMPS', 'MEMORY ACADEMY', 'SPREADSHEET SPECIAL'][round_no-1]
+                assert expected in page.locator('#battle-workspace .integrated-kicker').inner_text()
             # Reconnect long after the transient unlock: fresh page only requests status.
             pos[round_no-1].reload(wait_until='domcontentloaded'); flush()
             active(pos[round_no-1], '#battle-active-content')

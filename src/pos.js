@@ -312,90 +312,129 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   // 4. BATTLE CONTENT GENERATOR (CHALLENGE 1 - 4)
   // ==========================================================================
+  let integratedGameCleanup = null;
+  let integratedGameState = null;
+
+  function fsBtn(accentColor = 'var(--neon-cyan)') {
+    return `<button class="btn btn-xs btn-outline" data-action="arena-fullscreen"
+      style="border-color:${accentColor};color:${accentColor};cursor:pointer;">⛶ Fullscreen Arena</button>`;
+  }
+
+  function integratedShell({accent, label, instruction, body}) {
+    return `<section class="integrated-challenge" style="--challenge-accent:${accent};">
+      <header class="integrated-challenge-toolbar">
+        <div><span class="integrated-kicker">${label}</span><strong>${instruction}</strong></div>
+        ${fsBtn(accent)}
+      </header>
+      <div class="integrated-challenge-body">${body}</div>
+    </section>`;
+  }
+
+  function markIntegratedChallengeComplete(message = 'Tantangan selesai! Tekan bel sprint.') {
+    const status = document.querySelector('#integrated-game-status');
+    if (status) {
+      status.textContent = `✅ ${message}`;
+      status.classList.add('is-complete');
+    }
+    window.postMessage({ type: 'CHALLENGE_COMPLETED', subtitle: message }, '*');
+  }
+
+  function mountScratchChallenge() {
+    const code = `<span class="code-keyword">when</span> green flag clicked\n  <span class="code-keyword">repeat</span> 10\n    move 10 steps\n    <span class="code-keyword">if</span> touching edge?\n      turn 15 degrees`;
+    battleWorkspace.innerHTML = integratedShell({
+      accent: 'var(--neon-cyan)', label: `KALANANTI • POS ${assignedPos}`,
+      instruction: 'Cari blok yang membuat robot tidak pernah berhenti.',
+      body: `<div class="integrated-grid scratch-grid">
+        <div class="integrated-panel code-panel"><div class="panel-label">KODE YANG HARUS DI-DEBUG</div><pre class="scratch-code">${code}</pre><div class="scratch-sprite">🐱</div></div>
+        <div class="integrated-panel"><div class="panel-label">PILIH PERBAIKAN</div><div class="choice-stack" id="scratch-choices">
+          <button class="game-choice" data-answer="wrong">Tambahkan <code>stop all</code> di awal</button>
+          <button class="game-choice" data-answer="correct">Tambahkan <code>if on edge, bounce</code> di dalam repeat</button>
+          <button class="game-choice" data-answer="wrong">Hapus blok repeat agar lebih cepat</button>
+        </div><button class="game-primary" id="scratch-submit">Jalankan Debug</button><div class="game-status" id="integrated-game-status">Pilih satu perbaikan yang paling tepat.</div></div>
+      </div>`
+    });
+    let selected = null;
+    const choices = [...document.querySelectorAll('#scratch-choices .game-choice')];
+    choices.forEach(btn => btn.addEventListener('click', () => { choices.forEach(x => x.classList.remove('selected')); btn.classList.add('selected'); selected = btn; }));
+    document.getElementById('scratch-submit').addEventListener('click', () => {
+      if (!selected) return;
+      if (selected.dataset.answer === 'correct') { selected.classList.add('correct'); markIntegratedChallengeComplete('KODE SCRATCH BENAR!'); }
+      else { selected.classList.add('wrong'); document.getElementById('integrated-game-status').textContent = '❌ Robot masih bisa nyangkut. Coba lagi.'; }
+    });
+    integratedGameCleanup = () => {};
+  }
+
+  function mountMathChallenge() {
+    const rounds = [{a:38,b:47},{a:64,b:29},{a:75,b:18},{a:46,b:37}];
+    let index = 0;
+    battleWorkspace.innerHTML = integratedShell({
+      accent: 'var(--neon-gold)', label: `MATHCHAMPS • POS ${assignedPos}`,
+      instruction: 'Hitung cepat. Jawab dengan keyboard lalu tekan Enter.',
+      body: `<div class="math-arena"><div class="math-round-counter" id="math-round-counter">SOAL 1 / 4</div><div class="math-equation" id="math-equation">38 + 47 = ?</div><input class="math-answer" id="math-answer" inputmode="numeric" autocomplete="off" placeholder="Ketik jawaban…"><button class="game-primary" id="math-submit">Kunci Jawaban ↵</button><div class="game-status" id="integrated-game-status">Kecepatan default: 2,0 detik per soal.</div><div class="math-history" id="math-history"></div></div>`
+    });
+    const input = document.getElementById('math-answer');
+    const submit = document.getElementById('math-submit');
+    const status = document.getElementById('integrated-game-status');
+    const equation = document.getElementById('math-equation');
+    const counter = document.getElementById('math-round-counter');
+    const history = document.getElementById('math-history');
+    const submitAnswer = () => {
+      const current = rounds[index];
+      const answer = Number(input.value);
+      if (answer !== current.a + current.b) { status.textContent = '❌ Belum tepat. Coba hitung ulang!'; input.select(); return; }
+      history.insertAdjacentHTML('beforeend', `<span>✓ ${current.a} + ${current.b} = ${answer}</span>`);
+      index++;
+      if (index >= rounds.length) { markIntegratedChallengeComplete('SEMPOA SELESAI!'); submit.disabled = true; input.disabled = true; return; }
+      const next = rounds[index]; counter.textContent = `SOAL ${index + 1} / ${rounds.length}`; equation.textContent = `${next.a} + ${next.b} = ?`; input.value = ''; input.focus(); status.textContent = 'Benar! Lanjut soal berikutnya.';
+    };
+    submit.addEventListener('click', submitAnswer); input.addEventListener('keydown', e => { if (e.key === 'Enter') submitAnswer(); }); input.focus(); integratedGameCleanup = () => {};
+  }
+
+  function mountMemoryChallenge() {
+    const items = ['Sepatu Lari Merah','Cangkir Kopi Hijau','Jam Weker Mint Vintage','Buah Apel Merah','Buku Jurnal Biru','Headphone Hitam'];
+    let index = 0, score = 0;
+    battleWorkspace.innerHTML = integratedShell({
+      accent: 'var(--neon-green)', label: `MEMORY ACADEMY • POS ${assignedPos}`,
+      instruction: 'Kuis kilat terbuka. Pilih objek yang tadi muncul di proyektor.',
+      body: `<div class="memory-arena"><div class="memory-progress" id="memory-progress">PERTANYAAN 1 / 6</div><div class="memory-question-card"><div class="memory-icon">🧠</div><h3 id="memory-question">Objek mana yang kamu ingat?</h3><div class="memory-options" id="memory-options"></div></div><div class="game-status" id="integrated-game-status">Keyboard: A untuk pilihan kiri • B untuk pilihan kanan</div></div>`
+    });
+    const progress = document.getElementById('memory-progress'), question = document.getElementById('memory-question'), options = document.getElementById('memory-options');
+    const render = () => { const correct = items[index % items.length]; const wrong = items[(index + 2) % items.length]; question.textContent = `Mana yang muncul di kartu ${index + 1}?`; options.innerHTML = `<button class="memory-option" data-correct="true">A · ${correct}</button><button class="memory-option" data-correct="false">B · ${wrong}</button>`; progress.textContent = `PERTANYAAN ${index + 1} / 6`; options.querySelectorAll('button').forEach((btn, i) => btn.addEventListener('click', () => answer(i === 0))); };
+    const answer = correct => { if (correct) score++; index++; if (index >= 6) { markIntegratedChallengeComplete(`MEMORY SELESAI! SKOR ${score} / 6`); options.innerHTML = `<div class="memory-finished">✅ Skor akhir ${score} / 6<br><small>Tekan bel sprint di bawah.</small></div>`; return; } render(); };
+    const keyHandler = e => { if (e.key.toLowerCase() === 'a') answer(true); if (e.key.toLowerCase() === 'b') answer(false); }; window.addEventListener('keydown', keyHandler); render(); integratedGameCleanup = () => window.removeEventListener('keydown', keyHandler);
+  }
+
+  function mountSheetsChallenge() {
+    const cases = [
+      ['Hapus Kolom Bencana', 'Pulihkan range yang rusak dari B2 ke B10.'],
+      ['Tanda Baca Regional', 'Ganti koma pemisah argumen menjadi titik koma.'],
+      ['Tanda Petik Hilang', 'Bungkus teks LULUS dan GAGAL dengan tanda petik.'],
+      ['Siklus Kiamat', 'Pindahkan SUM keluar dari cell A10.'],
+      ['Kunci Sel Hilang', 'Tambahkan tanda `$` pada referensi tarif pajak.']
+    ];
+    let solved = new Set();
+    battleWorkspace.innerHTML = integratedShell({
+      accent: '#38bdf8', label: `SPREADSHEET SPECIAL • POS ${assignedPos}`,
+      instruction: 'Perbaiki lima formula error sebelum waktu habis.',
+      body: `<div class="sheets-arena"><div class="sheets-toolbar"><span class="sheet-fx">fx</span><span class="cell-address">B2</span><span class="formula-preview">=VLOOKUP(A2;Data!A:B;2;FALSE)</span></div><div class="sheets-cases" id="sheets-cases"></div><div class="game-status" id="integrated-game-status">Klik Koreksi pada setiap kasus.</div></div>`
+    });
+    const casesEl = document.getElementById('sheets-cases');
+    casesEl.innerHTML = cases.map((item, i) => `<article class="sheet-case" data-case="${i}"><div><span class="case-number">${i + 1}</span><strong>${item[0]}</strong><p>${item[1]}</p></div><button class="game-choice sheet-fix" data-case="${i}">Koreksi</button></article>`).join('');
+    casesEl.querySelectorAll('.sheet-fix').forEach(btn => btn.addEventListener('click', () => { const i = Number(btn.dataset.case); solved.add(i); btn.textContent = '✓ Beres'; btn.classList.add('correct'); btn.disabled = true; document.querySelector(`.sheet-case[data-case="${i}"]`).classList.add('solved'); if (solved.size === cases.length) markIntegratedChallengeComplete('SEMUA FORMULA AMAN!'); })); integratedGameCleanup = () => {};
+  }
+
   function renderBattleContent(overrideRoundIdx) {
     const roundIdx = typeof overrideRoundIdx === 'number' ? overrideRoundIdx : getActiveRoundIndex();
     if (renderedBattleRound === roundIdx && battleWorkspace && battleWorkspace.firstElementChild) return;
+    if (integratedGameCleanup) integratedGameCleanup();
     renderedBattleRound = roundIdx;
-    
-    // Helper: fullscreen button HTML (rendered inside workspace header)
-    function fsBtn(accentColor = 'var(--neon-cyan)') {
-      return `<button
-        class="btn btn-xs btn-outline"
-        style="border-color:${accentColor};color:${accentColor};cursor:pointer;"
-        onclick="(function(){
-          var ws=document.getElementById('battle-workspace');
-          if(!document.fullscreenElement){
-            (ws||document.documentElement).requestFullscreen().catch(function(){});
-          } else {
-            document.exitFullscreen().catch(function(){});
-          }
-        })()"
-      >⛶ Fullscreen Arena</button>`;
-    }
-
-    if (roundIdx === 0) {
-      // CHALLENGE 1: SCRATCH (SLIDE 14)
-      battleRoundBadge.textContent = `BABAK 1 DARI 4 • MEJA ${assignedPos}`;
-      battleGameTitle.textContent = '🐱 Challenge 1: Kalananti Scratch Debugging';
-      
-      battleWorkspace.innerHTML = `
-        <div style="height: 100%; display: flex; flex-direction: column;">
-          <div style="padding: 12px 16px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 800; color: var(--neon-cyan);">ARENA TANTANGAN SCRATCH GUI (MEJA ${assignedPos}):</span>
-            ${fsBtn('var(--neon-cyan)')}
-          </div>
-          <iframe src="scratch-slide.html" style="width: 100%; height: calc(100% - 45px); border: none; background: #0f172a;"></iframe>
-        </div>
-      `;
-    } else if (roundIdx === 1) {
-      // CHALLENGE 2: MATH (SLIDE 16)
-      battleRoundBadge.textContent = `BABAK 2 DARI 4 • MEJA ${assignedPos}`;
-      battleGameTitle.textContent = '🧮 Challenge 2: Mathchamps Speed Math';
-
-      battleWorkspace.innerHTML = `
-        <div style="height: 100%; display: flex; flex-direction: column;">
-          <div style="padding: 10px 16px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,215,0,0.25); display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 800; color: var(--neon-gold); font-family: 'JetBrains Mono', monospace; font-size: 0.88rem;">
-              🧮 ARENA HITUNG CEPAT SEMPOA (MEJA ${assignedPos}) • KEYBOARD INPUT • DEFAULT 2.0s
-            </span>
-            ${fsBtn('var(--neon-gold)')}
-          </div>
-          <iframe id="sempoa-battle-frame" src="sempoa-slide.html?autostart=1" style="width: 100%; height: calc(100% - 45px); border: none; background: #070d19;"></iframe>
-        </div>
-      `;
-    } else if (roundIdx === 2) {
-      // CHALLENGE 3: MEMORY (SLIDE 18)
-      battleRoundBadge.textContent = `BABAK 3 DARI 4 • MEJA ${assignedPos}`;
-      battleGameTitle.textContent = '🧠 Challenge 3: Memory Academy Flash';
-
-      battleWorkspace.innerHTML = `
-        <div style="height: 100%; display: flex; flex-direction: column;">
-          <div style="padding: 10px 16px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(0,255,157,0.25); display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 800; color: var(--neon-green); font-family: 'JetBrains Mono', monospace; font-size: 0.88rem;">
-              🧠 ARENA KUIS KILAT MEMORY (MEJA ${assignedPos}) • KEYBOARD [A] / [B] • 20 SOAL
-            </span>
-            ${fsBtn('var(--neon-green)')}
-          </div>
-          <iframe id="memory-battle-frame" src="memory-slide.html?mode=quiz&autostart=1" style="width: 100%; height: calc(100% - 45px); border: none; background: #030712;"></iframe>
-        </div>
-      `;
-    } else if (roundIdx === 3) {
-      // CHALLENGE 4: SPREADSHEET (SLIDE 20)
-      battleRoundBadge.textContent = `BABAK 4 DARI 4 • MEJA ${assignedPos}`;
-      battleGameTitle.textContent = '📊 Challenge 4: Spreadsheet Special (#REF! Fixer)';
-
-      battleWorkspace.innerHTML = `
-        <div style="height: 100%; display: flex; flex-direction: column;">
-          <div style="padding: 10px 16px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(56,189,248,0.25); display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 800; color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-size: 0.88rem;">
-              📊 ARENA KLINIK SPREADSHEET (MEJA ${assignedPos}) • GOOGLE WORKSPACE • F4 / CTRL+Z
-            </span>
-            ${fsBtn('#38bdf8')}
-          </div>
-          <iframe id="sheets-battle-frame" src="sheets-slide.html" style="width: 100%; height: calc(100% - 45px); border: none; background: #030712;"></iframe>
-        </div>
-      `;
-    }
+    battleRoundBadge.textContent = `BABAK ${roundIdx + 1} DARI 4 • MEJA ${assignedPos}`;
+    const titles = ['🐱 Challenge 1: Kalananti Scratch Debugging','🧮 Challenge 2: Mathchamps Speed Math','🧠 Challenge 3: Memory Academy Flash','📊 Challenge 4: Spreadsheet Special (#REF! Fixer)'];
+    battleGameTitle.textContent = titles[roundIdx];
+    if (roundIdx === 0) mountScratchChallenge();
+    else if (roundIdx === 1) mountMathChallenge();
+    else if (roundIdx === 2) mountMemoryChallenge();
+    else mountSheetsChallenge();
   }
 
   // ==========================================================================
@@ -781,11 +820,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Forward keyboard events (A, B, 1, 2, ArrowLeft, ArrowRight, Space, R) to Memory Arena frame
-    const memFrame = document.getElementById('memory-battle-frame');
-    if (memFrame && memFrame.contentWindow) {
-      memFrame.contentWindow.postMessage({ type: 'KEY_DOWN', key: e.key }, '*');
-    }
+    // Integrated challenge controls listen directly on this page.
   });
 
   // ==========================================================================
