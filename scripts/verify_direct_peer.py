@@ -16,6 +16,8 @@ def run():
         browser = pw.chromium.launch(headless=True, args=['--disable-features=WebRtcHideLocalIpsWithMdns'])
         sockets, errors = {}, []
         relay_requests = []
+        pending_signals = []
+        hold_signals = True
         def signaling(ws):
             peer_id = parse_qs(urlparse(ws.url).query)['id'][0]
             # Exercise the real collision fallback, not just the default receiver ID.
@@ -28,7 +30,10 @@ def run():
                 target = sockets.get(packet.get('dst'))
                 if target:
                     packet['src'] = peer_id
-                    target.send(json.dumps(packet))
+                    if hold_signals:
+                        pending_signals.append((target, json.dumps(packet)))
+                    else:
+                        target.send(json.dumps(packet))
             ws.on_message(message)
             ws.send(json.dumps({'type':'OPEN'}))
         def route(req):
@@ -69,9 +74,11 @@ def run():
             return pg
         mc = page('/index.html')
         mc.wait_for_function("document.getElementById('projector-pair-code').textContent !== 'Menyiapkan…'")
-        code = mc.locator('#projector-pair-code').inner_text()
+        mc.locator('#projector-pairing summary').click()
+        code = mc.locator('#projector-pair-code').inner_text().strip()
+        assert code and code != 'Menyiapkan…', 'Receiver code must be visible and nonempty'
         assert code != 'main', 'Expected collision fallback receiver'
-        first = page('/pos.html?pos=1')
+        first = page('/pos.html?pos=1&host=hhkids26-proyektor-old')
         first.locator('#pos-pairing summary').click()
         first.locator('#projector-code-input').fill(code)
         first.locator('#projector-pair-form button').click()
@@ -80,6 +87,18 @@ def run():
             href = mc.locator('#projector-pos-links a').nth(n-1).get_attribute('href')
             assert 'host=hhkids26-proyektor-' + code in href
             pos.append(page(href.replace(ORIGIN, '')))
+        assert parse_qs(urlparse(first.url).query)['host'] == ['hhkids26-proyektor-' + code]
+        # A slow signaling exchange must not be torn down by the 3s watchdog.
+        first.wait_for_function('testConnections.length > 0')
+        connection_count = first.evaluate('testConnections.length')
+        first.wait_for_timeout(10500)
+        assert first.evaluate('testConnections.length') == connection_count, 'Negotiation restarted before ICE grace elapsed'
+        assert first.evaluate("testConnections.at(-1).connectionState !== 'closed'")
+        hold_signals = False
+        for target, packet in pending_signals:
+            target.send(packet)
+        pending_signals.clear()
+        print('PASS: slow signaling survives watchdog; manual pairing replaces stale URL host', flush=True)
         print('PASS: MC ID collision, manual code and generated per-Pos links without ntfy', flush=True)
         mc.evaluate('goToSlide(7); toggleTimer(1)')
         for pg in pos:

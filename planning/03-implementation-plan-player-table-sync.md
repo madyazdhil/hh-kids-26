@@ -29,3 +29,13 @@ Status: implementasi dan tes browser selesai; retest jaringan/perangkat fisik ac
 - Status awal Pos harus menunggu snapshot MC, bukan hijau palsu. Beri status koneksi dan alasan gagal yang bisa ditindaklanjuti.
 - Terapkan jeda retry relay 60 detik pada SSE/poll/publish setelah timeout; jalur data langsung tetap aktif.
 - Uji collision ID receiver dan pairing manual, konfigurasi TURN masuk ke browser, empat Pos dan video saat ntfy gagal. Tes host-only tidak membuktikan TURN publik dapat diakses dari jaringan venue.
+
+
+## Revisi 2026-09-19: tuntaskan pairing dan refresh
+
+1. Perbaiki tes kode receiver: buka menu sebelum membaca kode, tolak kode kosong.
+2. Simpan host manual ke URL agar refresh tidak mengembalikan host link lama; kosongkan state MC lama selama pairing.
+3. Pulihkan grace negosiasi 25 detik dan abaikan error koneksi lama; uji signaling tertunda >8 detik.
+4. Jalankan regresi empat Pos, refresh, video, dan seluruh babak; simpan checkpoint lokal.
+
+Status: implementasi selesai; regresi langsung lulus pada 19 September 2026.

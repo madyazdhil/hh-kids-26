@@ -492,10 +492,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     activeProyektorPeerId = code.startsWith('hhkids26-proyektor-') ? code : `hhkids26-proyektor-${code}`;
     sessionStorage.setItem('hh_projector_host', activeProyektorPeerId);
+    // Keep refresh on the manually selected MC, even when the original link
+    // contained a different host. Preserve the Pos number and other options.
+    const pairedUrl = new URL(window.location.href);
+    pairedUrl.searchParams.set('host', activeProyektorPeerId);
+    window.history.replaceState(null, '', pairedUrl);
     pinnedProjector = true;
     pairedSenderId = null;
     lastStateRevision = -1;
     lastStateAt = 0;
+    stateSender = null;
+    currentSlideIndex = 0;
+    isTimerRunning = false;
+    isMemoryObserving = false;
+    pendingBattleUnlockRound = null;
     isBattleUnlocked = false;
     evaluateScreenState();
     if (dataConnection) dataConnection.close();
@@ -545,8 +555,9 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     if (dataConnection && dataConnection.peer === activeProyektorPeerId
-      && (dataConnection.open || Date.now() - dataConnectStartedAt < 8000)) {
-      // Connection still alive or recently attempted
+      && (dataConnection.open || (Date.now() - dataConnectStartedAt < 25000
+        && !['failed', 'closed'].includes(dataConnection.peerConnection?.connectionState)))) {
+      // Give ICE/TURN negotiation time; do not restart a viable attempt every 8s.
       return;
     }
     if (dataConnection) {
@@ -572,6 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
       window.HHSync?.receive(message);
     });
     connection.on('error', error => {
+      if (dataConnection !== connection) return;
       dataConnectStartedAt = 0;
       console.warn(`🔌 [Pos${assignedPos}] ❌ Data channel error:`, error.type, error.message || error);
       if (pairStatus) pairStatus.textContent = error.type === 'peer-unavailable'
