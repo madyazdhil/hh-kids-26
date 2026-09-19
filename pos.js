@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (battleLockedOverlay) battleLockedOverlay.classList.remove('hidden');
       if (battleActiveContent) battleActiveContent.classList.add('hidden');
-      if (lockedRoundBadge) lockedRoundBadge.textContent = `BABAK ${roundIdx + 1} DARI 4 • MEJA ${assignedPos}`;
+      if (lockedRoundBadge) lockedRoundBadge.textContent = `BABAK ${roundIdx + 1} DARI 4 • BRIEFING • MEJA ${assignedPos}`;
       if (lockedGameTitle) lockedGameTitle.textContent = gameTitles[roundIdx] || 'Office Olympic Battle';
       if (countdownDisplay) {
         countdownDisplay.textContent = 'STANDBY';
@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentPosBadge.textContent = `MEJA ${assignedPos} • BABAK ${roundIdx + 1}: ${shortNames[roundIdx]}`;
       }
 
-      if (lockedRoundBadge) lockedRoundBadge.textContent = `BABAK ${roundIdx + 1} DARI 4 • MEJA ${assignedPos}`;
+      if (lockedRoundBadge) lockedRoundBadge.textContent = `BABAK ${roundIdx + 1} DARI 4 • BRIEFING • MEJA ${assignedPos}`;
       if (lockedGameTitle) lockedGameTitle.textContent = gameTitles[roundIdx] || 'Office Olympic Battle';
 
       if (isBattleUnlocked) {
@@ -428,23 +428,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Giant Sprint Bell Click
   btnSprintBell.addEventListener('click', () => {
-    playBellChime();
-
-    // Broadcast to Admin and MC
-    if (window.HHSync) {
-      window.HHSync.send('POS_BELL_RUNG', {
-        pos: assignedPos,
-        posName: posConfig[assignedPos].name,
-        timestamp: Date.now()
-      });
-    }
-
+    // Update the local UI first. A relay/network exception must never prevent
+    // the player from seeing that the physical sprint bell was registered.
     btnSprintBell.style.background = '#00ff9d';
     btnSprintBell.innerHTML = `
       <span class="bell-emoji">🏃‍♂️💨</span>
       <span class="bell-main-text">BEL DIBUNYIKAN! LARI KE KAK BALQIS!</span>
       <span class="bell-sub-text">Sinyal bel sudah terkirim ke panitia! Sprint sekarang!</span>
     `;
+
+    try { playBellChime(); } catch (error) {
+      console.warn('Bell sound unavailable:', error);
+    }
+    // Broadcast to Admin and MC without blocking the local confirmation.
+    try {
+      window.HHSync?.send('POS_BELL_RUNG', {
+        pos: assignedPos,
+        posName: posConfig[assignedPos].name,
+        timestamp: Date.now()
+      });
+    } catch (error) {
+      console.warn('Bell sync unavailable:', error);
+    }
 
     setTimeout(() => {
       btnSprintBell.style.background = '';
@@ -453,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="bell-main-text">KITA UDAH KELAR! LARI KEJAR KAK BALQIS!</span>
         <span class="bell-sub-text">Tekan bel ini, lalu 1 perwakilan tim lari secepat kilat ke meja panitia! (+5 / +4 Pt)</span>
       `;
-    }, 4000);
+    }, 10000);
   });
 
   // Fullscreen Button

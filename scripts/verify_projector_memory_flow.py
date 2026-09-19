@@ -146,7 +146,7 @@ def run():
         # 9. Test Sprint Bell Click
         print("10. Testing Sprint Bell on Pos 1...")
         bell_btn = page_pos1.locator("#btn-sprint-bell")
-        bell_btn.click(force=True)
+        page_pos1.evaluate("document.getElementById('btn-sprint-bell').click()")
         time.sleep(0.5)
         bell_text = bell_btn.text_content()
         print(f"   Pos 1 Bell Button State: {bell_text.strip()[:40]}...")

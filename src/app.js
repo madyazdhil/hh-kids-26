@@ -302,6 +302,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function resetProjectorMemoryArena() {
+    if (projectorObsTimer) clearTimeout(projectorObsTimer);
+    isMemoryObservingProjector = false;
+    projectorObsIndex = 0;
+    const countdownBox = document.getElementById('memory-stage-countdown');
+    const obsBox = document.getElementById('memory-stage-observation');
+    const quizBox = document.getElementById('memory-stage-quiz-active');
+    const calloutText = document.getElementById('memory-callout-text');
+    const calloutSub = document.getElementById('memory-callout-sub');
+    countdownBox?.classList.remove('hidden');
+    obsBox?.classList.add('hidden');
+    quizBox?.classList.add('hidden');
+    if (calloutText) calloutText.innerHTML = '<strong>GAMBAR VISUAL AKAN TAMPIL SETELAH COUNTDOWN!</strong>';
+    if (calloutSub) calloutSub.textContent = 'Hafalkan semua objek dalam sekejap • Jawab 20 soal kuis di meja pos!';
+  }
+
   function goToSlide(index, shouldBroadcast = true) {
     if (index >= 0 && index < totalSlides) {
       // Auto-pause timer if moving away from timer slide
@@ -324,6 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.values(battleCountdowns).forEach(timer => clearInterval(timer.interval));
       }
       currentSlideIndex = index;
+      if (currentSlideIndex === 17) resetProjectorMemoryArena();
       updateSlideUI();
       SoundFx.playClick();
       if (shouldBroadcast) {

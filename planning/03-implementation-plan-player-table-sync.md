@@ -38,4 +38,12 @@ Status: implementasi dan tes browser selesai; retest jaringan/perangkat fisik ac
 3. Pulihkan grace negosiasi 25 detik dan abaikan error koneksi lama; uji signaling tertunda >8 detik.
 4. Jalankan regresi empat Pos, refresh, video, dan seluruh babak; simpan checkpoint lokal.
 
-Status: implementasi selesai; regresi langsung lulus pada 19 September 2026.
+Status: execute selesai; seluruh regresi utama lulus pada 19 September 2026.
+
+
+## Execution checkpoint — 2026-09-19
+
+- `verify_recovery_flow.py`: PASS — recovery empat Pos, expiry, semua babak, refresh, reconnect, kamera-only, dan receiver ID.
+- `verify_pos_flow.py`: PASS — alur 26 slide, briefing lock, countdown 3-2-1, unlock, re-lock, dan admin sync.
+- `verify_projector_memory_flow.py`: PASS — observasi proyektor, kuis Pos serentak, 20 jawaban keyboard, tombol bel, dan 0 console error.
+- Perbaikan tambahan: badge briefing eksplisit, reset stage Memory saat Slide 18 dibuka ulang, feedback bel lebih tahan lama dan tidak bergantung pada relay/audio, serta klik DOM untuk kontrol fullscreen-sensitive di test.
