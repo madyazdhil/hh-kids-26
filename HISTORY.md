@@ -1845,3 +1845,72 @@ Checkpoint lokal:
 Branch lokal sekarang ahead 3 commit dari `origin/main`. Belum aku push ke GitHub.
 
 [Plan yang sudah diperbarui](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/planning/03-implementation-plan-player-table-sync.md)
+
+### User — 2026-09-19
+
+# Context from my IDE setup:
+
+## Active file: projects/regroup-happy-hour/planning/03-implementation-plan-player-table-sync.md
+
+## Open tabs:
+- 03-implementation-plan-player-table-sync.md: projects/regroup-happy-hour/planning/03-implementation-plan-player-table-sync.md
+- find_yazid_airtable.js: /Users/yazidhilmi/Documents/Edu/Personal_pro/LMS-ags/find_yazid_airtable.js
+- recovered_inject.js: /Users/yazidhilmi/Documents/Edu/Fireside-chat/q-n-a/assets/columbus-chat-ui/recovered_inject.js
+
+## My request:
+iya harusnya button selesai nya kalo bsia dia keliatan kaya yang scratch kalo kode udah benar kok dia kecil kalo scorrl kebawah jadi gak keliatan njirr
+
+dan ini juga banyak yang komen kok dai yang spreadsheet ga berlaku kaya sheet beneran
+
+sama yang math challenge kok dia ngga beneer yah maksudnya yang seklesai pertama aja baru dia langsung done bukan ngulang terus
+
+### Assistant actions — 2026-09-19
+
+- Continued the integrated challenge UI work in `regroup-happy-hour`.
+- Identified three requested fixes: persistent visible finish CTA after completion, more authentic spreadsheet UI, and single-question Mathchamps completion instead of repeated rounds.
+
+### Verification / follow-up — 2026-09-19
+
+- `verify_pos_flow.py`: PASS after the requested fixes.
+- `verify_recovery_flow.py`: first parallel run hit a timing race on round 4; immediate isolated rerun PASS for all rounds and recovery.
+- `verify_countdown_flow.py`: integrated Mathchamps rendered correctly and the one-answer layout was detected; script only reported the expected PeerJS ID-collision console warnings.
+- No iframe references remain in the native Pos challenge renderers.
+
+### Assistant final — 2026-09-19
+
+Iya, tiga masalah itu sudah aku perbaiki:
+
+1. **Tombol selesai sekarang selalu kelihatan**
+   - Setelah challenge benar, muncul CTA besar sticky di bagian bawah arena.
+   - Tidak perlu scroll turun untuk menemukannya.
+   - Tombolnya: `🔔 SELESAI — PANGGIL KAK BALQIS`.
+   - Tombol tersebut langsung memicu tombol sprint/bel utama.
+
+2. **Spreadsheet sekarang lebih terasa seperti Google Sheets**
+   - Ada toolbar undo/redo dan tool cell.
+   - Formula bar `fx`.
+   - Cell address `B2`.
+   - Grid kolom A–D dan baris data.
+   - Error cell seperti `#REF!` dan `#NAME?`.
+   - Sheet tabs `Challenge`, `Data Referensi`, dan `+`.
+   - Lima kasus koreksi tetap tersedia di bawah mini-sheet.
+
+3. **Math challenge sekarang satu soal saja**
+   - Soal: `38 + 47 = ?`.
+   - Jawaban benar pertama langsung selesai.
+   - Tidak lanjut ke ronde berikutnya dan tidak mengulang terus.
+   - Jawaban salah hanya meminta peserta mencoba lagi.
+
+Verifikasi:
+- `verify_pos_flow.py` — PASS.
+- `verify_recovery_flow.py` — PASS saat dijalankan ulang terisolasi.
+- `verify_countdown_flow.py` — Mathchamps integrated berhasil terdeteksi.
+- `node --check` dan `git diff --check` — PASS.
+- Tidak ada lagi iframe di renderer challenge native Pos.
+
+Checkpoint lokal:
+`ba16009 fix(regroup): refine integrated game completion UX`
+
+Branch lokal sekarang ahead 4 commit dari `origin/main`. Belum aku push ke GitHub.
+
+[Plan terbaru](file:///Users/yazidhilmi/Documents/Edu/Fireside-chat/projects/regroup-happy-hour/planning/03-implementation-plan-player-table-sync.md)

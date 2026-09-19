@@ -336,6 +336,14 @@ document.addEventListener('DOMContentLoaded', () => {
       status.textContent = `✅ ${message}`;
       status.classList.add('is-complete');
     }
+    const body = battleWorkspace?.querySelector('.integrated-challenge-body');
+    if (body && !body.querySelector('.integrated-finish-cta')) {
+      const cta = document.createElement('div');
+      cta.className = 'integrated-finish-cta';
+      cta.innerHTML = `<div><strong>✅ TANTANGAN SELESAI</strong><span>${message}</span></div><button class="finish-challenge-button" type="button">🔔 SELESAI — PANGGIL KAK BALQIS</button>`;
+      cta.querySelector('button').addEventListener('click', () => btnSprintBell?.click());
+      body.appendChild(cta);
+    }
     window.postMessage({ type: 'CHALLENGE_COMPLETED', subtitle: message }, '*');
   }
 
@@ -365,27 +373,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function mountMathChallenge() {
-    const rounds = [{a:38,b:47},{a:64,b:29},{a:75,b:18},{a:46,b:37}];
-    let index = 0;
+    const answerKey = 85;
     battleWorkspace.innerHTML = integratedShell({
       accent: 'var(--neon-gold)', label: `MATHCHAMPS • POS ${assignedPos}`,
-      instruction: 'Hitung cepat. Jawab dengan keyboard lalu tekan Enter.',
-      body: `<div class="math-arena"><div class="math-round-counter" id="math-round-counter">SOAL 1 / 4</div><div class="math-equation" id="math-equation">38 + 47 = ?</div><input class="math-answer" id="math-answer" inputmode="numeric" autocomplete="off" placeholder="Ketik jawaban…"><button class="game-primary" id="math-submit">Kunci Jawaban ↵</button><div class="game-status" id="integrated-game-status">Kecepatan default: 2,0 detik per soal.</div><div class="math-history" id="math-history"></div></div>`
+      instruction: 'Selesaikan satu soal pertama. Jawaban benar langsung selesai.',
+      body: `<div class="math-arena"><div class="math-round-counter">SOAL FINAL • 1 JAWABAN BENAR = SELESAI</div><div class="math-equation" id="math-equation">38 + 47 = ?</div><input class="math-answer" id="math-answer" inputmode="numeric" autocomplete="off" placeholder="Ketik jawaban…"><button class="game-primary" id="math-submit">Kunci Jawaban ↵</button><div class="game-status" id="integrated-game-status">Jawab sekali saja. Tidak ada pengulangan ronde.</div></div>`
     });
     const input = document.getElementById('math-answer');
     const submit = document.getElementById('math-submit');
     const status = document.getElementById('integrated-game-status');
-    const equation = document.getElementById('math-equation');
-    const counter = document.getElementById('math-round-counter');
-    const history = document.getElementById('math-history');
     const submitAnswer = () => {
-      const current = rounds[index];
-      const answer = Number(input.value);
-      if (answer !== current.a + current.b) { status.textContent = '❌ Belum tepat. Coba hitung ulang!'; input.select(); return; }
-      history.insertAdjacentHTML('beforeend', `<span>✓ ${current.a} + ${current.b} = ${answer}</span>`);
-      index++;
-      if (index >= rounds.length) { markIntegratedChallengeComplete('SEMPOA SELESAI!'); submit.disabled = true; input.disabled = true; return; }
-      const next = rounds[index]; counter.textContent = `SOAL ${index + 1} / ${rounds.length}`; equation.textContent = `${next.a} + ${next.b} = ?`; input.value = ''; input.focus(); status.textContent = 'Benar! Lanjut soal berikutnya.';
+      if (Number(input.value) !== answerKey) { status.textContent = '❌ Belum tepat. Coba hitung lagi: 38 + 47.'; input.select(); return; }
+      input.disabled = true; submit.disabled = true; markIntegratedChallengeComplete('SEMPOA BENAR! LANGSUNG SELESAI.');
     };
     submit.addEventListener('click', submitAnswer); input.addEventListener('keydown', e => { if (e.key === 'Enter') submitAnswer(); }); input.focus(); integratedGameCleanup = () => {};
   }
@@ -416,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
     battleWorkspace.innerHTML = integratedShell({
       accent: '#38bdf8', label: `SPREADSHEET SPECIAL • POS ${assignedPos}`,
       instruction: 'Perbaiki lima formula error sebelum waktu habis.',
-      body: `<div class="sheets-arena"><div class="sheets-toolbar"><span class="sheet-fx">fx</span><span class="cell-address">B2</span><span class="formula-preview">=VLOOKUP(A2;Data!A:B;2;FALSE)</span></div><div class="sheets-cases" id="sheets-cases"></div><div class="game-status" id="integrated-game-status">Klik Koreksi pada setiap kasus.</div></div>`
+      body: `<div class="sheets-arena"><div class="sheets-toolbar"><button class="sheet-tool">↶</button><button class="sheet-tool">↷</button><button class="sheet-tool">▣</button><span class="sheet-divider"></span><span class="sheet-fx">fx</span><span class="cell-address">B2</span><span class="formula-preview">=VLOOKUP(A2;Data!A:B;2;FALSE)</span></div><div class="sheet-grid-wrap"><table class="sheet-grid"><thead><tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th></tr></thead><tbody><tr><th>1</th><td>Nama</td><td>Nilai</td><td>Status</td><td>Tarif</td></tr><tr><th>2</th><td>Yazid</td><td class="cell-error">#REF!</td><td class="cell-error">#NAME?</td><td>11%</td></tr><tr><th>3</th><td>Deina</td><td>92</td><td>LULUS</td><td>$B$2</td></tr><tr><th>4</th><td>Balqis</td><td>78</td><td>LULUS</td><td>$B$2</td></tr></tbody></table></div><div class="sheet-tabs"><span class="sheet-tab active">Challenge</span><span class="sheet-tab">Data Referensi</span><span class="sheet-tab">+</span></div><div class="sheets-cases" id="sheets-cases"></div><div class="game-status" id="integrated-game-status">Klik Koreksi pada setiap kasus seperti mengedit Google Sheets.</div></div>`
     });
     const casesEl = document.getElementById('sheets-cases');
     casesEl.innerHTML = cases.map((item, i) => `<article class="sheet-case" data-case="${i}"><div><span class="case-number">${i + 1}</span><strong>${item[0]}</strong><p>${item[1]}</p></div><button class="game-choice sheet-fix" data-case="${i}">Koreksi</button></article>`).join('');

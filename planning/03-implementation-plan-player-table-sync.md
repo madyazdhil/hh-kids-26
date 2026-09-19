@@ -58,3 +58,13 @@ Status: execute selesai; seluruh regresi utama lulus pada 19 September 2026.
 - Verifikasi: `verify_recovery_flow.py` dan `verify_pos_flow.py` lulus.
 
 Status: implementasi integrated challenge selesai dan terverifikasi lokal.
+
+
+## Revisi feedback challenge — 2026-09-19
+
+- CTA selesai sekarang sticky di bagian bawah arena dan berukuran besar, dengan tombol langsung memicu tombol sprint bel.
+- Mathchamps diubah menjadi satu soal final; jawaban pertama yang benar langsung menandai selesai, tanpa ronde berulang.
+- Spreadsheet diperkuat menjadi mini-sheet native: toolbar undo/redo, formula bar, cell address, grid A-D, cell error, sheet tabs, dan lima kasus koreksi.
+- Verifikasi flow Pos dan recovery lulus setelah perubahan.
+
+Status: feedback terbaru diimplementasikan dan diverifikasi lokal.
